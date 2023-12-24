@@ -6,14 +6,21 @@ import json, subprocess
 
 app = Flask(__name__)
 
-def get_data():
-    netstat_parser_program = '/Users/v/data/src/github.com/vitpodsokhin/apples/test.py'
+from Netstat import Netstat
+from Process import Process
 
-    # Run the external program and capture its output
-    result = subprocess.run(['python3', netstat_parser_program], stdout=subprocess.PIPE, text=True)
+def get_data():
+
+    connections = Netstat.get_connections()
+    pids = Netstat.get_connection_pids(connections)
+    processes = [Process(pid) for pid in pids]
+
+    processes_with_connections = []
+    for process in processes:
+        processes_with_connections.append(process.get_connections_of_process())
     
     try:
-        process_info = json.dumps(result.stdout)
+        process_info = processes_with_connections
     except json.JSONDecodeError:
         process_info = []
 
@@ -23,7 +30,7 @@ def get_data():
 def index():
     process_info = get_data()
 
-    return render_template('index.html', process_list=json.dumps(process_info, indent=2))
+    return render_template('index.html', process_list=process_info)
 
 
 if __name__ == "__main__":
