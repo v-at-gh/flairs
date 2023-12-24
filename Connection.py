@@ -43,6 +43,8 @@ class BaseConnection:
         }
         if self.proto == 'tcp':
             connection_dict['state'] = self.state
+        connection_dict['state_str'] = self.state_str
+        
         return connection_dict
 
 @dataclass

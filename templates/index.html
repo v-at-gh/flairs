@@ -55,6 +55,7 @@
                         <th>Local Port</th>
                         <th>Remote Address</th>
                         <th>Remote Port</th>
+                        <th>State</th>
                     </tr>
                     {% for connection in entry.connections %}
                         <tr>
@@ -64,6 +65,11 @@
                             <td>{{ connection.localPort }}</td>
                             <td>{{ connection.remoteAddr }}</td>
                             <td>{{ connection.remotePort }}</td>
+                            {% if connection.proto == 'tcp' %}
+                            <td>{{ connection.state }}</td>
+                            {% else %}
+                            <td>{{ connection.state_str }}</td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 </table>
