@@ -13,7 +13,7 @@ def get_data():
     result = subprocess.run(['python3', netstat_parser_program], stdout=subprocess.PIPE, text=True)
     
     try:
-        process_info = json.loads(json.dumps(result.stdout))
+        process_info = json.dumps(result.stdout)
     except json.JSONDecodeError:
         process_info = []
 
