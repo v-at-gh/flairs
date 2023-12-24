@@ -8,14 +8,19 @@ from Netstat import Netstat
 @dataclass
 class Process:
     pid: int
-    command_line: str = ''
+    executable: str = ''
 
     def __post_init__(self) -> None:
-        result = run(f"ps -p {self.pid} -o command", **subprocess_run_args)
+        executable = run(f"ps -p {self.pid} -o comm", **subprocess_run_args)
+        executable_with_args = run(f"ps -p {self.pid} -o command", **subprocess_run_args)
         try:
-            self.command_line = result.stdout.splitlines()[1]
+            self.executable = executable.stdout.splitlines()[1]
         except IndexError:
-            self.command_line = ''
+            self.executable = ''
+        try:
+            self.executable_with_args = executable_with_args.stdout.splitlines()[1]
+        except IndexError:
+            self.executable_with_args = ''
 
     @property
     def as_dict(self) -> dict[str, Any]:

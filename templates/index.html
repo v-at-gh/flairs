@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Process Information</title>
-    <style>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- <style>
         table {
             border-collapse: collapse;
             width: 100%;
@@ -18,14 +19,31 @@
         th {
             background-color: #f2f2f2;
         }
-    </style>
+        .collapsible {
+            background-color: #777;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+        }
+        .content {
+            display: none;
+            padding: 0 18px;
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
+    </style> -->
 </head>
 <body>
     <h1>Process Information</h1>
 
     {% if process_list %}
         {% for entry in process_list %}
-            <h2>Process {{ entry.process.pid }}</h2>
+            <h2>Process {{ entry.process.executable }}</h2>
             <table>
                 <tr>
                     <th>Attribute</th>
@@ -37,7 +55,7 @@
                 </tr>
                 <tr>
                     <td>Command Line</td>
-                    <td>{{ entry.process.command_line }}</td>
+                    <td>{{ entry.process.executable_with_args }}</td>
                 </tr>
                 <tr>
                     <td>Connections Count</td>
@@ -46,37 +64,41 @@
             </table>
 
             {% if entry.connections %}
-                <h3>Connections</h3>
-                <table>
-                    <tr>
-                        <th>Family</th>
-                        <th>Protocol</th>
-                        <th>Local Address</th>
-                        <th>Local Port</th>
-                        <th>Remote Address</th>
-                        <th>Remote Port</th>
-                        <th>State</th>
-                    </tr>
-                    {% for connection in entry.connections %}
+                <h3 class="collapsible">Connections</h3>
+                <div class="content">
+                    <table>
                         <tr>
-                            <td>{{ connection.family }}</td>
-                            <td>{{ connection.proto }}</td>
-                            <td>{{ connection.localAddr }}</td>
-                            <td>{{ connection.localPort }}</td>
-                            <td>{{ connection.remoteAddr }}</td>
-                            <td>{{ connection.remotePort }}</td>
-                            {% if connection.proto == 'tcp' %}
-                            <td>{{ connection.state }}</td>
-                            {% else %}
-                            <td>{{ connection.state_str }}</td>
-                            {% endif %}
+                            <th>Family</th>
+                            <th>Protocol</th>
+                            <th>Local Address</th>
+                            <th>Local Port</th>
+                            <th>Remote Address</th>
+                            <th>Remote Port</th>
+                            <th>State</th>
                         </tr>
-                    {% endfor %}
-                </table>
+                        {% for connection in entry.connections %}
+                            <tr>
+                                <td>{{ connection.family }}</td>
+                                <td>{{ connection.proto }}</td>
+                                <td>{{ connection.localAddr }}</td>
+                                <td>{{ connection.localPort }}</td>
+                                <td>{{ connection.remoteAddr }}</td>
+                                <td>{{ connection.remotePort }}</td>
+                                {% if connection.proto == 'tcp' %}
+                                <td>{{ connection.state }}</td>
+                                {% else %}
+                                <td>{{ connection.state_str }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
             {% endif %}
+            <br>
         {% endfor %}
     {% else %}
         <p>No process information available.</p>
     {% endif %}
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

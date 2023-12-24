@@ -15,22 +15,20 @@ def get_data():
     pids = Netstat.get_connection_pids(connections)
     processes = [Process(pid) for pid in pids]
 
-    processes_with_connections = []
-    for process in processes:
-        processes_with_connections.append(process.get_connections_of_process())
-    
     try:
-        process_info = processes_with_connections
+        processes_with_connections = []
+        for process in processes:
+            processes_with_connections.append(process.get_connections_of_process())
     except json.JSONDecodeError:
-        process_info = []
+        processes_with_connections = []
 
-    return process_info
+    return processes_with_connections
 
 @app.route("/")
 def index():
-    process_info = get_data()
+    processes_with_connections = get_data()
 
-    return render_template('index.html', process_list=process_info)
+    return render_template('index.html', process_list=processes_with_connections)
 
 
 if __name__ == "__main__":
