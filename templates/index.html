@@ -25,14 +25,10 @@
                     <td>Command Line</td>
                     <td>{{ entry.process.executable_with_args }}</td>
                 </tr>
-                <tr>
-                    <td>Connections Count</td>
-                    <td>{{ entry.connections_count }}</td>
-                </tr>
             </table>
 
             {% if entry.connections %}
-                <h3 class="collapsible">Connections</h3>
+                <h3 class="collapsible">Connections: {{ entry.connections_count }}</h3>
                 <div class="content">
                     <table>
                         <tr>
