@@ -3,6 +3,7 @@ table {
     border-collapse: collapse;
     width: 100%;
     margin-top: 20px;
+    margin-bottom: 20px;
 }
 th, td {
     border: 1px solid #dddddd;
@@ -23,7 +24,8 @@ th {
     outline: none;
     font-size: 15px;
 }
-.content {
+.table-container {
+    margin: auto;
     display: none;
     padding: 0 18px;
     overflow: hidden;

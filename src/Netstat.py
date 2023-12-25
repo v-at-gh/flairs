@@ -15,6 +15,7 @@ class Netstat:
         proto_selector = '-p ' + proto if proto is not None else ''
         family_selector = '-f ' + family if family is not None else ''
 
+        #TODO: when `shell=True` is removed from `Common.py`, implement command splitter
         netstat_command = f"netstat -nval {family_selector} {proto_selector}"
         netstat_out = run(netstat_command, **subprocess_run_args).stdout
         netstat_lines = netstat_out.splitlines()

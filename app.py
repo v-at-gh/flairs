@@ -2,7 +2,6 @@
 
 from flask import Flask
 from flask import render_template
-import json, subprocess
 
 app = Flask(__name__)
 
@@ -26,6 +25,12 @@ def index():
     processes_with_connections = get_data()
 
     return render_template('index.html', process_list=processes_with_connections)
+
+@app.route("/test")
+def test():
+    processes_with_connections = get_data()
+
+    return render_template('test.html', process_list=processes_with_connections)
 
 if __name__ == "__main__":
     app.run(debug=True)

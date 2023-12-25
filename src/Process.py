@@ -11,6 +11,7 @@ class Process:
     executable: str = ''
 
     def __post_init__(self) -> None:
+        #TODO: when `shell=True` is removed from `Common.py`, implement command splitter
         executable = run(f"ps -p {self.pid} -o comm", **subprocess_run_args)
         executable_with_args = run(f"ps -p {self.pid} -o command", **subprocess_run_args)
         try:
