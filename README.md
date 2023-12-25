@@ -54,6 +54,3 @@ Visit [http://127.0.0.1:5000/](http://127.0.0.1:5000/) in your web browser to vi
 ## License
 
 This project is licensed under the GNU GPL License - see the [LICENSE](LICENSE) file for details.
-```
-
-Make sure to replace "your-username" with your actual GitHub username in the clone URL. This readme provides a brief overview of the project, installation instructions, usage guide, project structure, features, and license information. Feel free to customize it further based on your project details.
