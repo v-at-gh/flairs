@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from subprocess import run
 from typing import Any
 
-from Common import subprocess_run_args
-from Netstat import Netstat
+from .Common import subprocess_run_args
+from .Netstat import Netstat
 
 @dataclass
 class Process:

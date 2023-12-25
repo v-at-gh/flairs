@@ -1,7 +1,7 @@
 from subprocess import run
 
-from Common import subprocess_run_args
-from Connection import TCP_Connection, UDP_Connection
+from .Common import subprocess_run_args
+from .Connection import TCP_Connection, UDP_Connection
 
 protos = ('tcp', 'udp')
 families = ('inet', 'inet6')

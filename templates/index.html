@@ -1,43 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Process Information</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-    <!-- <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .collapsible {
-            background-color: #777;
-            color: white;
-            cursor: pointer;
-            padding: 10px;
-            width: 100%;
-            border: none;
-            text-align: left;
-            outline: none;
-            font-size: 15px;
-        }
-        .content {
-            display: none;
-            padding: 0 18px;
-            overflow: hidden;
-            background-color: #f1f1f1;
-        }
-    </style> -->
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Process Information</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
 <body>
     <h1>Process Information</h1>
 
@@ -85,9 +53,9 @@
                                 <td>{{ connection.remoteAddr }}</td>
                                 <td>{{ connection.remotePort }}</td>
                                 {% if connection.proto == 'tcp' %}
-                                <td>{{ connection.state }}</td>
+                                    <td>{{ connection.state }}</td>
                                 {% else %}
-                                <td>{{ connection.state_str }}</td>
+                                    <td>{{ connection.state_str }}</td>
                                 {% endif %}
                             </tr>
                         {% endfor %}

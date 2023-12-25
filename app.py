@@ -6,8 +6,8 @@ import json, subprocess
 
 app = Flask(__name__)
 
-from Netstat import Netstat
-from Process import Process
+from src.Netstat import Netstat
+from src.Process import Process
 
 def get_data():
 
@@ -15,12 +15,9 @@ def get_data():
     pids = Netstat.get_connection_pids(connections)
     processes = [Process(pid) for pid in pids]
 
-    try:
-        processes_with_connections = []
-        for process in processes:
-            processes_with_connections.append(process.get_connections_of_process())
-    except json.JSONDecodeError:
-        processes_with_connections = []
+    processes_with_connections = []
+    for process in processes:
+        processes_with_connections.append(process.get_connections_of_process())
 
     return processes_with_connections
 
@@ -29,7 +26,6 @@ def index():
     processes_with_connections = get_data()
 
     return render_template('index.html', process_list=processes_with_connections)
-
 
 if __name__ == "__main__":
     app.run(debug=True)
