@@ -9,7 +9,7 @@ The Flairs project provides a Python Flask web interface for visualizing process
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/your-username/flairs.git
+    git clone https://github.com/vitpodsokhin/flairs.git
     ```
 
 2. Navigate to the project directory:

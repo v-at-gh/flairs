@@ -33,20 +33,13 @@
                     <table id="connectionsTable">
                         <thead>
                             <tr>
-                                <th><button id="Family">Family</button></th>
-                                <th><button id="Protocol">Protocol</button></th>
+                                <th><button id="Family">Address Family</button></th>
+                                <th><button id="Protocol">Transport Protocol</button></th>
                                 <th><button id="Local">Local Address</button></th>
                                 <th><button id="Local">Local Port</button></th>
                                 <th><button id="Remote">Remote Address</button></th>
                                 <th><button id="Remote">Remote Port</button></th>
                                 <th><button id="State">State</button></th>
-                                <!-- <th onclick="sortTable(0)">Family</th>
-                                <th onclick="sortTable(1)">Protocol</th>
-                                <th onclick="sortTable(2)">Local Address</th>
-                                <th onclick="sortTable(3)">Local Port</th>
-                                <th onclick="sortTable(4)">Remote Address</th>
-                                <th onclick="sortTable(5)">Remote Port</th>
-                                <th onclick="sortTable(6)">State</th> -->
                             </tr>
                         </thead>
                         <tbody>
@@ -75,7 +68,5 @@
         <p>No process information available.</p>
     {% endif %}
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <!-- <script>
-    </script> -->
 </body>
 </html>
