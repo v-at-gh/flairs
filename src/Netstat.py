@@ -8,7 +8,22 @@ families = ('inet', 'inet6')
 
 class Netstat:
 
-    def _run_netstat(
+    def _get_interfaces():
+        command = "netstat -inl"
+        lines = [line.split() for line in run(command, **subprocess_run_args).stdout.splitlines()[1:]]
+        lines = [line for line in lines if len(line) == 9 and not line[2].startswith('<Link')]
+
+        ifaces = []
+        for iface in set([line[0] for line in lines]):
+            iface = {
+                'name': iface,
+                'addresses': [line[3] for line in lines if line[0] == iface]
+            }
+            ifaces.append(iface)
+
+        return ifaces
+
+    def _get_connections(
             proto: protos = None,
             family: families = None
         ) -> list[str]:
@@ -43,7 +58,7 @@ class Netstat:
             netstat_lines: str = None
         ) -> list[TCP_Connection | UDP_Connection]:
         if netstat_lines is None:
-            netstat_lines = Netstat._run_netstat(family, proto)
+            netstat_lines = Netstat._get_connections(family, proto)
 
         connections = []
         for line in netstat_lines:
