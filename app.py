@@ -32,5 +32,13 @@ def test():
 
     return render_template('test.html', process_list=processes_with_connections)
 
+@app.route("/filters")
+def filters():
+    # Not implemtned yet
+    # intended to render the page with tcpdump/wireshark capture/preview filters
+    processes_with_connections = get_data()
+
+    return render_template('filters.html', process_list=processes_with_connections)
+
 if __name__ == "__main__":
     app.run(debug=True)

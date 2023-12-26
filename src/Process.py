@@ -16,11 +16,9 @@ class Process:
         executable_with_args = run(f"ps -p {self.pid} -o command", **subprocess_run_args)
         try:
             self.executable = executable.stdout.splitlines()[1]
-        except IndexError:
-            self.executable = ''
-        try:
             self.executable_with_args = executable_with_args.stdout.splitlines()[1]
         except IndexError:
+            self.executable = ''
             self.executable_with_args = ''
 
     @property
