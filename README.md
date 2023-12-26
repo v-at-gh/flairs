@@ -3,6 +3,8 @@
 ## Overview
 
 The Flairs project provides a Python Flask web interface for visualizing process and network connection information on macOS using the `netstat` command.
+Connections are parsed to `TCP_Connection` || `UDP_Connection` objects from the output of macOS `netstat` utility, so no root privilegies are needed.
+The resulting `json` string can be obtained with `test_cli.py` script, or you can render current processes with connections with `flask`.
 
 ## Installation
 
