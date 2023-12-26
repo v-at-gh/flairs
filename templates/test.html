@@ -22,7 +22,6 @@
                 {% for entry in process_list %}
                     <tr>
                         <td>{{ entry.process.pid }}</td>
-                        <!-- <td>{{ entry.process.executable }}</td> -->
                         <td>{{ entry.process.executable_with_args }}</td>
                         <td>
                             {% if entry.connections %}

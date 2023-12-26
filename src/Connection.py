@@ -66,6 +66,10 @@ class Common_Connection_properties_and_metrics():
     rtncnt: int
     fltrs: int
     family: int = None
+    localAddr: str = None
+    localPort: int = None
+    remoteAddr: str = None
+    remotePort: int = None
 
 @dataclass
 class TCP_Connection(Common_Connection_properties_and_metrics, TCP_State, BaseConnection):

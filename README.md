@@ -34,7 +34,7 @@ Run the Flask application:
 python3 app.py
 ```
 
-Visit [http://127.0.0.1:5000/](http://127.0.0.1:5000/) in your web browser to view the process information.
+Visit [http://127.0.0.1:5000/](http://127.0.0.1:5000/) in your web browser to view the process information, or [http://127.0.0.1:5000/test](http://127.0.0.1:5000/test) to render current connection as a nested table.
 
 ## Project Structure
 
@@ -51,7 +51,11 @@ Visit [http://127.0.0.1:5000/](http://127.0.0.1:5000/) in your web browser to vi
 - Visualize process information including Process ID, Command Line, and Executable.
 - Display network connection details including Family, Protocol, Local Address, Local Port, Remote Address, Remote Port, and State.
 - Collapsible sections for easy navigation.
-- Clickable headers for sorting network connections. #TODO
+
+- #TODO Clickable headers for
+- #TODO - sorting network connections,
+- #TODO - grouping connections by: state, interface, process, program.
+- #TODO Generate capture/preview filters for tcpdump/wireshark.
 
 ## License
 

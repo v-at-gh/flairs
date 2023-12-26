@@ -8,10 +8,13 @@ families = ('inet', 'inet6')
 
 class Netstat:
 
-    def _get_interfaces():
+    @staticmethod
+    def get_interfaces() -> list[dict]:
         command = "netstat -inl"
-        lines = [line.split() for line in run(command, **subprocess_run_args).stdout.splitlines()[1:]]
-        lines = [line for line in lines if len(line) == 9 and not line[2].startswith('<Link')]
+        lines = [line.split() for line in
+                 run(command, **subprocess_run_args).stdout.splitlines()[1:]]
+        lines = [line for line in lines
+                 if len(line) == 9 and not line[2].startswith('<Link')]
 
         ifaces = []
         for iface in set([line[0] for line in lines]):
