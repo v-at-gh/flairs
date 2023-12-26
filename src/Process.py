@@ -12,12 +12,12 @@ class Process:
 
     def __post_init__(self) -> None:
         #TODO: when `shell=True` is removed from `Common.py`, implement command splitter
-        executable = run(f"ps -p {self.pid} -o comm", **subprocess_run_args)
-        executable_with_args = run(f"ps -p {self.pid} -o command", **subprocess_run_args)
-        try:
-            self.executable = executable.stdout.splitlines()[1]
-            self.executable_with_args = executable_with_args.stdout.splitlines()[1]
-        except IndexError:
+        executable = run(f"ps -p {self.pid} -o comm", **subprocess_run_args).stdout.splitlines()
+        if len(executable) > 1:
+            self.executable = executable[1]
+            executable_with_args = run(f"ps -p {self.pid} -o command", **subprocess_run_args).stdout.splitlines()
+            self.executable_with_args = executable_with_args[1]
+        elif len(executable) <= 1:
             self.executable = ''
             self.executable_with_args = ''
 
@@ -27,6 +27,8 @@ class Process:
 
     @staticmethod
     def get_connections_of_the_process(process, connections=None) -> dict:
+        #TODO: this method should not return a dictionary representation of the `Process` object,
+        # but the `Process` object itself with its associated network `Connections`
         if connections is None:
             connections = Netstat.get_connections()
         connections_of_process = [
