@@ -18,6 +18,9 @@ class BaseConnection:
             setattr(self, f"{socket_location}Addr", address)
             setattr(self, f"{socket_location}Port", int(port))
         else:
+            #TODO: process address asterisk like it is done in linux:
+            #  0.0.0.0 for ipv4
+            #  :: for ipv6
             setattr(self, socket_attr, '*:*')
             setattr(self, f"{socket_location}Addr", address)
             setattr(self, f"{socket_location}Port", 0)

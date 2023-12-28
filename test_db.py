@@ -4,10 +4,16 @@ from src.Netstat import Netstat
 from src.Snapshot import Snapshot, SnapshotDatabase
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Save current connetions to DB and print what's changed")
+    parser.add_argument('-v', help="Print the last snapshot also.")
+    args = parser.parse_args()
+
     from time import time
-    from pprint import pprint
     db = SnapshotDatabase()
 
+    #TODO: every connection is now hashed here.
+    #  Figure out how to make the code more convenient and universal
     snapshot = Snapshot(
         timestamp=time(),
         connections=[
@@ -20,13 +26,18 @@ if __name__ == "__main__":
     db.save_snapshot(snapshot)
 
     snapshots = db.get_snapshots()
-    for s in snapshots:
+    if args.v:
+        s = snapshots[-1]
         print(f"Timestamp: {s.timestamp}, Connections: {s.connections}")
 
-    #TODO: implement comparison function `compare_snapshots` in `Snapshot.py`
+    #TODO: improve comparison function `compare_snapshots` in `Snapshot.py`
     if len(snapshots) >= 2:
         diff_connections = db.compare_snapshots(snapshots[-2], snapshots[-1])
-        print("Differences between the last two snapshots:")
-        pprint(diff_connections)
+        if len(diff_connections) > 0:
+            from pprint import pprint
+            print("Differences between the last two snapshots:")
+            pprint(diff_connections)
+        else:
+            print('No connections changed')
 
     db.close_connection()

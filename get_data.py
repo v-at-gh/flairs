@@ -16,9 +16,6 @@ def get_data():
     return processes_with_connections
 
 def main():
-    # If this file is executed directly, then return the state of the current connections:
-    #   in dict representation if `--format dict` argument is passed
-    #   in json representation if `--format json` argument is passed
     import argparse
     parser = argparse.ArgumentParser(description="Print current connection state in different formats.")
     parser.add_argument('--format', choices=['dict', 'json'],

@@ -48,13 +48,8 @@ class SnapshotDatabase:
             snapshots.append(Snapshot(timestamp, connections))
         return snapshots
 
+    #TODO: reduce code repetition in the following method:
     def compare_snapshots(self, snapshot1: Snapshot, snapshot2: Snapshot) -> List[Network_Connection]:
-        #TODO:
-        # implement the comparison for connection hashes
-        #  so at first step hashes of compared,
-        #  if they differ, then compare connections themself.
-        #  Check `BaseConnection` property `hash` if `Connection.py` module.
-        from hashlib import sha1
         connections1 = set([connection['hash'] for connection in snapshot1.connections])
         connections2 = set([connection['hash'] for connection in snapshot2.connections])
         diff = connections1 ^ connections2
@@ -66,13 +61,13 @@ class SnapshotDatabase:
                                         if connection['hash'] == connection_hash]
                 if len(connections_in_1) > 0:
                     diff.append(
-                        { 'connections_in_1': connections_in_1}
+                        { 'Connections in previous': connections_in_1}
                         )
                 connections_in_2 = [connection for connection in snapshot2.connections
                                         if connection['hash'] == connection_hash]
                 if len(connections_in_2) > 0:
                     diff.append(
-                        { 'connections_in_2': connections_in_2}
+                        { 'Connections in current': connections_in_2}
                         )
         return diff
 
