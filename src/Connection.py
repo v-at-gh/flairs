@@ -1,5 +1,6 @@
 from typing import Dict
 from dataclasses import dataclass
+from hashlib import sha1
 
 @dataclass
 class BaseConnection:
@@ -37,8 +38,8 @@ class BaseConnection:
         return self.__dict__
 
     def to_dict(self) -> Dict:
-        '''Returns the minimal representation of the Connection object
-        for further processing (storing/comparison)'''
+        '''Returns the minimal representation of the Connection
+        object for further processing (storing/comparison)'''
         connection_dict = {
             'pid': self.pid,
             'family': self.family, 'proto': self.proto,
@@ -50,6 +51,13 @@ class BaseConnection:
         connection_dict['state_str'] = self.state_str
         
         return connection_dict
+
+    @property
+    def connection_hash(self):
+        '''Generate a hash for the object based on its attributes'''
+        hash_obj = sha1()
+        hash_obj.update(str(self.as_dict).encode('utf-8'))
+        return hash_obj.hexdigest()
 
 @dataclass
 class TCP_State():

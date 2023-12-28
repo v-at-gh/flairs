@@ -53,7 +53,14 @@ class SnapshotDatabase:
         return snapshots
 
     def compare_snapshots(self, snapshot1: Snapshot, snapshot2: Snapshot) -> List[Network_Connection]:
-        diff = set(snapshot1.connections) ^ set(snapshot2.connections)
+        #TODO:
+        # implement the comparison for connection hashes
+        #  so at first step hashes of compared,
+        #  if they differ, then compare connections themself.
+        #  Check `BaseConnection` property `connection_hash` if `Connection.py` module.
+        connections1 = snapshot1.connections
+        connections2 = snapshot2.connections
+        diff = connections1 ^ connections2
         return list(diff)
 
     def close_connection(self):
