@@ -56,7 +56,7 @@ class BaseConnection:
     def connection_hash(self):
         '''Generate a hash for the object based on its attributes'''
         hash_obj = sha1()
-        hash_obj.update(str(self.as_dict).encode('utf-8'))
+        hash_obj.update(str(self.to_dict()).encode('utf-8'))
         return hash_obj.hexdigest()
 
 @dataclass
