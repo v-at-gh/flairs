@@ -22,7 +22,7 @@ if __name__ == "__main__":
     for s in snapshots:
         print(f"Timestamp: {s.timestamp}, Connections: {s.connections}")
 
-    #TODO: implement coomparison function `compare_snapshots` in `Snapshot.py`
+    #TODO: implement comparison function `compare_snapshots` in `Snapshot.py`
     if len(snapshots) >= 2:
         diff_connections = db.compare_snapshots(snapshots[-2], snapshots[-1])
         print("Differences between the last two snapshots:", diff_connections)
