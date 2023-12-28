@@ -1,12 +1,9 @@
-#WARNING! This file produced by ChatGPT mostly. Use it on your own risk
-
 import json
 import sqlite3
 from dataclasses import dataclass
 from typing import List, Union
 
 from .Connection import TCP_Connection, UDP_Connection
-
 Network_Connection = Union[TCP_Connection, UDP_Connection]
 
 @dataclass
@@ -49,7 +46,6 @@ class SnapshotDatabase:
             timestamp, connections_json = row
             connections = json.loads(connections_json)
             snapshots.append(Snapshot(timestamp, connections))
-
         return snapshots
 
     def compare_snapshots(self, snapshot1: Snapshot, snapshot2: Snapshot) -> List[Network_Connection]:
@@ -57,11 +53,28 @@ class SnapshotDatabase:
         # implement the comparison for connection hashes
         #  so at first step hashes of compared,
         #  if they differ, then compare connections themself.
-        #  Check `BaseConnection` property `connection_hash` if `Connection.py` module.
-        connections1 = snapshot1.connections
-        connections2 = snapshot2.connections
+        #  Check `BaseConnection` property `hash` if `Connection.py` module.
+        from hashlib import sha1
+        connections1 = set([connection['hash'] for connection in snapshot1.connections])
+        connections2 = set([connection['hash'] for connection in snapshot2.connections])
         diff = connections1 ^ connections2
-        return list(diff)
+        list_diff = list(diff)
+        diff = []
+        if len(list_diff) > 0:
+            for connection_hash in list_diff:
+                connections_in_1 = [connection for connection in snapshot1.connections
+                                        if connection['hash'] == connection_hash]
+                if len(connections_in_1) > 0:
+                    diff.append(
+                        { 'connections_in_1': connections_in_1}
+                        )
+                connections_in_2 = [connection for connection in snapshot2.connections
+                                        if connection['hash'] == connection_hash]
+                if len(connections_in_2) > 0:
+                    diff.append(
+                        { 'connections_in_2': connections_in_2}
+                        )
+        return diff
 
     def close_connection(self):
         self.connection.close()

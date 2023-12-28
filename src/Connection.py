@@ -53,7 +53,7 @@ class BaseConnection:
         return connection_dict
 
     @property
-    def connection_hash(self):
+    def hash(self):
         '''Generate a hash for the object based on its attributes'''
         hash_obj = sha1()
         hash_obj.update(str(self.to_dict()).encode('utf-8'))
