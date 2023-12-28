@@ -5,20 +5,8 @@ from flask import render_template
 
 app = Flask(__name__)
 
-from src.Netstat import Netstat
-from src.Process import Process
-
-def get_data():
-
-    connections = Netstat.get_connections()
-    pids = Netstat.get_connection_pids(connections)
-    processes = [Process(pid) for pid in pids]
-
-    processes_with_connections = []
-    for process in processes:
-        processes_with_connections.append(process.get_connections_of_process())
-
-    return processes_with_connections
+# move function obtaining current connections state into a separate module
+from get_data import get_data
 
 @app.route("/")
 def index():
