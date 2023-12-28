@@ -23,7 +23,7 @@ def test():
 @app.route("/filters")
 def filters():
     # Not implemtned yet
-    # intended to render the page with tcpdump/wireshark capture/preview filters
+    #TODO: render the page with the tcpdump/wireshark capture/preview filters
     processes_with_connections = get_data()
 
     return render_template('filters.html', process_list=processes_with_connections)
