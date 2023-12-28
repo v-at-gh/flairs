@@ -1,3 +1,4 @@
+from typing import Dict
 from dataclasses import dataclass
 
 @dataclass
@@ -32,11 +33,14 @@ class BaseConnection:
         self._process_socket("remoteSocket", self.remoteSocket, "remote")
 
     @property
-    def as_dict(self) -> dict:
+    def as_dict(self) -> Dict:
         return self.__dict__
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict:
+        '''Returns the minimal representation of the Connection object
+        for further processing (storing/comparison)'''
         connection_dict = {
+            'pid': self.pid,
             'family': self.family, 'proto': self.proto,
             'localAddr': self.localAddr, 'localPort': self.localPort,
             'remoteAddr': self.remoteAddr, 'remotePort': self.remotePort

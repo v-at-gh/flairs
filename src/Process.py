@@ -11,7 +11,7 @@ class Process:
     executable: str = ''
 
     def __post_init__(self) -> None:
-        #TODO: when `shell=True` is removed from `Common.py`, implement command splitter
+        #TODO: when `shell=True` is removed from `Common.py`, implement a command splitter
         executable = run(f"ps -p {self.pid} -o comm", **subprocess_run_args).stdout.splitlines()
         if len(executable) > 1:
             self.executable = executable[1]

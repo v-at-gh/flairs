@@ -1,3 +1,4 @@
+from typing import Dict, List
 from subprocess import run
 
 from .Common import subprocess_run_args
@@ -9,7 +10,7 @@ families = ('inet', 'inet6')
 class Netstat:
 
     @staticmethod
-    def get_interfaces() -> list[dict]:
+    def get_interfaces() -> List[Dict]:
         command = "netstat -inl"
         lines = [line.split() for line in
                  run(command, **subprocess_run_args).stdout.splitlines()[1:]]
@@ -29,11 +30,11 @@ class Netstat:
     def _get_connections(
             proto: protos = None,
             family: families = None
-        ) -> list[str]:
+        ) -> List[str]:
         proto_selector = '-p ' + proto if proto is not None else ''
         family_selector = '-f ' + family if family is not None else ''
 
-        #TODO: when `shell=True` is removed from `Common.py`, implement command splitter
+        #TODO: when `shell=True` is removed from `Common.py`, implement a command splitter
         netstat_command = f"netstat -nval {family_selector} {proto_selector}"
         netstat_out = run(netstat_command, **subprocess_run_args).stdout
         netstat_lines = netstat_out.splitlines()
@@ -59,7 +60,7 @@ class Netstat:
             proto: protos = None,
             family: families = None,
             netstat_lines: str = None
-        ) -> list[TCP_Connection | UDP_Connection]:
+        ) -> List[TCP_Connection | UDP_Connection]:
         if netstat_lines is None:
             netstat_lines = Netstat._get_connections(family, proto)
 
@@ -72,7 +73,7 @@ class Netstat:
         return connections
 
     @staticmethod
-    def get_connection_pids(connections=None) -> list[int]:
+    def get_connection_pids(connections=None) -> List[int]:
         if connections is None:
             connections = Netstat.get_connections()
         pids = sorted(set([connection.pid for connection in connections]))
