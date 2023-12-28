@@ -59,7 +59,7 @@ class Netstat:
     def get_connections(
             proto: protos = None,
             family: families = None,
-            netstat_lines: str = None
+            netstat_lines: List[str] = None
         ) -> List[TCP_Connection | UDP_Connection]:
         if netstat_lines is None:
             netstat_lines = Netstat._get_connections(family, proto)
