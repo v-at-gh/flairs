@@ -74,10 +74,12 @@ class SnapshotDatabase:
         diff = []
         if len(list_diff) > 0:
             for connection_hash in list_diff:
-                connections_in_1 = [connection for connection in snapshot1.connections if connection['hash'] == connection_hash]
+                connections_in_1 = [connection for connection in snapshot1.connections
+                                    if connection['hash'] == connection_hash]
                 if len(connections_in_1) > 0:
                     diff.append({'Connections in previous': connections_in_1})
-                connections_in_2 = [connection for connection in snapshot2.connections if connection['hash'] == connection_hash]
+                connections_in_2 = [connection for connection in snapshot2.connections
+                                    if connection['hash'] == connection_hash]
                 if len(connections_in_2) > 0:
                     diff.append({'Connections in current': connections_in_2})
         return diff
