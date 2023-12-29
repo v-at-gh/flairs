@@ -51,7 +51,7 @@ Run the application using:
 ./app.py
 ```
 
-Visit [http://localhost:5000](http://localhost:5000) in your web browser to interact with the web interface.
+Visit [http://localhost:5000](http://localhost:5000) in your web browser to interact with the web interface, or [http://localhost:5000/test](http://localhost:5000/test) to view processes and their corresponding connections as a nested table.
 
 ### `test_cli.py`
 
