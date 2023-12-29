@@ -28,7 +28,7 @@ class Process:
     @staticmethod
     def get_connections_of_the_process(process, connections=None) -> dict:
         #TODO: this method should not return a dictionary representation of the `Process` object,
-        # but the `Process` object itself with its associated network `Connections`
+        # but the `Process` object itself with its associated `Connections`
         if connections is None:
             connections = Netstat.get_connections()
         connections_of_process = [

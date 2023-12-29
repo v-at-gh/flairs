@@ -9,21 +9,8 @@ if __name__ == "__main__":
     parser.add_argument('-v', help="Print the last snapshot also.")
     args = parser.parse_args()
 
-    from time import time
     db = SnapshotDatabase()
-
-    #TODO: every connection is now hashed here.
-    #  Figure out how to make the code more convenient and universal
-    snapshot = Snapshot(
-        timestamp=time(),
-        connections=[
-            {
-                'hash': connection.hash,
-                'dict': connection.to_dict()
-            } for connection in Netstat.get_connections()
-        ]
-    )
-    db.save_snapshot(snapshot)
+    db.take_snapshot()
 
     snapshots = db.get_snapshots()
     if args.v:
