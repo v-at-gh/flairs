@@ -26,7 +26,7 @@ class Process:
         return self.__dict__
 
     @staticmethod
-    def get_connections_of_the_process(process, connections=None) -> dict:
+    def get_dict_of_the_process_with_connections(process, connections=None) -> dict:
         #TODO: this method should not return a dictionary representation of the `Process` object,
         # but the `Process` object itself with its associated `Connections`
         if connections is None:
@@ -43,5 +43,5 @@ class Process:
         return dict_of_process_with_connections
 
     def get_connections_of_process(self) -> dict:
-        dict_of_process_with_connections = Process.get_connections_of_the_process(self)
+        dict_of_process_with_connections = Process.get_dict_of_the_process_with_connections(self)
         return dict_of_process_with_connections

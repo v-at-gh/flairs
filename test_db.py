@@ -13,8 +13,10 @@ def compare_snapshots():
 
     #TODO: improve comparison function `compare_snapshots` in `Snapshot.py`
     if len(snapshots) >= 2:
-        diff_connections = db.compare_snapshots(snapshots[-2], snapshots[-1])
-        if len(diff_connections) > 0:
+        previous = snapshots[-2]
+        current = snapshots[-1]
+        diff_connections = db.compare_snapshots(previous, current)
+        if len(diff_connections['previous']) > 0 or len(diff_connections['current']) > 0:
             from pprint import pprint
             print("Differences between the last two snapshots:")
             pprint(diff_connections)

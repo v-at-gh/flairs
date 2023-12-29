@@ -11,6 +11,9 @@ class Netstat:
 
     @staticmethod
     def get_interfaces() -> List[Dict]:
+        #TODO: make use of this method so we're able to sort/filter
+        #  connections comparing their local addresses against
+        #  the addresses assigned to interfaces
         command = "netstat -inl"
         lines = [line.split() for line in
                  run(command, **subprocess_run_args).stdout.splitlines()[1:]]

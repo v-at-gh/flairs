@@ -46,6 +46,11 @@ class SnapshotDatabase:
             connections=[
                 {
                     'hash': connection.hash,
+                    #TODO: think out the way to store objects
+                    #  in a shorter text representation, ex:
+                    #    123.tcp://127.1:22-127.2:1234
+                    #  and save the full object representation
+                    #  (with `conn.as_dict`) as a blob
                     'dict': connection.to_dict()
                 } for connection in Netstat.get_connections()
             ]
@@ -66,22 +71,32 @@ class SnapshotDatabase:
         return snapshots
 
     #TODO: reduce code repetition in the following method:
-    def compare_snapshots(self, snapshot1: Snapshot, snapshot2: Snapshot) -> List[Network_Connection]:
-        connections1 = set([connection['hash'] for connection in snapshot1.connections])
-        connections2 = set([connection['hash'] for connection in snapshot2.connections])
-        diff = connections1 ^ connections2
+    def compare_snapshots(
+            self,
+            snapshot_prev: Snapshot,
+            snapshot_curr: Snapshot
+        ) -> List[Network_Connection]:
+        #TODO: reduce code repetition
+        hashes_of_conns_in_prev = set([connection['hash'] for connection in snapshot_prev.connections])
+        hashes_of_conns_in_curr = set([connection['hash'] for connection in snapshot_curr.connections])
+        diff = hashes_of_conns_in_prev ^ hashes_of_conns_in_curr
+
         list_diff = list(diff)
-        diff = []
+        diff = {'previous': [], 'current': []}
         if len(list_diff) > 0:
+            #TODO: improve logic for connections collecting
             for connection_hash in list_diff:
-                connections_in_1 = [connection for connection in snapshot1.connections
+                #TODO: we're iterating over hashes of connections already
+                #  so there's no need in list comprehensions. Think out some other way.
+                connections_in_1 = [connection for connection in snapshot_prev.connections
                                     if connection['hash'] == connection_hash]
                 if len(connections_in_1) > 0:
-                    diff.append({'Connections in previous': connections_in_1})
-                connections_in_2 = [connection for connection in snapshot2.connections
+                    diff['previous'].append(connections_in_1)
+                connections_in_2 = [connection for connection in snapshot_curr.connections
                                     if connection['hash'] == connection_hash]
                 if len(connections_in_2) > 0:
-                    diff.append({'Connections in current': connections_in_2})
+                    diff['current'].append(connections_in_2)
+        
         return diff
 
     def close_connection(self):
