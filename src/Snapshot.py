@@ -50,11 +50,17 @@ class SnapshotDatabase:
                     #  in a shorter text representation, ex:
                     #    123.tcp://127.1:22-127.2:1234
                     #  and save the full object representation
-                    #  (with `conn.as_dict`) as a blob
+                    #    (into a separate table of a DB maybe)
+                    #  (with `conn.as_dict`) as a blob.
+                    #  Optianal: save files open by a process and it's env variables.
                     'dict': connection.to_dict()
                 } for connection in Netstat.get_connections()
             ]
         )
+        #TODO: we should not save every snapshot every time.
+        # Instead we must implement some ware to compare a fresh
+        # snapshot with the previous one, and if it differs, then save it,
+        # otherwise make some note that the state of network connections has not changed.
         self.save_snapshot(snapshot)
 
     def get_snapshots(self) -> List[Snapshot]:

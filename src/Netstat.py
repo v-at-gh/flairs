@@ -34,6 +34,12 @@ class Netstat:
             proto: protos = None,
             family: families = None
         ) -> List[str]:
+        #TODO: add support for linux and windows.
+        #  Windows implementation of `netstat` has a `-b` argument,
+        #  which returns a path to each binary for a connetion.
+        #  Linux version is invoked like `netstat -tunap` for all connections and processes.
+        # Elevation of privileges is required to obtain complete information
+        # about connections and their corresponding processes on both non-macos systems.
         proto_selector = '-p ' + proto if proto is not None else ''
         family_selector = '-f ' + family if family is not None else ''
 
@@ -48,7 +54,8 @@ class Netstat:
             netstat_connection_line: str
         ) -> TCP_Connection | UDP_Connection:
         Connection_Classes = {'tcp': TCP_Connection, 'udp': UDP_Connection}
-        proto = netstat_connection_line.split()[0]
+        # Lowercase `proto` for windows support
+        proto = netstat_connection_line.split()[0].lower()
 
         for protocol_name in protos:
             if proto.startswith(protocol_name):
