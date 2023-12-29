@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
 
-from src.Netstat import Netstat
-from src.Snapshot import Snapshot, SnapshotDatabase
+from src.Snapshot import SnapshotDatabase
 
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Save current connetions to DB and print what's changed")
-    parser.add_argument('-v', help="Print the last snapshot also.")
-    args = parser.parse_args()
-
+def compare_snapshots():
     db = SnapshotDatabase()
     db.take_snapshot()
 
@@ -28,3 +22,11 @@ if __name__ == "__main__":
             print('No connections changed')
 
     db.close_connection()
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Save current connetions to DB and print what's changed")
+    parser.add_argument('-v', help="Print the last snapshot also.")
+    args = parser.parse_args()
+
+    compare_snapshots()

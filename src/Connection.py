@@ -63,11 +63,11 @@ class BaseConnection:
         return hash_obj.hexdigest()
 
 @dataclass
-class TCP_State():
+class TCP_State:
     state: str
 
 @dataclass
-class Common_Connection_properties_and_metrics():
+class Common_Connection_properties_and_metrics:
     rhiwat: int
     shiwat: int
     pid: int
