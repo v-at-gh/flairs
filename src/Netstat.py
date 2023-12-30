@@ -13,7 +13,7 @@ class Netstat:
     def get_interfaces() -> List[Dict]:
         #TODO: make use of this method so we're able to sort/filter
         #  connections comparing their local addresses against
-        #  the addresses assigned to interfaces
+        #  the addresses assigned to the interfaces
         command = "netstat -inl"
         lines = [line.split() for line in
                  run(command, **subprocess_run_args).stdout.splitlines()[1:]]
@@ -46,7 +46,6 @@ class Netstat:
 
         #TODO: when `shell=True` is removed from `Common.py`, implement a command splitter
         netstat_command = f"netstat -nval {family_selector} {proto_selector}"
-        print(netstat_command)
         netstat_out = run(netstat_command, **subprocess_run_args).stdout
         netstat_lines = netstat_out.splitlines()
 
@@ -56,7 +55,6 @@ class Netstat:
             netstat_connection_line: str
         ) -> TCP_Connection | UDP_Connection:
         Connection_Classes = {'tcp': TCP_Connection, 'udp': UDP_Connection}
-        # Lowercase `proto` for windows support
         proto = netstat_connection_line.split()[0].lower()
 
         for protocol_name in protos:

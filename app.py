@@ -5,7 +5,6 @@ from flask import render_template
 
 app = Flask(__name__)
 
-# move function obtaining current connections state into a separate module
 from get_data import get_data
 
 @app.route("/")

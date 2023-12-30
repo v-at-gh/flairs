@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-from src.Netstat import Netstat
 from subprocess import run
+
 from src.Common import subprocess_run_args
+from src.Netstat import Netstat
 
 
-# testing parsing of TCP connections
+# test parsing of TCP connections
 tcp_connections = Netstat.get_connections(proto='tcp')
 
 bash_command_for_tcp = "netstat -nval -p tcp | grep '^tcp'"
@@ -17,7 +18,7 @@ if len(tcp_connections) != len(tcp_connections_from_bash):
 else:
     print('TCP connection parsing works.')
 
-# testing parsing of UDP connections
+# test parsing of UDP connections
 udp_connections = Netstat.get_connections(proto='udp')
 
 bash_command_for_udp = "netstat -nval -p udp | grep '^udp'"
