@@ -46,14 +46,6 @@ class SnapshotDatabase:
             connections=[
                 {
                     'hash': connection.hash,
-                    #TODO: think out the way to store objects
-                    #  in a shorter text representation, ex:
-                    #    123.tcp://127.1:22-127.2:1234
-                    #  and save the full object representation
-                    #    (into a separate table of a DB maybe)
-                    #  (with `conn.as_dict`) as a blob.
-                    #  Optianal: save absolute paths and properties of the files
-                    #    open by a process and it's env variables.
                     'dict': connection.to_dict()
                 } for connection in Netstat.get_connections()
             ]
