@@ -28,11 +28,10 @@ class BaseConnection:
             if socket_str.startswith('*'):
                 setattr(self, socket_attr, f"{'0.0.0.0' if self.family == 4 else '::'}:{port}")
                 setattr(self, f"{socket_location}Addr", f"{'0.0.0.0' if self.family == 4 else '::'}")
-                setattr(self, f"{socket_location}Port", int(port))
             else:
                 setattr(self, socket_attr, f"{address}:{port}")
                 setattr(self, f"{socket_location}Addr", address)
-                setattr(self, f"{socket_location}Port", int(port))
+            setattr(self, f"{socket_location}Port", int(port))
 
     def _convert_to_int(self, *attributes) -> None:
         for attribute in attributes:
