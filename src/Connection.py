@@ -18,12 +18,9 @@ class BaseConnection:
             setattr(self, f"{socket_location}Addr", address)
             setattr(self, f"{socket_location}Port", int(port))
         else:
-            #TODO: process address asterisk like it is done in linux:
-            #  0.0.0.0 for ipv4
-            #  :: for ipv6
-            setattr(self, socket_attr, '*:*')
-            setattr(self, f"{socket_location}Addr", address)
-            setattr(self, f"{socket_location}Port", 0)
+            setattr(self, socket_attr, f"{'0.0.0.0:*' if self.family == 4 else ':::*'}")
+            setattr(self, f"{socket_location}Addr", f"{'0.0.0.0' if self.family == 4 else '::'}")
+            setattr(self, f"{socket_location}Port", '*')
 
     def _convert_to_int(self, *attributes) -> None:
         for attribute in attributes:
@@ -35,6 +32,11 @@ class BaseConnection:
         self.proto = ''.join(char for char in self.proto if char.isalpha())
         self._process_socket("localSocket", self.localSocket, "local")
         self._process_socket("remoteSocket", self.remoteSocket, "remote")
+
+    @property
+    def as_string_short(self) -> str:
+        return (f"{self.pid} {self.proto} {self.family} {self.localSocket} {self.remoteSocket} "
+                f"{self.state if self.proto == 'tcp' else self.state_str}")
 
     @property
     def as_dict(self) -> Dict:
@@ -56,7 +58,7 @@ class BaseConnection:
         return connection_dict
 
     @property
-    def hash(self):
+    def hash(self) -> str:
         '''Generate a hash for the object based on its main attributes'''
         hash_obj = sha1()
         hash_obj.update(str(self.to_dict()).encode('utf-8'))
@@ -87,11 +89,7 @@ class Common_Connection_properties_and_metrics:
     remotePort: int = None
 
 @dataclass
-class TCP_Connection(Common_Connection_properties_and_metrics, TCP_State, BaseConnection):
-    '''Defined by inheritance'''
-    ...
+class TCP_Connection(Common_Connection_properties_and_metrics, TCP_State, BaseConnection): ...
 
 @dataclass
-class UDP_Connection(Common_Connection_properties_and_metrics, BaseConnection):
-    '''Defined by inheritance'''
-    ...
+class UDP_Connection(Common_Connection_properties_and_metrics, BaseConnection): ...

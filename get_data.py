@@ -26,7 +26,8 @@ def main():
     data = get_data()
 
     if args.format == 'dict':
-        print(data)
+        from pprint import pprint
+        pprint(data)
     elif args.format == 'json':
         from json import dumps
         print(dumps(data))

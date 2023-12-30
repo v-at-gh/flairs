@@ -52,7 +52,8 @@ class SnapshotDatabase:
                     #  and save the full object representation
                     #    (into a separate table of a DB maybe)
                     #  (with `conn.as_dict`) as a blob.
-                    #  Optianal: save files open by a process and it's env variables.
+                    #  Optianal: save absolute paths and properties of the files
+                    #    open by a process and it's env variables.
                     'dict': connection.to_dict()
                 } for connection in Netstat.get_connections()
             ]
@@ -90,18 +91,17 @@ class SnapshotDatabase:
         list_diff = list(diff)
         diff = {'previous': [], 'current': []}
         if len(list_diff) > 0:
-            #TODO: improve logic for connections collecting
             for connection_hash in list_diff:
-                #TODO: we're iterating over hashes of connections already
-                #  so there's no need in list comprehensions. Think out some other way.
                 connections_in_1 = [connection for connection in snapshot_prev.connections
                                     if connection['hash'] == connection_hash]
                 if len(connections_in_1) > 0:
-                    diff['previous'].append(connections_in_1)
+                    for connection in connections_in_1:
+                        diff['previous'].append(connection)
                 connections_in_2 = [connection for connection in snapshot_curr.connections
                                     if connection['hash'] == connection_hash]
                 if len(connections_in_2) > 0:
-                    diff['current'].append(connections_in_2)
+                    for connection in connections_in_2:
+                        diff['current'].append(connection)
         
         return diff
 
