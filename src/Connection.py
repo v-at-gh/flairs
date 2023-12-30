@@ -78,7 +78,7 @@ class TCP_State:
     state: str
 
 @dataclass
-class Common_Connection_properties_and_metrics:
+class Common_Connection_attrs_and_metrics:
     rhiwat: int
     shiwat: int
     pid: int
@@ -98,9 +98,9 @@ class Common_Connection_properties_and_metrics:
     remotePort: int = None
 
 @dataclass
-class TCP_Connection(Common_Connection_properties_and_metrics, TCP_State,
+class TCP_Connection(Common_Connection_attrs_and_metrics, TCP_State,
                      BaseConnection, _ConnectionProcessor): ...
 
 @dataclass
-class UDP_Connection(Common_Connection_properties_and_metrics,
+class UDP_Connection(Common_Connection_attrs_and_metrics,
                      BaseConnection, _ConnectionProcessor): ...

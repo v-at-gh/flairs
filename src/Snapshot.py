@@ -20,8 +20,6 @@ class SnapshotDatabase:
         self.create_table()
 
     def create_table(self):
-        #TODO: store connections in blobs -- jsons are too large
-        #  ... or make use of a new Connection property `as_string_short`.
         cursor = self.connection.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS snapshots (
@@ -33,7 +31,8 @@ class SnapshotDatabase:
         self.connection.commit()
 
     def save_snapshot(self, snapshot: Snapshot):
-        #TODO: store connections in blobs -- jsons are too large
+        #TODO: store connections in blobs -- jsons are way too large
+        #  ... or make use of a Connection's `to_csv` method.
         cursor = self.connection.cursor()
         cursor.execute('''
             INSERT INTO snapshots (timestamp, connections)
@@ -51,7 +50,7 @@ class SnapshotDatabase:
                 } for connection in Netstat.get_connections()
             ]
         )
-        #TODO: we should not save every snapshot every time.
+        #TODO: we should not save every snapshot each time.
         # Instead we must implement some way to compare a fresh
         # snapshot with the previous one, and if it differs, then save it,
         # otherwise make some note that the state of the network connections did not change.
@@ -70,31 +69,29 @@ class SnapshotDatabase:
             snapshots.append(Snapshot(timestamp, connections))
         return snapshots
 
-    #TODO: reduce code repetition in the following method:
     def compare_snapshots(
             self,
             snapshot_prev: Snapshot,
             snapshot_curr: Snapshot
         ) -> List[Network_Connection]:
-        hashes_of_conns_in_prev = set([connection['hash'] for connection in snapshot_prev.connections])
-        hashes_of_conns_in_curr = set([connection['hash'] for connection in snapshot_curr.connections])
-        diff = hashes_of_conns_in_prev ^ hashes_of_conns_in_curr
+        def _get_connections_by_hash(snapshot: Snapshot, connection_hash: str) -> List[Network_Connection]:
+            return [
+                connection for connection in snapshot.connections
+                if connection['hash'] == connection_hash
+            ]
 
-        list_diff = list(diff)
+        hashes_of_conns_in_prev = set(connection['hash'] for connection in snapshot_prev.connections)
+        hashes_of_conns_in_curr = set(connection['hash'] for connection in snapshot_curr.connections)
+        diff_hashes = hashes_of_conns_in_prev ^ hashes_of_conns_in_curr
+
         diff = {'previous': [], 'current': []}
-        if len(list_diff) > 0:
-            for connection_hash in list_diff:
-                connections_in_prev = [connection for connection in snapshot_prev.connections
-                                    if connection['hash'] == connection_hash]
-                if len(connections_in_prev) > 0:
-                    for connection in connections_in_prev:
-                        diff['previous'].append(connection)
-                connections_in_curr = [connection for connection in snapshot_curr.connections
-                                    if connection['hash'] == connection_hash]
-                if len(connections_in_curr) > 0:
-                    for connection in connections_in_curr:
-                        diff['current'].append(connection)
-        
+        for connection_hash in diff_hashes:
+            connections_in_prev = _get_connections_by_hash(snapshot_prev, connection_hash)
+            connections_in_curr = _get_connections_by_hash(snapshot_curr, connection_hash)
+
+            diff['previous'].extend(connections_in_prev)
+            diff['current'].extend(connections_in_curr)
+
         return diff
 
     def close_connection(self):
