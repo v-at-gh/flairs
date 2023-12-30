@@ -21,6 +21,7 @@ class SnapshotDatabase:
 
     def create_table(self):
         #TODO: store connections in blobs -- jsons are too large
+        #  ... or make use of a new Connection property `as_string_short`.
         cursor = self.connection.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS snapshots (
@@ -51,9 +52,9 @@ class SnapshotDatabase:
             ]
         )
         #TODO: we should not save every snapshot every time.
-        # Instead we must implement some ware to compare a fresh
+        # Instead we must implement some way to compare a fresh
         # snapshot with the previous one, and if it differs, then save it,
-        # otherwise make some note that the state of network connections has not changed.
+        # otherwise make some note that the state of the network connections did not change.
         self.save_snapshot(snapshot)
 
     def get_snapshots(self) -> List[Snapshot]:
@@ -75,7 +76,6 @@ class SnapshotDatabase:
             snapshot_prev: Snapshot,
             snapshot_curr: Snapshot
         ) -> List[Network_Connection]:
-        #TODO: reduce code repetition
         hashes_of_conns_in_prev = set([connection['hash'] for connection in snapshot_prev.connections])
         hashes_of_conns_in_curr = set([connection['hash'] for connection in snapshot_curr.connections])
         diff = hashes_of_conns_in_prev ^ hashes_of_conns_in_curr
@@ -84,15 +84,15 @@ class SnapshotDatabase:
         diff = {'previous': [], 'current': []}
         if len(list_diff) > 0:
             for connection_hash in list_diff:
-                connections_in_1 = [connection for connection in snapshot_prev.connections
+                connections_in_prev = [connection for connection in snapshot_prev.connections
                                     if connection['hash'] == connection_hash]
-                if len(connections_in_1) > 0:
-                    for connection in connections_in_1:
+                if len(connections_in_prev) > 0:
+                    for connection in connections_in_prev:
                         diff['previous'].append(connection)
-                connections_in_2 = [connection for connection in snapshot_curr.connections
+                connections_in_curr = [connection for connection in snapshot_curr.connections
                                     if connection['hash'] == connection_hash]
-                if len(connections_in_2) > 0:
-                    for connection in connections_in_2:
+                if len(connections_in_curr) > 0:
+                    for connection in connections_in_curr:
                         diff['current'].append(connection)
         
         return diff

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from subprocess import run
 
-from src.Common import subprocess_run_args
+from src.Common import subprocess_run_kwargs
 from src.Netstat import Netstat
 
 
@@ -9,7 +9,7 @@ from src.Netstat import Netstat
 tcp_connections = Netstat.get_connections(proto='tcp')
 
 bash_command_for_tcp = "netstat -nval -p tcp | grep '^tcp'"
-tcp_connections_from_bash = run(bash_command_for_tcp, **subprocess_run_args).stdout.splitlines()
+tcp_connections_from_bash = run(bash_command_for_tcp, **subprocess_run_kwargs).stdout.splitlines()
 
 if len(tcp_connections) != len(tcp_connections_from_bash):
     print("There is a problem with TCP connections parsing:")
@@ -22,7 +22,7 @@ else:
 udp_connections = Netstat.get_connections(proto='udp')
 
 bash_command_for_udp = "netstat -nval -p udp | grep '^udp'"
-udp_connections_from_bash = run(bash_command_for_udp, **subprocess_run_args).stdout.splitlines()
+udp_connections_from_bash = run(bash_command_for_udp, **subprocess_run_kwargs).stdout.splitlines()
 
 if len(udp_connections) != len(udp_connections_from_bash):
     print("There is a problem with UDP connections parsing:")

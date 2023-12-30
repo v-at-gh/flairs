@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from subprocess import run
 from typing import Any
 
-from .Common import subprocess_run_args
+from .Common import subprocess_run_kwargs
 from .Netstat import Netstat
 
 @dataclass
@@ -12,10 +12,10 @@ class Process:
 
     def __post_init__(self) -> None:
         #TODO: when `shell=True` is removed from `Common.py`, implement a command splitter
-        executable = run(f"ps -p {self.pid} -o comm", **subprocess_run_args).stdout.splitlines()
+        executable = run(f"ps -p {self.pid} -o comm", **subprocess_run_kwargs).stdout.splitlines()
         if len(executable) > 1:
             self.executable = executable[1]
-            executable_with_args = run(f"ps -p {self.pid} -o command", **subprocess_run_args).stdout.splitlines()
+            executable_with_args = run(f"ps -p {self.pid} -o command", **subprocess_run_kwargs).stdout.splitlines()
             self.executable_with_args = executable_with_args[1]
         elif len(executable) <= 1:
             self.executable = ''

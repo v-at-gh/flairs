@@ -1,7 +1,7 @@
 from typing import Dict, List
 from subprocess import run
 
-from .Common import subprocess_run_args
+from .Common import subprocess_run_kwargs
 from .Connection import TCP_Connection, UDP_Connection
 
 protos = ('tcp', 'udp')
@@ -16,7 +16,7 @@ class Netstat:
         #  the addresses assigned to the interfaces
         command = "netstat -inl"
         lines = [line.split() for line in
-                 run(command, **subprocess_run_args).stdout.splitlines()[1:]]
+                 run(command, **subprocess_run_kwargs).stdout.splitlines()[1:]]
         lines = [line for line in lines
                  if len(line) == 9 and not line[2].startswith('<Link')]
 
@@ -46,7 +46,7 @@ class Netstat:
 
         #TODO: when `shell=True` is removed from `Common.py`, implement a command splitter
         netstat_command = f"netstat -nval {family_selector} {proto_selector}"
-        netstat_out = run(netstat_command, **subprocess_run_args).stdout
+        netstat_out = run(netstat_command, **subprocess_run_kwargs).stdout
         netstat_lines = netstat_out.splitlines()
 
         return netstat_lines
