@@ -19,7 +19,7 @@ class SnapshotDatabase:
         self.connection = sqlite3.connect(db_file)
         self.create_table()
 
-    def create_table(self):
+    def create_table(self) -> None:
         cursor = self.connection.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS snapshots (
@@ -30,7 +30,7 @@ class SnapshotDatabase:
         ''')
         self.connection.commit()
 
-    def save_snapshot(self, snapshot: Snapshot):
+    def save_snapshot(self, snapshot: Snapshot) -> None:
         #TODO: store connections in blobs -- jsons are way too large
         #  ... or make use of a Connection's `to_csv` method.
         cursor = self.connection.cursor()
@@ -40,7 +40,7 @@ class SnapshotDatabase:
         ''', (snapshot.timestamp, json.dumps(snapshot.connections)))
         self.connection.commit()
 
-    def take_snapshot(self):
+    def take_snapshot(self) -> None:
         snapshot = Snapshot(
             timestamp=time(),
             connections=[
@@ -94,5 +94,5 @@ class SnapshotDatabase:
 
         return diff
 
-    def close_connection(self):
+    def close_connection(self) -> None:
         self.connection.close()
