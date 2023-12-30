@@ -20,14 +20,19 @@ class BaseConnection:
     def _process_socket(self, socket_attr, socket_str, socket_location) -> None:
         address = '.'.join(socket_str.split('.')[:-1])
         port = socket_str.split('.')[-1]
-        if socket_str != '*.*':
-            setattr(self, socket_attr, f"{address}:{port}")
-            setattr(self, f"{socket_location}Addr", address)
-            setattr(self, f"{socket_location}Port", int(port))
-        else:
-            setattr(self, socket_attr, f"{'0.0.0.0:*' if self.family == 4 else ':::*'}")
+        if socket_str == '*.*':
+            setattr(self, socket_attr, f"{'0.0.0.0:0' if self.family == 4 else ':::0'}")
             setattr(self, f"{socket_location}Addr", f"{'0.0.0.0' if self.family == 4 else '::'}")
-            setattr(self, f"{socket_location}Port", '*')
+            setattr(self, f"{socket_location}Port", 0)
+        else:
+            if socket_str.startswith('*'):
+                setattr(self, socket_attr, f"{'0.0.0.0' if self.family == 4 else '::'}:{port}")
+                setattr(self, f"{socket_location}Addr", f"{'0.0.0.0' if self.family == 4 else '::'}")
+                setattr(self, f"{socket_location}Port", int(port))
+            else:
+                setattr(self, socket_attr, f"{address}:{port}")
+                setattr(self, f"{socket_location}Addr", address)
+                setattr(self, f"{socket_location}Port", int(port))
 
     def _convert_to_int(self, *attributes) -> None:
         for attribute in attributes:
