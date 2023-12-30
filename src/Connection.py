@@ -10,6 +10,13 @@ class BaseConnection:
     localSocket: str
     remoteSocket: str
 
+    def __post_init__(self) -> None:
+        self._convert_to_int('recvQ', 'sendQ', 'pid', 'epid', 'rhiwat', 'shiwat')
+        self.family = 4 if self.proto.endswith('4') else 6
+        self.proto = ''.join(char for char in self.proto if char.isalpha())
+        self._process_socket("localSocket", self.localSocket, "local")
+        self._process_socket("remoteSocket", self.remoteSocket, "remote")
+
     def _process_socket(self, socket_attr, socket_str, socket_location) -> None:
         address = '.'.join(socket_str.split('.')[:-1])
         port = socket_str.split('.')[-1]
@@ -25,13 +32,6 @@ class BaseConnection:
     def _convert_to_int(self, *attributes) -> None:
         for attribute in attributes:
             setattr(self, attribute, int(getattr(self, attribute)))
-
-    def __post_init__(self) -> None:
-        self._convert_to_int('recvQ', 'sendQ', 'pid', 'epid', 'rhiwat', 'shiwat')
-        self.family = 4 if self.proto.endswith('4') else 6
-        self.proto = ''.join(char for char in self.proto if char.isalpha())
-        self._process_socket("localSocket", self.localSocket, "local")
-        self._process_socket("remoteSocket", self.remoteSocket, "remote")
 
     @property
     def as_string_short(self) -> str:

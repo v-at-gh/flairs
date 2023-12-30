@@ -36,15 +36,17 @@ class Netstat:
         ) -> List[str]:
         #TODO: add support for linux and windows.
         #  Windows implementation of `netstat` has a `-b` argument,
-        #  which returns a path to each binary for a connetion.
+        #    which returns a path to each binary for a connetion.
         #  Linux version is invoked like `netstat -tunap` for all connections and processes.
-        # Elevation of privileges is required to obtain complete information
-        # about connections and their corresponding processes on both non-macos systems.
+        #------------------------------------------------------------------------------------
+        #  Elevation of privileges is required to obtain complete information
+        #    about connections and their corresponding processes on both non-macos systems.
         proto_selector = '-p ' + proto if proto is not None else ''
         family_selector = '-f ' + family if family is not None else ''
 
         #TODO: when `shell=True` is removed from `Common.py`, implement a command splitter
         netstat_command = f"netstat -nval {family_selector} {proto_selector}"
+        print(netstat_command)
         netstat_out = run(netstat_command, **subprocess_run_args).stdout
         netstat_lines = netstat_out.splitlines()
 
@@ -72,7 +74,7 @@ class Netstat:
             netstat_lines: List[str] = None
         ) -> List[TCP_Connection | UDP_Connection]:
         if netstat_lines is None:
-            netstat_lines = Netstat._get_connections(family, proto)
+            netstat_lines = Netstat._get_connections(proto, family)
 
         connections = []
         for line in netstat_lines:
