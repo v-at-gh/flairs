@@ -37,7 +37,8 @@ class Netstat:
         #TODO: add support for linux and windows.
         #  Windows implementation of `netstat` has a `-b` argument,
         #    which returns a path to each binary for a connetion.
-        #  Linux version is invoked like `netstat -tunap` for all connections and processes.
+        #  Linux version is invoked like `netstat (or `ss`) -tunap`
+        #    for all connections and process IDs.
         #------------------------------------------------------------------------------------
         #  Elevation of privileges is required to obtain complete information
         #    about connections and their corresponding processes on both non-macos systems.
