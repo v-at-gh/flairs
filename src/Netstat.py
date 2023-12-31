@@ -84,7 +84,7 @@ class Netstat:
         return connections
 
     @staticmethod
-    def get_connection_pids(connections=None) -> List[int]:
+    def get_pids_of_processes_with_connections(connections=None) -> List[int]:
         if connections is None:
             connections = Netstat.get_connections()
         pids = sorted(set([connection.pid for connection in connections]))

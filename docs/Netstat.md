@@ -22,7 +22,7 @@ This private method parses a single line of `netstat` command output representin
 
 This static method retrieves a list of network connections. It can optionally take parameters `proto` and `family` to filter the results. If `netstat_lines` is not provided, it internally calls the `_get_connections` method to obtain the necessary information. The method returns a list of connection objects, where each object is an instance of either `TCP_Connection` or `UDP_Connection`.
 
-#### 5. `get_connection_pids(connections=None) -> list[int]`:
+#### 5. `get_pids_of_processes_with_connections(connections=None) -> list[int]`:
 
 This static method retrieves a list of unique process IDs (PIDs) associated with network connections. If the `connections` parameter is not provided, it internally calls the `get_connections` method to obtain the necessary information. The method returns a sorted list of unique PIDs.
 
@@ -36,7 +36,7 @@ print("Network Interfaces:", interfaces)
 connections = Netstat.get_connections(proto="tcp")
 print("TCP Connections:", connections)
 
-pids = Netstat.get_connection_pids(connections)
+pids = Netstat.get_pids_of_processes_with_connections(connections)
 print("Unique PIDs:", pids)
 ```
 
