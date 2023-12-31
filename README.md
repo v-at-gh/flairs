@@ -6,16 +6,15 @@ This project provides the ability to record the state of network connections and
 
 ## Contents
 
-- [test_db.py](./test_db.py): Script to compare snapshots of network connections.
 - [get_data.py](./get_data.py): Script to retrieve and print current network connection state in different formats.
-- [app.py](./app.py): Flask web application for displaying current network connections and additional features.
-- [test_cli.py](./test_cli.py): Command-line interface script to print current network connection state in JSON format.
+- [app.py](./app.py): Flask web application for displaying current network connections.
 - [src/Connection.py](./src/Connection.py): Module defining classes for representing network connections.
 - [src/Netstat.py](./src/Netstat.py): Module for retrieving network connection information using the `netstat` command.
 - [src/Common.py](./src/Common.py): Common module containing shared utilities and configurations.
-- [src/Filter.py](./src/Filter.py): Module (not implemented yet) for creating capture/preview filters for tcpdump/wireshark.
 - [src/Process.py](./src/Process.py): Module defining a class for representing processes and their associated network connections.
 - [src/Snapshot.py](./src/Snapshot.py): Module for capturing, storing, and comparing snapshots of network connection states.
+- [src/Filter.py](./src/Filter.py): Module (not implemented yet) for creating capture/preview filters for tcpdump/wireshark.
+- [tests/test_db.py](.tests/test_db.py): Script to compare snapshots of network connections.
 
 ## Usage
 
@@ -24,7 +23,7 @@ This project provides the ability to record the state of network connections and
 This script compares snapshots of network connections and prints the differences between the last two snapshots. It utilizes the `SnapshotDatabase` class from `Snapshot.py`. Run the script as follows:
 
 ```bash
-./test_db.py -v
+./tests/test_db.py -v
 ```
 
 The `-v` option prints the last snapshot along with the timestamp and connections.
@@ -52,14 +51,6 @@ Run the application using:
 ```
 
 Visit [http://localhost:5000](http://localhost:5000) in your web browser to interact with the web interface, or [http://localhost:5000/test](http://localhost:5000/test) to view processes and their corresponding connections as a nested table.
-
-### `test_cli.py`
-
-This command-line interface script retrieves the current state of network connections and prints it in JSON format. Run the script as follows:
-
-```bash
-./test_cli.py
-```
 
 ## Modules
 
