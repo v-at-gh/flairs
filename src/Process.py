@@ -11,7 +11,7 @@ class Process:
     executable: str = ''
 
     def __post_init__(self) -> None:
-        #TODO: when `shell=True` is removed from `Common.py`, implement a command splitter
+        #TODO 0: when `shell=True` is removed from `Common.py`, implement a command splitter
         executable = run(f"ps -p {self.pid} -o comm", **subprocess_run_kwargs).stdout.splitlines()
         if len(executable) > 1:
             self.executable = executable[1]
@@ -27,7 +27,7 @@ class Process:
 
     @staticmethod
     def get_dict_of_the_process_with_connections(process, connections=None) -> dict:
-        #TODO: this method should not return a dictionary representation of the `Process` object,
+        #TODO 1: this method should not return a dictionary representation of the `Process` object,
         # but the `Process` object itself with its associated `Connections`
         if connections is None:
             connections = Netstat.get_connections()

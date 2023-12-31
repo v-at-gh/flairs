@@ -14,7 +14,7 @@ class Snapshot:
     connections: List[Network_Connection]
 
 class SnapshotDatabase:
-    def __init__(self, db_file='snapshots.db'):
+    def __init__(self, db_file='snapshots.db') -> None:
         self.db_file = db_file
         self.connection = sqlite3.connect(db_file)
         self.create_table()
@@ -31,7 +31,7 @@ class SnapshotDatabase:
         self.connection.commit()
 
     def save_snapshot(self, snapshot: Snapshot) -> None:
-        #TODO: store connections in blobs -- jsons are way too large
+        #TODO 0: store connections in blobs -- jsons are way too large
         #  ... or make use of a Connection's `to_csv` method.
         cursor = self.connection.cursor()
         cursor.execute('''
@@ -50,14 +50,15 @@ class SnapshotDatabase:
                 } for connection in Netstat.get_connections()
             ]
         )
-        #TODO: we should not save every snapshot each time.
+        #TODO 1: we should not save every snapshot each time.
         # Instead we must implement some way to compare a fresh
         # snapshot with the previous one, and if it differs, then save it,
         # otherwise make some note that the state of the network connections did not change.
         self.save_snapshot(snapshot)
 
     def get_snapshots(self) -> List[Snapshot]:
-        #TODO: store connections in blobs -- jsons are too large
+        #TODO 2: store connections in blobs -- jsons are way too large,
+        #  or use the `to_csv` method from the `_ConnectionProcessor` class
         cursor = self.connection.cursor()
         cursor.execute('SELECT timestamp, connections FROM snapshots ORDER BY timestamp')
         rows = cursor.fetchall()

@@ -5,13 +5,14 @@ from .Common import subprocess_run_kwargs
 from .Connection import TCP_Connection, UDP_Connection
 
 protos = ('tcp', 'udp')
+#TODO 0: make family selector more flexible, eg: [4|6], [ipv4|ipv6], [inet4|inet6]
 families = ('inet', 'inet6')
 
 class Netstat:
 
     @staticmethod
     def get_interfaces() -> List[Dict]:
-        #TODO: make use of this method so we're able to sort/filter
+        #TODO 1: make use of this method so we're able to sort/filter
         #  connections comparing their local addresses against
         #  the addresses assigned to the interfaces
         command = "netstat -inl"
@@ -34,7 +35,7 @@ class Netstat:
             proto: protos = None,
             family: families = None
         ) -> List[str]:
-        #TODO: add support for linux and windows.
+        #TODO 2: add support for linux and windows.
         #  Windows implementation of `netstat` has a `-b` argument,
         #    which returns a path to each binary for a connetion.
         #  Linux version is invoked like `netstat (or `ss`) -tunap`
@@ -43,9 +44,10 @@ class Netstat:
         #  Elevation of privileges is required to obtain complete information
         #    about connections and their corresponding processes on both non-macos systems.
         proto_selector = '-p ' + proto if proto is not None else ''
+        #TODO 0
         family_selector = '-f ' + family if family is not None else ''
 
-        #TODO: when `shell=True` is removed from `Common.py`, implement a command splitter
+        #TODO 3: when `shell=True` is removed from `Common.py`, implement a command splitter
         netstat_command = f"netstat -nval {family_selector} {proto_selector}"
         netstat_out = run(netstat_command, **subprocess_run_kwargs).stdout
         netstat_lines = netstat_out.splitlines()

@@ -98,7 +98,8 @@ class Common_Connection_attrs_and_metrics:
     remotePort: int = None
 
 @dataclass
-class TCP_Connection(Common_Connection_attrs_and_metrics, TCP_State,
+class TCP_Connection(Common_Connection_attrs_and_metrics,
+                     TCP_State,
                      BaseConnection, _ConnectionProcessor): ...
 
 @dataclass
