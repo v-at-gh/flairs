@@ -11,7 +11,7 @@ def get_data() -> list:
 
     processes_with_connections = []
     for process in processes:
-        processes_with_connections.append(process.get_connections_of_process())
+        processes_with_connections.append(process.get_connections_of_this_process())
 
     return processes_with_connections
 

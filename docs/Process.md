@@ -23,7 +23,7 @@ This property returns a dictionary representation of the `Process` instance, inc
 
 This static method retrieves network connections associated with a given process. It takes a `Process` object as an argument and, optionally, a list of network connections. If the list of connections is not provided, it calls the `Netstat.get_connections()` method to obtain network connections. The method returns a dictionary containing information about the process and its associated network connections, including the count and details of each connection.
 
-#### `get_connections_of_process(self) -> dict`:
+#### `get_connections_of_this_process(self) -> dict`:
 
 This instance method simplifies the retrieval of network connections associated with the current process. It internally calls the static method `get_connections_of_the_process` and returns the resulting dictionary.
 
@@ -34,7 +34,7 @@ This instance method simplifies the retrieval of network connections associated 
 process_instance = Process(pid=1234)
 print("Process Information:", process_instance.as_dict())
 
-connections_info = process_instance.get_connections_of_process()
+connections_info = process_instance.get_connections_of_this_process()
 print("Connections of the Process:", connections_info)
 ```
 

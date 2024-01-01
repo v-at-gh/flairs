@@ -44,10 +44,11 @@ class Netstat:
         #  Elevation of privileges is required to obtain complete information
         #    about connections and their corresponding processes on both non-macos systems.
         proto_selector = '-p ' + proto if proto is not None else ''
-        #TODO 0
+
+        #TODO 3: make family selector more flexible, eg: [4|6], [ipv4|ipv6], [inet4|inet6]
         family_selector = '-f ' + family if family is not None else ''
 
-        #TODO 3: when `shell=True` is removed from `Common.py`, implement a command splitter
+        #TODO 4: when `shell=True` is removed from `Common.py`, implement a command splitter
         netstat_command = f"netstat -nval {family_selector} {proto_selector}"
         netstat_out = run(netstat_command, **subprocess_run_kwargs).stdout
         netstat_lines = netstat_out.splitlines()
