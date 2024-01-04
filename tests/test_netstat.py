@@ -11,7 +11,6 @@ class TestNetstat(unittest.TestCase):
         connections_all = Netstat.get_connections()
         connections_tcp = Netstat.get_connections(proto='tcp')
         connections_udp = Netstat.get_connections(proto='udp')
-        # #TODO 0: make family selector more flexible, eg: [4|6], [ipv4|ipv6], [inet4|inet6]
         # connections_ipv4 = Netstat.get_connections(family='inet')
         # connections_ipv6 = Netstat.get_connections(family='inet6')
 
@@ -37,6 +36,22 @@ class TestNetstat(unittest.TestCase):
             connections_all_copy.remove(connection)
 
         self.assertEqual(connections_all_copy, connections_tcp)
+
+    # def get_full_dicts_of_connection_snapshots():
+    #     '''function to obtain all combinations of connection slices for subsequent comparison'''
+    #     full_dicts_of_connection_snapshots = {
+    #         'connections_all': [c.as_dict for c in Netstat.get_connections()],
+    #         'connections_tcp': [c.as_dict for c in Netstat.get_connections(proto='tcp')],
+    #         'connections_udp': [c.as_dict for c in Netstat.get_connections(proto='udp')],
+    #         'connections_ipv4': [c.as_dict for c in Netstat.get_connections(family='inet')],
+    #         'connections_ipv6': [c.as_dict for c in Netstat.get_connections(family='inet6')],
+    #         'connections_tcp_ipv4': [c.as_dict for c in Netstat.get_connections(proto='tcp',family='inet')],
+    #         'connections_tcp_ipv6': [c.as_dict for c in Netstat.get_connections(proto='tcp',family='inet6')],
+    #         'connections_udp_ipv4': [c.as_dict for c in Netstat.get_connections(proto='udp', family='inet')],
+    #         'connections_udp_ipv6': [c.as_dict for c in Netstat.get_connections(proto='udp', family='inet6')]
+    #     }
+
+    #     return full_dicts_of_connection_snapshots
 
 if __name__ == '__main__':
     unittest.main()

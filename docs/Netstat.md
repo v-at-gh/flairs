@@ -13,6 +13,16 @@ This static method retrieves information about network interfaces and their asso
 #### 2. `_get_connections(proto: protos = None, family: families = None) -> list[str]`:
 
 This private method is responsible for executing the `netstat` command to retrieve information about network connections. It takes optional parameters `proto` (protocol) and `family` (address family) to filter the results. The method returns a list of strings, where each string represents a line from the `netstat` command output.
+```
+#TODO: add support for linux and windows.
+#  Windows implementation of `netstat` has a `-b` argument,
+#    which returns a path to each binary for a connetion.
+#  Linux version is invoked like `netstat (or `ss`) -tunap`
+#    for all connections and process IDs.
+#------------------------------------------------------------------------------------
+#  Elevation of privileges is required to obtain complete information
+#    about connections and their corresponding processes on both non-macos systems.
+```
 
 #### 3. `_parse_netstat_connection(netstat_connection_line: str) -> TCP_Connection | UDP_Connection`:
 
