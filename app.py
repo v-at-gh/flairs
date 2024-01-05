@@ -17,12 +17,10 @@ def index():
     processes_with_connections = get_data()
     return render_template('index.html', process_list=processes_with_connections)
 
-@app.route("/filters")
-def filters():
-    # Not implemtned yet
-    #TODO: render the page with the tcpdump/wireshark capture/preview filters
-    processes_with_connections = get_data()
-    return render_template('filters.html', process_list=processes_with_connections)
+# @app.route("/filters")
+# def filters():
+#     processes_with_connections = get_data()
+#     return render_template('filters.html', process_list=processes_with_connections)
 
 if __name__ == "__main__":
     app.run(debug=True)

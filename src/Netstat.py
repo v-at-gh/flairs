@@ -16,7 +16,6 @@ class Netstat:
                  run(command, **subprocess_run_kwargs).stdout.splitlines()[1:]]
         lines = [line for line in lines
                  if len(line) == 9 and not line[2].startswith('<Link')]
-
         ifaces = []
         for iface in set([line[0] for line in lines]):
             iface = {
@@ -24,7 +23,6 @@ class Netstat:
                 'addresses': [line[3] for line in lines if line[0] == iface]
             }
             ifaces.append(iface)
-
         return ifaces
 
     def _get_connections(
@@ -33,11 +31,9 @@ class Netstat:
         ) -> List[str]:
         proto_selector = '-p ' + proto if proto is not None else ''
         family_selector = '-f ' + family if family is not None else ''
-
         netstat_command = f"netstat -nval {family_selector} {proto_selector}"
         netstat_out = run(netstat_command, **subprocess_run_kwargs).stdout
         netstat_lines = netstat_out.splitlines()
-
         return netstat_lines
 
     def _parse_netstat_connection(
@@ -45,13 +41,11 @@ class Netstat:
         ) -> TCP_Connection | UDP_Connection:
         Connection_Classes = {'tcp': TCP_Connection, 'udp': UDP_Connection}
         proto = netstat_connection_line.split()[0].lower()
-
         for protocol_name in protos:
             if proto.startswith(protocol_name):
                 proto = protocol_name
         Parse_Connection = Connection_Classes[proto]
         connection = Parse_Connection(*netstat_connection_line.split())
-
         return connection
 
     @staticmethod
@@ -62,13 +56,11 @@ class Netstat:
         ) -> List[TCP_Connection | UDP_Connection]:
         if netstat_lines is None:
             netstat_lines = Netstat._get_connections(proto, family)
-
         connections = []
         for line in netstat_lines:
             if line.startswith(protos):
                 connection = Netstat._parse_netstat_connection(line)
                 connections.append(connection)
-
         return connections
 
     @staticmethod

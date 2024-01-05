@@ -11,7 +11,6 @@ def compare_snapshots() -> None:
         s = snapshots[-1]
         print(f"Timestamp: {s.timestamp}, Connections: {s.connections}")
 
-    #TODO 0: improve comparison function `compare_snapshots` in `Snapshot.py`
     if len(snapshots) >= 2:
         previous = snapshots[-2]
         current = snapshots[-1]

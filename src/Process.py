@@ -40,7 +40,5 @@ class Process:
         return dict_of_process_with_connections
 
     def get_connections_of_this_process(self) -> dict:
-        #TODO 1: this method should not return a dictionary representation of the `Process` object,
-        # but the `Process` object itself with its associated `Connections`
         dict_of_process_with_connections = Process.get_dict_of_the_process_with_connections(self)
         return dict_of_process_with_connections

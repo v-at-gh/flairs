@@ -10,6 +10,10 @@ class _ConnectionProcessor:
         self._process_socket("localSocket", self.localSocket, "local")
         self._process_socket("remoteSocket", self.remoteSocket, "remote")
 
+    def _convert_to_int(self, *attributes) -> None:
+        for attribute in attributes:
+            setattr(self, attribute, int(getattr(self, attribute)))
+
     def _process_socket(self, socket_attr, socket_str, socket_location) -> None:
         def _translate_addr() -> None:
             setattr(self, f"{socket_location}Addr", f"{'0.0.0.0' if self.family == 4 else '::'}")
@@ -28,14 +32,6 @@ class _ConnectionProcessor:
                 setattr(self, f"{socket_location}Addr", address)
             setattr(self, f"{socket_location}Port", int(port))
 
-    def _convert_to_int(self, *attributes) -> None:
-        for attribute in attributes:
-            setattr(self, attribute, int(getattr(self, attribute)))
-
-    @property
-    def as_dict(self) -> Dict:
-        return self.__dict__
-
     def to_csv(self) -> str:
         return (
             f"{self.pid},{self.proto},{self.family},"
@@ -44,8 +40,6 @@ class _ConnectionProcessor:
         )
 
     def to_dict(self) -> Dict:
-        '''Returns the minimal representation of the Connection
-        object for further processing (storing/comparison)'''
         connection_dict = {
             'pid': self.pid,
             'family': self.family, 'proto': self.proto,
@@ -54,13 +48,15 @@ class _ConnectionProcessor:
         }
         if self.proto == 'tcp':
             connection_dict['state'] = self.state
-        connection_dict['state_str'] = self.state_str
-        
+        connection_dict['state_str'] = self.state_str        
         return connection_dict
 
     @property
+    def as_dict(self) -> Dict:
+        return self.__dict__
+
+    @property
     def hash(self) -> str:
-        '''Generate a hash for the object based on its main attributes'''
         hash_obj = sha1()
         hash_obj.update(str(self.to_dict()).encode('utf-8'))
         return hash_obj.hexdigest()

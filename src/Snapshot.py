@@ -14,6 +14,7 @@ class Snapshot:
     connections: List[Network_Connection]
 
 class SnapshotDatabase:
+
     def __init__(self, db_file='snapshots.db') -> None:
         self.db_file = db_file
         self.connection = sqlite3.connect(db_file)
@@ -54,7 +55,6 @@ class SnapshotDatabase:
         cursor = self.connection.cursor()
         cursor.execute('SELECT timestamp, connections FROM snapshots ORDER BY timestamp')
         rows = cursor.fetchall()
-
         snapshots = []
         for row in rows:
             timestamp, connections_json = row
@@ -72,19 +72,15 @@ class SnapshotDatabase:
                 connection for connection in snapshot.connections
                 if connection['hash'] == connection_hash
             ]
-
         hashes_of_conns_in_prev = set(connection['hash'] for connection in snapshot_prev.connections)
         hashes_of_conns_in_curr = set(connection['hash'] for connection in snapshot_curr.connections)
         diff_hashes = hashes_of_conns_in_prev ^ hashes_of_conns_in_curr
-
         diff = {'previous': [], 'current': []}
         for connection_hash in diff_hashes:
             connections_in_prev = _get_connections_by_hash(snapshot_prev, connection_hash)
             connections_in_curr = _get_connections_by_hash(snapshot_curr, connection_hash)
-
             diff['previous'].extend(connections_in_prev)
             diff['current'].extend(connections_in_curr)
-
         return diff
 
     def close_connection(self) -> None:
