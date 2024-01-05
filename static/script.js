@@ -11,10 +11,7 @@ function sortTable(header, columnIndex) {
             shouldSwitch = false;
             x = rows[i].getElementsByTagName("TD")[columnIndex];
             y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
-            
-            // Check if the column is numeric (Process ID, Local Port, Remote Port)
             var isNumeric = !isNaN(parseFloat(x.innerHTML)) && isFinite(x.innerHTML);
-
             if (dir === "asc") {
                 if ((isNumeric && parseFloat(x.innerHTML) > parseFloat(y.innerHTML)) ||
                     (!isNumeric && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase())) {

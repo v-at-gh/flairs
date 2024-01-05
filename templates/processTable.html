@@ -1,0 +1,24 @@
+<table id="processTable">
+    <thead>
+        <tr>
+            <th onclick="sortTable(this, 0)">Process ID</th>
+            <th onclick="sortTable(this, 1)">Command Line</th>
+            <th onclick="sortTable(this, 2)">Connections</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in process_list %}
+            <tr>
+                <td>{{ entry.process.pid }}</td>
+                <td>{{ entry.process.executable }}</td>
+                <td>
+                    {% if entry.connections %}
+                    {% include "connectionsTable.html" %}
+                    {% else %}
+                        No connections available.
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
