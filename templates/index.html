@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Process Information</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 <body>
     <h1>Process Information</h1>
@@ -13,9 +14,9 @@
         <table id="processTable">
             <thead>
                 <tr>
-                    <th>Process ID</th>
-                    <th>Command Line</th>
-                    <th>Connections</th>
+                    <th onclick="sortTable(this, 0)">Process ID</th>
+                    <th onclick="sortTable(this, 1)">Command Line</th>
+                    <th onclick="sortTable(this, 2)">Connections</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,16 +26,16 @@
                         <td>{{ entry.process.executable_with_args }}</td>
                         <td>
                             {% if entry.connections %}
-                                <table id="connectionsTable">
+                                <table class="connectionsTable">
                                     <thead>
                                         <tr>
-                                            <th onclick="sortTable(0)">Family</th>
-                                            <th onclick="sortTable(1)">Protocol</th>
-                                            <th onclick="sortTable(2)">Local Address</th>
-                                            <th onclick="sortTable(3)">Local Port</th>
-                                            <th onclick="sortTable(4)">Remote Address</th>
-                                            <th onclick="sortTable(5)">Remote Port</th>
-                                            <th onclick="sortTable(6)">State</th>
+                                            <th onclick="sortTable(this, 0)">Family</th>
+                                            <th onclick="sortTable(this, 1)">Protocol</th>
+                                            <th onclick="sortTable(this, 2)">Local Address</th>
+                                            <th onclick="sortTable(this, 3)">Local Port</th>
+                                            <th onclick="sortTable(this, 4)">Remote Address</th>
+                                            <th onclick="sortTable(this, 5)">Remote Port</th>
+                                            <th onclick="sortTable(this, 6)">State</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -66,6 +67,5 @@
     {% else %}
         <p>No process information available.</p>
     {% endif %}
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
