@@ -13,12 +13,13 @@ class Process:
     def __post_init__(self) -> None:
         executable = run(f"ps -p {self.pid} -o comm", **subprocess_run_kwargs).stdout.splitlines()
         if len(executable) > 1:
-            self.executable = executable[1]
-            executable_with_args = run(f"ps -p {self.pid} -o command", **subprocess_run_kwargs).stdout.splitlines()
-            self.executable_with_args = executable_with_args[1]
+            self.executable_path = executable[1]
+            self.executable = self.executable_path.split('/')[-1]
+            executable_path_with_args = run(f"ps -p {self.pid} -o command", **subprocess_run_kwargs).stdout.splitlines()
+            self.executable_path_with_args = executable_path_with_args[1]
         elif len(executable) <= 1:
             self.executable = ''
-            self.executable_with_args = ''
+            self.executable_path_with_args = ''
 
     @property
     def as_dict(self) -> dict[str, Any]:

@@ -11,13 +11,19 @@ function sortTable(header, columnIndex) {
             shouldSwitch = false;
             x = rows[i].getElementsByTagName("TD")[columnIndex];
             y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
+            
+            // Check if the column is numeric (Process ID, Local Port, Remote Port)
+            var isNumeric = !isNaN(parseFloat(x.innerHTML)) && isFinite(x.innerHTML);
+
             if (dir === "asc") {
-                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                if ((isNumeric && parseFloat(x.innerHTML) > parseFloat(y.innerHTML)) ||
+                    (!isNumeric && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase())) {
                     shouldSwitch = true;
                     break;
                 }
             } else if (dir === "desc") {
-                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                if ((isNumeric && parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) ||
+                    (!isNumeric && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase())) {
                     shouldSwitch = true;
                     break;
                 }
@@ -34,21 +40,4 @@ function sortTable(header, columnIndex) {
             }
         }
     }
-};
-function collapseTable() {
-    var coll = document.getElementsByClassName("collapsible");
-    var i;
-    for (i = 0; i < coll.length; i++) {
-        coll[i].addEventListener(
-            "click", function() {
-                this.classList.toggle("active");
-                var content = this.nextElementSibling;
-                if (content.style.display === "block") {
-                    content.style.display = "none";
-                } else {
-                    content.style.display = "block";
-                }
-            }
-        )
-    }
-};
+}
