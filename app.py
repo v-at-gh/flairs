@@ -8,14 +8,14 @@ app = Flask(__name__)
 from get_data import get_data
 
 @app.route("/")
-def test():
-    processes_with_connections = get_data()
-    return render_template('test.html', process_list=processes_with_connections)
-
-@app.route("/test")
 def index():
     processes_with_connections = get_data()
     return render_template('index.html', process_list=processes_with_connections)
+
+# @app.route("/")
+# def test():
+#     processes_with_connections = get_data()
+#     return render_template('test.html', process_list=processes_with_connections)
 
 # @app.route("/filters")
 # def filters():
