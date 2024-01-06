@@ -18,7 +18,9 @@ class Process:
             executable_path_with_args = run(f"ps -p {self.pid} -o command", **subprocess_run_kwargs).stdout.splitlines()
             self.executable_path_with_args = executable_path_with_args[1]
         elif len(executable_path) <= 1:
-            self.executable, self.executable_path, self.executable_path_with_args = ''
+            self.executable = ''
+            self.executable_path = ''
+            self.executable_path_with_args = ''
 
     @property
     def as_dict(self) -> dict[str, Any]:
