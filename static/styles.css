@@ -1,8 +1,8 @@
 /* styles.css */
 table {
     width: 100%;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin-top: 1px;
+    margin-bottom: 1px;
 }
 th, td {
     border: 1px solid #dddddd;
@@ -19,12 +19,13 @@ th:hover {
 .table-container {
     margin: auto;
     display: none;
-    padding: 0 18px;
+    padding: 0 1px;
     overflow: hidden;
     background-color: #f1f1f1;
 }
 #processTable th:first-child, .connectionsTable th:first-child,
 #processTable td:first-child, .connectionsTable td:first-child {
+    text-align: center;
     width: 5%;
     white-space: nowrap;
     overflow: hidden;
