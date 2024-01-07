@@ -23,27 +23,14 @@ class TestNetstat(unittest.TestCase):
         self.assertEqual(connections_all_copy, connections_tcp)
 
     def test_get_connections_by_interface(self):
-
         interfaces = Netstat.get_interfaces()
         connections = Netstat.get_connections()
 
-        connections_by_interface_addresses = []
         for interface in interfaces:
-            connections_by_interface_address = {
-                'interface': interface.name,
-                'connections': []
-            }
-            for connection in connections:
-                if connection.localAddr in interface.addresses:
-                    connections_by_interface_address['connections'].append(connection)
-            connections_by_interface_addresses.append(connections_by_interface_address)
+            connections_by_interface = Netstat.get_connections_by_interface(interface.name)
+            expected_connections = [connection for connection in connections if connection.localAddr in interface.addresses]
 
-        for interface in interfaces:
-            self.assertEqual(
-                Netstat.get_connections_by_interface(interface.name),
-                connections_by_interface_address = [co]
-                [connection for connection in connections_by_interface_addresses]
-            )
+            self.assertEqual(connections_by_interface, expected_connections)
 
 if __name__ == '__main__':
     unittest.main()
