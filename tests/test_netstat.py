@@ -28,7 +28,10 @@ class TestNetstat(unittest.TestCase):
 
         for interface in interfaces:
             connections_by_interface = Netstat.get_connections_by_interface(interface.name)
-            expected_connections = [connection for connection in connections if connection.localAddr in interface.addresses]
+            expected_connections = [
+                connection for connection in connections
+                if connection.localAddr in interface.addresses
+            ]
 
             self.assertEqual(connections_by_interface, expected_connections)
 
