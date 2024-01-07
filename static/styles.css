@@ -12,6 +12,8 @@ th, td {
 th {
     background-color: #f2f2f2;
     cursor: pointer;
+    position: sticky;
+    top: 0;
 }
 th:hover {
     background-color: #ccc;

@@ -49,7 +49,9 @@ function sortTable(header, columnIndex) {
 // Function to check if the column is for IP addresses
 function isIPAddressColumn(header, columnIndex) {
     if (header && header.getElementsByTagName("TH")[columnIndex]) {
-        var columnName = header.getElementsByTagName("TH")[columnIndex].innerText;
+        // var columnName = header.getElementsByTagName("TH")[columnIndex].innerText;
+        // var columnName = header.getElementsByTagName("TH")[columnIndex].textContent;
+        var columnName = header.getElementsByTagName("TH")[columnIndex].innerHTML;
         return columnName === "Local Address" || columnName === "Remote Address";
     }
     return false;
