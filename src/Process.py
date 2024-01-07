@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from subprocess import run
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 from .Common import subprocess_run_kwargs
+from .Connection import Net_Connection
 from .Netstat import Netstat
 
 @dataclass
@@ -23,11 +24,14 @@ class Process:
             self.executable_path_with_args = ''
 
     @property
-    def as_dict(self) -> dict[str, Any]:
+    def as_dict(self) -> Dict[str, Any]:
         return self.__dict__
 
     @staticmethod
-    def get_dict_of_the_process_with_connections(process, connections=None) -> dict:
+    def get_dict_of_the_process_with_connections(
+        process,
+        connections: Optional[List[Net_Connection]] = None
+    ) -> Dict:
         if connections is None:
             connections = Netstat.get_connections()
         connections_of_process = [
@@ -41,6 +45,6 @@ class Process:
         }
         return dict_of_process_with_connections
 
-    def get_connections_of_this_process(self) -> dict:
+    def get_connections_of_this_process(self) -> Dict:
         dict_of_process_with_connections = Process.get_dict_of_the_process_with_connections(self)
         return dict_of_process_with_connections

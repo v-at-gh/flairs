@@ -36,7 +36,8 @@ class _ConnectionProcessor:
         return (
             f"{self.pid},{self.proto},{self.family},"
             f"{self.localSocket},{self.remoteSocket},"
-            f"{self.state if self.proto == 'tcp' else self.state_str}"
+            f"{self.state_str},"
+            f"{self.state if self.proto == 'tcp' else ''}"
         )
 
     def to_dict(self) -> Dict:

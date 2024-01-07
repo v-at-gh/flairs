@@ -1,6 +1,6 @@
 import ipaddress
 
-from typing import List, Optional, Union
+from typing import List, Optional
 from dataclasses import dataclass
 from subprocess import run
 
@@ -69,7 +69,10 @@ class Netstat:
         ) -> List[Net_Connection]:
         if netstat_lines is None:
             netstat_lines = Netstat._run_netstat_to_get_connections(proto, family)
-        connections = [Netstat._parse_netstat_connection(line) for line in netstat_lines if line.startswith(protos)]
+        connections = [
+            Netstat._parse_netstat_connection(line) for line
+            in netstat_lines if line.startswith(protos)
+        ]
         return connections
 
     @staticmethod
@@ -90,12 +93,18 @@ class Netstat:
             connections = Netstat.get_connections()
         try:
             ipaddress.ip_address(interface)
-            connections_by_interface = [connection for connection in connections if connection.localAddr == interface]
+            connections_by_interface = [
+                connection for connection in connections
+                if connection.localAddr == interface
+            ]
         except ValueError:
             connections_by_interface = []
             for iface in Netstat.get_interfaces():
                 if iface.name == interface:
                     connections_by_interface.extend(
-                        [connection for connection in connections if connection.localAddr in iface.addresses]
+                        [
+                            connection for connection in connections
+                            if connection.localAddr in iface.addresses
+                        ]
                     )
         return connections_by_interface
