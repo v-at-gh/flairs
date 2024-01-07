@@ -25,8 +25,8 @@ th:hover {
     overflow: hidden;
     background-color: #f1f1f1;
 }
-#processTable th:first-child, .connectionsTable th:first-child,
-#processTable td:first-child, .connectionsTable td:first-child {
+#processesTable th:first-child, .connectionsTable th:first-child,
+#processesTable td:first-child, .connectionsTable td:first-child {
     text-align: center;
     width: 5%;
     white-space: nowrap;

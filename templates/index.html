@@ -11,11 +11,12 @@
     {% endif %}
 </head>
 <body>
-    <h1>Process Information ¯\_(ツ)_/¯</h1>
+    <h1>Process Information</h1>
     {% if process_list %}
-        {% include "processTable.html" %}
+        {% include "processesSummary.html" %}
+        {% include "processesTable.html" %}
     {% else %}
-        <p>No process information available.</p>
+        <p>No process information available. ¯\_(ツ)_/¯</p>
     {% endif %}
 </body>
 </html>
