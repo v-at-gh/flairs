@@ -12,19 +12,26 @@ function sortTable(header, columnIndex) {
             x = rows[i].getElementsByTagName("TD")[columnIndex];
             y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
             var isNumeric = !isNaN(parseFloat(x.innerHTML)) && isFinite(x.innerHTML);
+
+            // Check if the column is for IP addresses
+            var isIPAddress = isIPAddressColumn(header, columnIndex);
+
             if (dir === "asc") {
                 if ((isNumeric && parseFloat(x.innerHTML) > parseFloat(y.innerHTML)) ||
-                    (!isNumeric && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase())) {
+                    (!isNumeric && !isIPAddress && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) ||
+                    (!isNumeric && isIPAddress && compareIPAddresses(x.innerHTML, y.innerHTML) > 0)) {
                     shouldSwitch = true;
                     break;
                 }
             } else if (dir === "desc") {
                 if ((isNumeric && parseFloat(x.innerHTML) < parseFloat(y.innerHTML)) ||
-                    (!isNumeric && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase())) {
+                    (!isNumeric && !isIPAddress && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) ||
+                    (!isNumeric && isIPAddress && compareIPAddresses(x.innerHTML, y.innerHTML) < 0)) {
                     shouldSwitch = true;
                     break;
                 }
             }
+
         }
         if (shouldSwitch) {
             rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
@@ -37,4 +44,29 @@ function sortTable(header, columnIndex) {
             }
         }
     }
+}
+
+// Function to check if the column is for IP addresses
+function isIPAddressColumn(header, columnIndex) {
+    if (header && header.getElementsByTagName("TH")[columnIndex]) {
+        var columnName = header.getElementsByTagName("TH")[columnIndex].innerText;
+        return columnName === "Local Address" || columnName === "Remote Address";
+    }
+    return false;
+}
+
+// Function to compare IP addresses
+function compareIPAddresses(ip1, ip2) {
+    var parts1 = ip1.split(".");
+    var parts2 = ip2.split(".");
+    for (var i = 0; i < 4; i++) {
+        var num1 = parseInt(parts1[i], 10);
+        var num2 = parseInt(parts2[i], 10);
+        if (num1 < num2) {
+            return -1;
+        } else if (num1 > num2) {
+            return 1;
+        }
+    }
+    return 0;
 }
