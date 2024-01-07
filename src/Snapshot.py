@@ -4,14 +4,13 @@ from dataclasses import dataclass
 from typing import List, Union
 from time import time
 
-from .Connection import TCP_Connection, UDP_Connection
+from .Connection import Net_Connection
 from .Netstat import Netstat
-Network_Connection = Union[TCP_Connection, UDP_Connection]
 
 @dataclass
 class Snapshot:
     timestamp: float
-    connections: List[Network_Connection]
+    connections: List[Net_Connection]
 
 class SnapshotDatabase:
 
@@ -66,8 +65,8 @@ class SnapshotDatabase:
             self,
             snapshot_prev: Snapshot,
             snapshot_curr: Snapshot
-        ) -> List[Network_Connection]:
-        def _get_connections_by_hash(snapshot: Snapshot, connection_hash: str) -> List[Network_Connection]:
+        ) -> List[Net_Connection]:
+        def _get_connections_by_hash(snapshot: Snapshot, connection_hash: str) -> List[Net_Connection]:
             return [
                 connection for connection in snapshot.connections
                 if connection['hash'] == connection_hash

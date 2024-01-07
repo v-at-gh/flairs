@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 from dataclasses import dataclass
 from hashlib import sha1
 
@@ -101,3 +101,11 @@ class TCP_Connection(Common_Connection_attrs_and_metrics,
 @dataclass
 class UDP_Connection(Common_Connection_attrs_and_metrics,
                      BaseConnection, _ConnectionProcessor): ...
+
+Net_Connection = Union[TCP_Connection, UDP_Connection]
+
+@dataclass
+class ICMP_Exchange(Common_Connection_attrs_and_metrics,
+                     BaseConnection, _ConnectionProcessor):
+    '''To be implemented'''
+    ...
