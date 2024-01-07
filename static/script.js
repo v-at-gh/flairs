@@ -46,6 +46,7 @@ function sortTable(header, columnIndex) {
     }
 }
 
+// TODO: for some reason cannot make it work. Think out the other way.
 // Function to check if the column is for IP addresses
 function isIPAddressColumn(header, columnIndex) {
     if (header && header.getElementsByTagName("TH")[columnIndex]) {
