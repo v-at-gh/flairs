@@ -7,13 +7,13 @@
     <title>Process Information</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     {% if process_list %}
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
     {% endif %}
 </head>
 <body>
     <h1>Process Information</h1>
     {% if process_list %}
-    {% include "processTable.html" %}
+        {% include "processTable.html" %}
     {% else %}
         <p>No process information available.</p>
     {% endif %}

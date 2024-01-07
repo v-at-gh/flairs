@@ -1,3 +1,5 @@
+import ipaddress
+
 from typing import Dict, List
 from subprocess import run
 
@@ -6,6 +8,13 @@ from .Connection import TCP_Connection, UDP_Connection
 
 protos = ('tcp', 'udp')
 families = ('inet', 'inet6')
+
+from dataclasses import dataclass
+
+@dataclass
+class Interface:
+    name: str
+    addresses: List = None
 
 class Netstat:
 
@@ -18,10 +27,10 @@ class Netstat:
                  if len(line) == 9 and not line[2].startswith('<Link')]
         ifaces = []
         for iface in set([line[0] for line in lines]):
-            iface = {
-                'name': iface,
-                'addresses': [line[3] for line in lines if line[0] == iface]
-            }
+            iface = Interface(
+                name = iface,
+                addresses = [line[3] for line in lines if line[0] == iface]
+            )
             ifaces.append(iface)
         return ifaces
 
@@ -69,3 +78,23 @@ class Netstat:
             connections = Netstat.get_connections()
         pids = sorted(set([connection.pid for connection in connections]))
         return pids
+
+    @staticmethod
+    def get_connections_by_interface(interface, connections=None):
+        if connections is None:
+            connections = Netstat.get_connections()
+        try:
+            ipaddress.ip_address(interface)
+            connections_by_interface = []
+            for connection in connections:
+                if connection.localAddr == interface:
+                    connections_by_interface.append(connection)
+            return connections_by_interface
+        except:
+            connections_by_interface = []
+            for iface in Netstat.get_interfaces():
+                if iface.name == interface:
+                    for connection in connections:
+                        if connection.localAddr in iface.addresses:
+                            connections_by_interface.append(connection)
+            return connections_by_interface
