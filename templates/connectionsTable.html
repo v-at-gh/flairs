@@ -9,6 +9,7 @@
             <th onclick="sortTable(this, 4)">Remote Address</th>
             <th onclick="sortTable(this, 5)">Remote Port</th>
             <th onclick="sortTable(this, 6)">State</th>
+            <th onclick="sortTable(this, 7)">State Bits</th>
         </tr>
     </thead>
     <tbody>
@@ -20,11 +21,13 @@
                 <td>{{ connection.localPort }}</td>
                 <td>{{ connection.remoteAddr }}</td>
                 <td>{{ connection.remotePort }}</td>
-                {% if connection.proto == 'tcp' %}
+                <td>{{ connection.state }}</td>
+                <td>{{ connection.state_bits }}</td>
+                <!-- {% if connection.proto == 'tcp' %}
                     <td>{{ connection.state }}</td>
                 {% else %}
                     <td>{{ connection.state_bits }}</td>
-                {% endif %}
+                {% endif %} -->
             </tr>
         {% endfor %}
     </tbody>
