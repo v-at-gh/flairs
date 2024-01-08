@@ -3,9 +3,10 @@
 Draft: whois reports processing utility.
 The purpose of this module is to provide methods for obtaining, storing, and processing whois reports.
 '''
-import os, re, ipaddress
+import os, re
 from typing import List
 from dataclasses import dataclass
+from ipaddress import ip_address, ip_network
 
 comment_chars = ('%', '#')
 
@@ -17,18 +18,18 @@ class Report:
     ip_ranges: List = None
     ip_networks: List = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.content_lines = self._process_content()
         self.sections = self._split_to_sections()
         self.ip_ranges = self.find_ipv4_objects('range')
         self.ip_networks = self.find_ipv4_objects('network')
         delattr(self, 'content')
 
-    def _process_content(self):
+    def _process_content(self) -> List[str]:
         content_lines = [line for line in self.content.splitlines()]
         return content_lines
 
-    def _split_to_sections(self):
+    def _split_to_sections(self) -> List[List[str]]:
         sections = []
         current_section = []
         
@@ -55,21 +56,13 @@ class Report:
                         section_dict[key].append(value)
             return section_dict
 
-    # def populate_dict(self):
-    #     self.dict = {}
-    #     for line in self.content_lines:
-    #         if not line.startswith(comment_chars):
-    #             key = line.split(':')[0].strip()
-    #             value = ''.join(line.split(':')[1:]).strip()
-    #             if key not in self.dict.keys():
-    #                 self.dict.update({ key: [value] })
-    #             else:
-    #                 self.dict[key].append(value)
-
     def find_ipv4_objects(self, object_type):
+        ipv4_address_pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+        range_pattern = rf'\b({ipv4_address_pattern})\s*-\s*({ipv4_address_pattern})\b'
+        network_pattern = r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b'
         object_regex_map = {
-            'range': re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s*-\s*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b'),
-            'network': re.compile(r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b'),
+            'range': re.compile(range_pattern),
+            'network': re.compile(network_pattern),
         }
         object_regex = object_regex_map[object_type]
         object_list = []
@@ -80,19 +73,18 @@ class Report:
                 if matches:
                     try:
                         if object_type == 'network':
-                            obj = ipaddress.ip_network(matches[0])
+                            obj = ip_network(matches[0])
                         elif object_type == 'range':
-                            first = ipaddress.ip_address(matches[0][0])
-                            last = ipaddress.ip_address(matches[0][1])
+                            first = ip_address(matches[0][0])
+                            last = ip_address(matches[0][1])
                             obj = (first, last)
-                        # object_list.append(obj)
                         object_list.append((line.split(':')[0], obj))
                     except:
                         pass
         return object_list
 
     @staticmethod
-    def collect_reports(directory):
+    def collect_reports(directory) -> List:
         reports = []
         for r in os.listdir(directory):
             path = os.path.join(directory, r)
@@ -103,7 +95,7 @@ class Report:
                 reports.append(r)
         return reports
 
-def print_reports_as_indented_sections(reports):
+def print_reports_as_indented_sections(reports) -> None:
     for i, report in enumerate(reports, 1):
         print(f"{i}. {report.path}")
         for ii, section in enumerate(report.sections, 1):
@@ -113,7 +105,7 @@ def print_reports_as_indented_sections(reports):
                     print(f"    {iii}. {line}")
         print()
 
-def main():
+def main() -> None:
     default_directory = 'data/net/ipv4'
     reports = Report.collect_reports(default_directory)
     print_reports_as_indented_sections(reports)
