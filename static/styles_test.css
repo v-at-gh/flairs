@@ -3,21 +3,26 @@ table {
     width: 100%;
     margin-top: 1px;
     margin-bottom: 1px;
+    border-collapse: collapse;
 }
+
 th, td {
     border: 1px solid #ddd;
     text-align: left;
     padding: 8px;
 }
+
 th {
     background-color: #fff;
     cursor: pointer;
     position: sticky;
     top: 0;
 }
+
 th:hover {
     background-color: #ccc;
 }
+
 .table-container {
     margin: auto;
     display: none;
@@ -25,35 +30,29 @@ th:hover {
     overflow: hidden;
     background-color: #eee;
 }
-#processesTable th:first-child, .connectionsTable th:first-child,
-#processesTable td:first-child, .connectionsTable td:first-child {
+
+/* Process Table */
+#processesTable th, #processesTable td {
     text-align: center;
-    width: 5%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.connectionsTable .Family {
-    text-align: left;
+
+#processesTable th:first-child,
+#processesTable td:first-child {
     width: 5%;
 }
-.connectionsTable .Protocol {
-    text-align: left;
-    width: 5%;
+
+/* Connections Table */
+.connectionsTable th, .connectionsTable td {
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.connectionsTable .Address {
-    text-align: right;
-    width: 25%;
-}
-.connectionsTable .Port {
-    text-align: left;
-    width: 10%;
-}
-.connectionsTable .State {
-    text-align: left;
-    width: 10%;
-}
-.connectionsTable .StateBits {
-    text-align: left;
+
+.connectionsTable th:first-child,
+.connectionsTable td:first-child {
     width: 5%;
 }

@@ -2,27 +2,27 @@
 <table class="connectionsTable">
     <thead>
         <tr>
-            <th data-col-id="family" onclick="sortTable(this, 0)">Family</th>
-            <th data-col-id="protocol" onclick="sortTable(this, 1)">Protocol</th>
-            <th data-col-id="localAddr" onclick="sortTable(this, 2)">Local Address</th>
-            <th data-col-id="localPort" onclick="sortTable(this, 3)">Local Port</th>
-            <th data-col-id="remoteAddr" onclick="sortTable(this, 4)">Remote Address</th>
-            <th data-col-id="remotePort" onclick="sortTable(this, 5)">Remote Port</th>
-            <th data-col-id="state" onclick="sortTable(this, 6)">State</th>
-            <th data-col-id="stateBits" onclick="sortTable(this, 7)">State Bits</th>
+            <th class="Family" onclick="sortTable(this, 0)">Family</th>
+            <th class="Protocol" onclick="sortTable(this, 1)">Protocol</th>
+            <th class="Address" onclick="sortTable(this, 2)">Local Address</th>
+            <th class="Port" onclick="sortTable(this, 3)">Local Port</th>
+            <th class="Address" onclick="sortTable(this, 4)">Remote Address</th>
+            <th class="Port" onclick="sortTable(this, 5)">Remote Port</th>
+            <th class="State" onclick="sortTable(this, 6)">State</th>
+            <th class="State" onclick="sortTable(this, 7)">State Bits</th>
         </tr>
     </thead>
     <tbody>
         {% for connection in entry.connections %}
             <tr>
-                <td data-col-id="family">{{ connection.family }}</td>
-                <td data-col-id="protocol">{{ connection.proto }}</td>
-                <td data-col-id="localAddr">{{ connection.localAddr }}</td>
-                <td data-col-id="localPort">{{ connection.localPort }}</td>
-                <td data-col-id="remoteAddr">{{ connection.remoteAddr }}</td>
-                <td data-col-id="remotePort">{{ connection.remotePort }}</td>
-                <td data-col-id="state">{{ connection.state }}</td>
-                <td data-col-id="stateBits">{{ connection.state_bits }}</td>
+                <td class="Family">{{ connection.family }}</td>
+                <td class="Protocol">{{ connection.proto }}</td>
+                <td class="Address">{{ connection.localAddr }}</td>
+                <td class="Port">{{ connection.localPort }}</td>
+                <td class="Address">{{ connection.remoteAddr }}</td>
+                <td class="Port">{{ connection.remotePort }}</td>
+                <td class="State">{{ connection.state }}</td>
+                <td class="State">{{ connection.state_bits }}</td>
             </tr>
         {% endfor %}
     </tbody>
