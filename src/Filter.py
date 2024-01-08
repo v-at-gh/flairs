@@ -1,7 +1,7 @@
 # Not implemented yet.
 '''
 The purpose of this class is to provide methods for creating capture/preview filters for tcpdump/wireshark.
-For exmaple:
+For example:
 
 -- tcpdump/tshark capture filter:
 'not ((src host 1.1.1.1 and src udp port 443) or (dst host 1.1.1.1 and dst udp port 443))'
