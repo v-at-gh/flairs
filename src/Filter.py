@@ -1,4 +1,4 @@
-# #TODO: validate IP-related input with built-in types
+# #TODO: validate IP-related input with built-in types; add IPv6 support
 # from ipaddress import ip_address, IPv4Address, IPv6Address, IPv4Network, IPv6Network
 
 purposes = ('capture', 'preview')
