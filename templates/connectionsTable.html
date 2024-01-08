@@ -23,7 +23,7 @@
                 {% if connection.proto == 'tcp' %}
                     <td>{{ connection.state }}</td>
                 {% else %}
-                    <td>{{ connection.state_str }}</td>
+                    <td>{{ connection.state_bits }}</td>
                 {% endif %}
             </tr>
         {% endfor %}

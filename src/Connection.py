@@ -2,6 +2,25 @@ from typing import Dict, Union
 from dataclasses import dataclass
 from hashlib import sha1
 
+TCP_States = (
+    'ESTABLISHED',
+    'SYN_SENT',
+    'SYN_RECEIVED',
+    'FIN_WAIT_1',
+    'FIN_WAIT_2',
+    'TIME_WAIT',
+    'CLOSED',
+    'CLOSE_WAIT',
+    'LAST_ACK',
+    'LISTEN',
+    'CLOSING',
+    'NONE'
+)
+
+UDP_States = (
+    'ESTABLISHED', 'LISTEN', 'NONE'
+)
+
 class _ConnectionProcessor:
     def __post_init__(self) -> None:
         self._convert_to_int('recvQ', 'sendQ', 'pid', 'epid', 'rhiwat', 'shiwat')
@@ -9,6 +28,13 @@ class _ConnectionProcessor:
         self.proto = ''.join(char for char in self.proto if char.isalpha())
         self._process_socket("localSocket", self.localSocket, "local")
         self._process_socket("remoteSocket", self.remoteSocket, "remote")
+        if self.proto == 'udp':
+            if self.localPort == 0:
+                self.state = 'NONE'
+            elif self.localPort != 0 and self.remotePort == 0:
+                self.state = 'LISTEN'
+            elif self.localPort != 0 and self.remotePort != 0:
+                self.state = 'ESTABLISHED'
 
     def _convert_to_int(self, *attributes) -> None:
         for attribute in attributes:
@@ -36,8 +62,8 @@ class _ConnectionProcessor:
         return (
             f"{self.pid},{self.proto},{self.family},"
             f"{self.localSocket},{self.remoteSocket},"
-            f"{self.state_str},"
-            f"{self.state if self.proto == 'tcp' else ''}"
+            f"{self.state_bits},"
+            f"{self.state}"
         )
 
     def to_dict(self) -> Dict:
@@ -47,9 +73,8 @@ class _ConnectionProcessor:
             'localAddr': self.localAddr, 'localPort': self.localPort,
             'remoteAddr': self.remoteAddr, 'remotePort': self.remotePort
         }
-        if self.proto == 'tcp':
-            connection_dict['state'] = self.state
-        connection_dict['state_str'] = self.state_str        
+        connection_dict['state'] = self.state
+        connection_dict['state_bits'] = self.state_bits
         return connection_dict
 
     @property
@@ -75,12 +100,16 @@ class TCP_State:
     state: str
 
 @dataclass
+class UDP_State:
+    state: str = None
+
+@dataclass
 class Common_Connection_attrs_and_metrics:
     rhiwat: int
     shiwat: int
     pid: int
     epid: int
-    state_str: str
+    state_bits: str
     options: str
     gencnt: str
     flags: str
@@ -95,13 +124,18 @@ class Common_Connection_attrs_and_metrics:
     remotePort: int = None
 
 @dataclass
-class TCP_Connection(Common_Connection_attrs_and_metrics,
-                     TCP_State,
-                     BaseConnection, _ConnectionProcessor): ...
+class TCP_Connection(
+    Common_Connection_attrs_and_metrics,
+    TCP_State,
+    BaseConnection, _ConnectionProcessor
+): ...
 
 @dataclass
-class UDP_Connection(Common_Connection_attrs_and_metrics,
-                     BaseConnection, _ConnectionProcessor): ...
+class UDP_Connection(
+    UDP_State,
+    Common_Connection_attrs_and_metrics,
+    BaseConnection, _ConnectionProcessor
+): ...
 
 Net_Connection = Union[TCP_Connection, UDP_Connection]
 

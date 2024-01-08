@@ -10,7 +10,7 @@ COMMON_CONNECTION_ATTRIBUTES = (
     'family', 'proto', 'pid',
     'localAddr', 'localPort',
     'remoteAddr', 'remotePort',
-    'state_str'
+    'state_bits'
 )
 
 COMMON_CONNECTION_METRICS = (

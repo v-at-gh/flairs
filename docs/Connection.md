@@ -36,7 +36,7 @@ The `TCP_Connection` and `UDP_Connection` classes extend the `BaseConnection` cl
 - `shiwat`: The high-water mark for the socket send buffer.
 - `pid`: Process ID associated with the connection.
 - `epid`: Extended process ID associated with the connection.
-- `state_str`: State information for TCP connections.
+- `state_bits`: State information for TCP connections.
 - `options`: Connection options.
 - `gencnt`: General count.
 - `flags`: Connection flags.
@@ -57,8 +57,8 @@ The `TCP_Connection` and `UDP_Connection` classes extend the `BaseConnection` cl
 
 ```python
 # Example usage of the connection classes
-tcp_connection = TCP_Connection(proto='tcp', recvQ=1024, sendQ=2048, localSocket='192.168.1.1:8080', remoteSocket='10.0.0.1:80', state='ESTABLISHED', rhiwat=4096, shiwat=8192, pid=1234, epid=5678, state_str='ESTABLISHED', options='...', gencnt='...', flags='...', flags1='...', usscnt=42, rtncnt=10, fltrs=5)
-udp_connection = UDP_Connection(proto='udp', recvQ=512, sendQ=1024, localSocket='192.168.1.1:1234', remoteSocket='0.0.0.0:0', rhiwat=2048, shiwat=4096, pid=5678, epid=9876, state_str='...', options='...', gencnt='...', flags='...', flags1='...', usscnt=30, rtncnt=8, fltrs=3)
+tcp_connection = TCP_Connection(proto='tcp', recvQ=1024, sendQ=2048, localSocket='192.168.1.1:8080', remoteSocket='10.0.0.1:80', state='ESTABLISHED', rhiwat=4096, shiwat=8192, pid=1234, epid=5678, state_bits='ESTABLISHED', options='...', gencnt='...', flags='...', flags1='...', usscnt=42, rtncnt=10, fltrs=5)
+udp_connection = UDP_Connection(proto='udp', recvQ=512, sendQ=1024, localSocket='192.168.1.1:1234', remoteSocket='0.0.0.0:0', rhiwat=2048, shiwat=4096, pid=5678, epid=9876, state_bits='...', options='...', gencnt='...', flags='...', flags1='...', usscnt=30, rtncnt=8, fltrs=3)
 
 print("TCP Connection:", tcp_connection.to_dict())
 print("UDP Connection:", udp_connection.to_dict())
