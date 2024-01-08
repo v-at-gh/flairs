@@ -222,16 +222,6 @@ class TCP_Connection(
 
     Inherits attributes and methods from Common_Connection_attrs_and_metrics,
     TCP_State, BaseConnection, and _ConnectionProcessor.
-
-    Example:
-        tcp_connection = TCP_Connection(
-            rhiwat=100, shiwat=200, pid=1234, epid=5678,
-            state_bits='0001', options='-', gencnt='1234',
-            flags='00000002', flags1='-', usscnt=0, rtncnt=0,
-            fltrs=0, proto='tcp', recvQ=0, sendQ=0,
-            localSocket='0.0.0.0:22', remoteSocket='0.0.0.0:0',
-            state='LISTEN'
-        )
     '''
     ...
 
@@ -246,16 +236,6 @@ class UDP_Connection(
 
     Inherits attributes and methods from UDP_State,
     Common_Connection_attrs_and_metrics, BaseConnection, and _ConnectionProcessor.
-
-    Example:
-        udp_connection = UDP_Connection(
-            rhiwat=100, shiwat=200, pid=1234, epid=5678,
-            state_bits='0001', options='-', gencnt='1234',
-            flags='00000002', flags1='-', usscnt=0, rtncnt=0,
-            fltrs=0, proto='udp', recvQ=0, sendQ=0,
-            localSocket='0.0.0.0:12345', remoteSocket='0.0.0.0:0',
-            state='LISTEN'
-        )
     '''
     ...
 
@@ -271,14 +251,5 @@ class ICMP_Exchange(Common_Connection_attrs_and_metrics,
 
     Inherits attributes and methods from Common_Connection_attrs_and_metrics,
     BaseConnection, and _ConnectionProcessor.
-
-    Example:
-        icmp_exchange = ICMP_Exchange(
-            rhiwat=100, shiwat=200, pid=1234, epid=5678,
-            state_bits='0001', options='-', gencnt='1234',
-            flags='00000002', flags1='-', usscnt=0, rtncnt=0,
-            fltrs=0, proto='icmp', recvQ=0, sendQ=0,
-            localSocket='0.0.0.0:0', remoteSocket='0.0.0.0:0'
-        )
     '''
     ...
