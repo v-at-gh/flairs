@@ -3,7 +3,7 @@ const directions = ['src', 'dst'];
 const filterGoals = ['exclude', 'include'];
 
 class Filter {
-    static constructEndpointFilter(purpose, proto, addr, port, filterGoal = 'exclude') {
+    static constructEndpointFilter({purpose, proto, addr, port, filterGoal = 'exclude'}) {
         // TODO: maybe we can come up with better naming?
         if (!purposes.includes(purpose)) {
             throw new Error(`Invalid purpose: ${purpose}\nChoose one of ${purposes.join(', ')}`);
@@ -37,44 +37,44 @@ class Filter {
     }
 
     static tcpdumpEndpointFilter(kwargs) {
-        return Filter.constructEndpointFilter('capture', kwargs);
+        return Filter.constructEndpointFilter({purpose: 'capture', ...kwargs});
     }
 
     static wiresharkEndpointFilter(kwargs) {
-        return Filter.constructEndpointFilter('preview', kwargs);
+        return Filter.constructEndpointFilter({purpose: 'preview', ...kwargs});
     }
 }
 
-// Example usage:
-const tcpdumpFilterForAddr = Filter.tcpdumpEndpointFilter({
-    proto: 'tcp',
-    addr: '192.168.1.1',
-    port: 80,
-    filterGoal: 'exclude'
-});
-console.log(tcpdumpFilterForAddr);
+// // Example usage:
+// const tcpdumpFilterForAddr = Filter.tcpdumpEndpointFilter({
+//     proto: 'tcp',
+//     addr: '192.168.1.1',
+//     port: 80,
+//     filterGoal: 'exclude'
+// });
+// console.log(tcpdumpFilterForAddr);
 
-const tcpdumpFilterForNet = Filter.tcpdumpEndpointFilter({
-    proto: 'tcp',
-    addr: '192.168.1.0/24',
-    port: 80,
-    filterGoal: 'exclude'
-});
-console.log(tcpdumpFilterForNet);
+// const tcpdumpFilterForNet = Filter.tcpdumpEndpointFilter({
+//     proto: 'tcp',
+//     addr: '192.168.1.0/24',
+//     port: 80,
+//     filterGoal: 'exclude'
+// });
+// console.log(tcpdumpFilterForNet);
 
-const wiresharkFilter = Filter.wiresharkEndpointFilter({
-    proto: 'udp',
-    addr: '10.0.0.1',
-    port: 8080,
-    filterGoal: 'include'
-});
-console.log(wiresharkFilter);
+// const wiresharkFilter = Filter.wiresharkEndpointFilter({
+//     proto: 'udp',
+//     addr: '10.0.0.1',
+//     port: 8080,
+//     filterGoal: 'include'
+// });
+// console.log(wiresharkFilter);
 
-const commonTestFilter = Filter.constructEndpointFilter({
-    purpose: 'preview',
-    proto: 'udp',
-    addr: '10.255.255.0/24',
-    port: 8080,
-    filterGoal: 'exclude'
-});
-console.log(commonTestFilter);
+// const commonTestFilter = Filter.constructEndpointFilter({
+//     purpose: 'preview',
+//     proto: 'udp',
+//     addr: '10.255.255.0/24',
+//     port: 8080,
+//     filterGoal: 'exclude'
+// });
+// console.log(commonTestFilter);
