@@ -5,12 +5,12 @@ table {
     margin-bottom: 1px;
 }
 th, td {
-    border: 1px solid #dddddd;
+    border: 1px solid #ddd;
     text-align: left;
     padding: 8px;
 }
 th {
-    background-color: #f2f2f2;
+    background-color: #fff;
     cursor: pointer;
     position: sticky;
     top: 0;
@@ -23,7 +23,7 @@ th:hover {
     display: none;
     padding: 0 1px;
     overflow: hidden;
-    background-color: #f1f1f1;
+    background-color: #eee;
 }
 #processesTable th:first-child, .connectionsTable th:first-child,
 #processesTable td:first-child, .connectionsTable td:first-child {
