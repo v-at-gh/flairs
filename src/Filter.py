@@ -1,5 +1,9 @@
+# #TODO: validate IP-related input with built-in types
+# from ipaddress import ip_address, IPv4Address, IPv6Address, IPv4Network, IPv6Network
+
 purposes = ('capture', 'preview')
 directions = ('src', 'dst')
+filter_goals = ('exclude', 'include')
 
 class Filter:
 
@@ -7,35 +11,37 @@ class Filter:
     def construct_endpoint_filter(
             purpose, proto=None, addr=None, port=None, filter_goal='exclude'
     ) -> str:
+
+        #TODO: maybe we can come up with a better naming?
         if purpose not in purposes:
-            raise ValueError(f"Invalid purpose: {purpose}")
+            raise ValueError(
+                f"Invalid purpose: {purpose}\n"
+                f"Choose one of {', '.join(purposes)}"
+            )
+        if filter_goal not in filter_goals:
+            raise ValueError(
+                f"Invalid filter_goal: {filter_goal}\n"
+                f"Choose one of {', '.join(filter_goals)}"
+            )
 
         inclusion_prefix = 'not ' if filter_goal == 'exclude' else ''
 
         if purpose == 'capture':
-            expression = f'''{inclusion_prefix}({
-                " or ".join(
-                    [
-                        f"""({direction} {
-                            'host'
-                            if len(addr.split('/')) == 1
-                            else 'net'
-                        } {addr} and {proto} {direction} port {port})"""
-                        for direction in directions
-                    ]
-                )
-            })'''
+            packet_envelope = [
+                f"""({direction} {
+                    'host'
+                    if len(addr.split('/')) == 1
+                    else 'net'
+                } {addr} and {proto} {direction} port {port})"""
+                for direction in directions
+            ]
         elif purpose == 'preview':
-            expression = f'''{inclusion_prefix}({
-                " or ".join(
-                    [
-                        f"(ip.{direction} == {addr} and {proto}.{direction}port == {port})"
-                        for direction in directions
-                    ]
-                )
-            })'''
-        else:
-            expression = ''
+            packet_envelope = [
+                f"(ip.{direction} == {addr} and {proto}.{direction}port == {port})"
+                for direction in directions
+            ]
+
+        expression = f'{inclusion_prefix}({" or ".join(packet_envelope)})'
 
         return expression
 
