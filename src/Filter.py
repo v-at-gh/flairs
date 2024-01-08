@@ -11,20 +11,28 @@ For exmaple:
 '''
 
 purposes = ('capture', 'preview')
-
-from itertools import permutations
-from .Netstat import Netstat
+directions = ('src', 'dst')
 
 class Filter:
-    ifaces = Netstat.get_interfaces()
 
     @staticmethod
-    def return_capture_filter(
-        purpose:purposes='capture',
-        iface:ifaces=None,
-        process=None,
-        destination=None,
-        proto=None
-    ):
-        capture_filter = ''
-        return capture_filter
+    def construct_endpoint_filter(
+            purpose, proto=None, addr=None, port=None
+    ) -> str:
+        if purpose not in purposes:
+            raise ValueError(f"Invalid purpose: {purpose}")
+
+        if purpose == 'capture':
+            expression = f'''not ({" or ".join(
+                [f"({direction} host {addr} and {proto} {direction} port {port})"
+                 for direction in directions]
+            )})'''
+        elif purpose == 'preview':
+            expression = f'''not ({" or ".join(
+                [f"(ip.{direction} == {addr} and {proto}.{direction}port == {port})"
+                 for direction in directions]
+            )})'''
+        else:
+            expression = ''
+
+        return expression
