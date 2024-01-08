@@ -23,11 +23,6 @@
                 <td>{{ connection.remotePort }}</td>
                 <td>{{ connection.state }}</td>
                 <td>{{ connection.state_bits }}</td>
-                <!-- {% if connection.proto == 'tcp' %}
-                    <td>{{ connection.state }}</td>
-                {% else %}
-                    <td>{{ connection.state_bits }}</td>
-                {% endif %} -->
             </tr>
         {% endfor %}
     </tbody>

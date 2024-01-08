@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 '''
 Draft: whois reports processing utility.
-The purpose of this module is to provide methods for obtaining, storing, and processing whois reports.
+The purpose of this module is to provide methods
+for obtaining, storing, and processing whois reports.
 '''
 import os, re
 from typing import List
@@ -79,7 +80,7 @@ class Report:
                             last = ip_address(matches[0][1])
                             obj = (first, last)
                         object_list.append((line.split(':')[0], obj))
-                    except:
+                    except ValueError:
                         pass
         return object_list
 
@@ -106,7 +107,7 @@ def print_reports_as_indented_sections(reports) -> None:
         print()
 
 def main() -> None:
-    default_directory = 'data/net/ipv4'
+    default_directory = os.path.expanduser('~/data/net/ipv4')
     reports = Report.collect_reports(default_directory)
     print_reports_as_indented_sections(reports)
 
