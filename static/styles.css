@@ -18,6 +18,7 @@ th {
 th:hover {
     background-color: #ccc;
 }
+
 .table-container {
     margin: auto;
     display: none;
@@ -55,6 +56,7 @@ th:hover {
     text-align: left;
     width: 5%;
 }
+
 /* #processesTable th:first-child, .connectionsTable th:first-child,
 #processesTable td:first-child, .connectionsTable td:first-child {
     text-align: center;

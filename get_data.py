@@ -33,8 +33,8 @@ def get_data() -> List:
     #   nesessionmanager
     #   ¯\_(ツ)_/¯
 
-    # connections = Netstat.get_connections()
-    connections = filter(lambda c: c.localPort != 0, Netstat.get_connections())
+    connections = Netstat.get_connections()
+    # connections = filter(lambda c: c.localPort != 0, Netstat.get_connections())
     pids = Netstat.get_pids_of_processes_with_connections(connections)
     processes = [Process(pid) for pid in pids]
     processes_with_connections = []

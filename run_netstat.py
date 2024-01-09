@@ -28,7 +28,7 @@ def get_connections(
                 # so that the attribute types are `localAddr` and `remoteAddr`
                 # converted from `str` to `IPv[4|6]Address`.
                 # We also have to compare different families of IP addresses separately;
-                # To do this, before sorting, we need to split the list of network connections into two.
+                # To do this, before sorting, we need to divide the list of network connections right in two.
         # if sort_by.endswith('Addr'):
         #     connections.sort(key=lambda c: ip_address(getattr(c, sort_by)))
         # else:

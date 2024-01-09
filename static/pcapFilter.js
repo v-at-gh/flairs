@@ -1,3 +1,4 @@
+// PcapFilter.js
 const purposes = ['capture', 'preview'];
 const directions = ['src', 'dst'];
 const filterGoals = ['exclude', 'include'];
