@@ -35,13 +35,6 @@ class _ConnectionProcessor:
         self.proto = ''.join(char for char in self.proto if char.isalpha())
         self._process_socket("localSocket", self.localSocket, "local")
         self._process_socket("remoteSocket", self.remoteSocket, "remote")
-        if self.proto == 'udp':
-            if self.localPort == 0:
-                self.state = 'NONE'
-            elif self.localPort != 0 and self.remotePort == 0:
-                self.state = 'LISTEN'
-            elif self.localPort != 0 and self.remotePort != 0:
-                self.state = 'ESTABLISHED'
 
     def _convert_to_int(self, *attributes) -> None:
         '''
@@ -237,7 +230,16 @@ class UDP_Connection(
     Inherits attributes and methods from UDP_State,
     Common_Connection_attrs_and_metrics, BaseConnection, and _ConnectionProcessor.
     '''
-    ...
+    def __post_init__(self) -> None:
+        'Sets string values for udp socket state.'
+        super().__post_init__()
+        if self.localPort == 0:
+            self.state = 'NONE'
+        elif self.localPort != 0 and self.remotePort == 0:
+            self.state = 'LISTEN'
+        elif self.localPort != 0 and self.remotePort != 0:
+            self.state = 'ESTABLISHED'
+
 
 Net_Connection = Union[TCP_Connection, UDP_Connection]
 
