@@ -6,7 +6,7 @@ table {
 }
 th, td {
     border: 1px solid #ddd;
-    text-align: left;
+    /* text-align: left; */
     padding: 8px;
 }
 th {
@@ -25,20 +25,18 @@ th:hover {
     overflow: hidden;
     background-color: #eee;
 }
-#processesTable th:first-child, .connectionsTable th:first-child,
-#processesTable td:first-child, .connectionsTable td:first-child {
+
+.processesTable .PID {
     text-align: center;
-    width: 5%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 1%;
 }
+
 .connectionsTable .Family {
-    text-align: left;
+    text-align: center;
     width: 5%;
 }
 .connectionsTable .Protocol {
-    text-align: left;
+    text-align: right;
     width: 5%;
 }
 .connectionsTable .Address {
@@ -57,3 +55,11 @@ th:hover {
     text-align: left;
     width: 5%;
 }
+/* #processesTable th:first-child, .connectionsTable th:first-child,
+#processesTable td:first-child, .connectionsTable td:first-child {
+    text-align: center;
+    width: 5%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+} */

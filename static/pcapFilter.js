@@ -37,16 +37,16 @@ class PcapFilter {
     }
 
     static tcpdumpEndpointFilter(kwargs) {
-        return Filter.constructEndpointFilter({purpose: 'capture', ...kwargs});
+        return PcapFilter.constructEndpointFilter({purpose: 'capture', ...kwargs});
     }
 
     static wiresharkEndpointFilter(kwargs) {
-        return Filter.constructEndpointFilter({purpose: 'preview', ...kwargs});
+        return PcapFilter.constructEndpointFilter({purpose: 'preview', ...kwargs});
     }
 }
 
 // // Example usage:
-// const tcpdumpFilterForAddr = Filter.tcpdumpEndpointFilter({
+// const tcpdumpFilterForAddr = PcapFilter.tcpdumpEndpointFilter({
 //     proto: 'tcp',
 //     addr: '192.168.1.1',
 //     port: 80,
@@ -54,7 +54,7 @@ class PcapFilter {
 // });
 // console.log(tcpdumpFilterForAddr);
 
-// const tcpdumpFilterForNet = Filter.tcpdumpEndpointFilter({
+// const tcpdumpFilterForNet = PcapFilter.tcpdumpEndpointFilter({
 //     proto: 'tcp',
 //     addr: '192.168.1.0/24',
 //     port: 80,
@@ -62,7 +62,7 @@ class PcapFilter {
 // });
 // console.log(tcpdumpFilterForNet);
 
-// const wiresharkFilter = Filter.wiresharkEndpointFilter({
+// const wiresharkFilter = PcapFilter.wiresharkEndpointFilter({
 //     proto: 'udp',
 //     addr: '10.0.0.1',
 //     port: 8080,
@@ -70,7 +70,7 @@ class PcapFilter {
 // });
 // console.log(wiresharkFilter);
 
-// const commonTestFilter = Filter.constructEndpointFilter({
+// const commonTestFilter = PcapFilter.constructEndpointFilter({
 //     purpose: 'preview',
 //     proto: 'udp',
 //     addr: '10.255.255.0/24',
