@@ -95,7 +95,7 @@ class _ConnectionProcessor:
 
     def to_dict(self) -> Dict:
         '''
-        Return connection attributes as a dictionary.
+        Return the main connection attributes as a dictionary.
 
         Returns:
             Dict: Dictionary containing connection attributes.
@@ -112,7 +112,7 @@ class _ConnectionProcessor:
     @property
     def as_dict(self) -> Dict:
         '''
-        Return connection attributes as a dictionary.
+        Return all connection attributes as a dictionary.
 
         Returns:
             Dict: Dictionary containing connection attributes.
