@@ -2,19 +2,19 @@
 <table id="processesTable">
     <thead>
         <tr>
-            <th onclick="sortTable(this, 0)">PID</th>
-            <th onclick="sortTable(this, 1)">Executable</th>
-            <th onclick="sortTable(this, 2)">Connections</th>
+            <th class="PID" onclick="sortTable(this, 0)">PID</th>
+            <th class="Executable" onclick="sortTable(this, 1)">Executable</th>
+            <th class="Connections" onclick="sortTable(this, 2)">Connections</th>
         </tr>
     </thead>
     <tbody>
         {% for entry in process_list %}
             <tr>
-                <td>{{ entry.process.pid }}</td>
-                <td>{{ entry.process.executable }}</td>
-                <td>
+                <td class="pid">{{ entry.process.pid }}</td>
+                <td class="Executable">{{ entry.process.executable }}</td>
+                <td class="Connections">
                     {% if entry.connections %}
-                    {% include "connectionsTable.html" %}
+                        {% include "connectionsTable.html" %}
                     {% else %}
                         No connections available.
                     {% endif %}

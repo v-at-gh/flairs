@@ -2,7 +2,7 @@ const purposes = ['capture', 'preview'];
 const directions = ['src', 'dst'];
 const filterGoals = ['exclude', 'include'];
 
-class Filter {
+class PcapFilter {
     static constructEndpointFilter({purpose, proto, addr, port, filterGoal = 'exclude'}) {
         // TODO: maybe we can come up with better naming?
         if (!purposes.includes(purpose)) {

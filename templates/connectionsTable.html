@@ -9,7 +9,7 @@
             <th class="Address" onclick="sortTable(this, 4)">Remote Address</th>
             <th class="Port" onclick="sortTable(this, 5)">Remote Port</th>
             <th class="State" onclick="sortTable(this, 6)">State</th>
-            <th class="State" onclick="sortTable(this, 7)">State Bits</th>
+            <th class="StateBits" onclick="sortTable(this, 7)">State Bits</th>
         </tr>
     </thead>
     <tbody>
@@ -22,7 +22,7 @@
                 <td class="Address">{{ connection.remoteAddr }}</td>
                 <td class="Port">{{ connection.remotePort }}</td>
                 <td class="State">{{ connection.state }}</td>
-                <td class="State">{{ connection.state_bits }}</td>
+                <td class="StateBits">{{ connection.state_bits }}</td>
             </tr>
         {% endfor %}
     </tbody>
