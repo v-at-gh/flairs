@@ -32,6 +32,7 @@ class SnapshotDatabase:
 
     def save_snapshot(self, snapshot: Snapshot) -> None:
         cursor = self.connection.cursor()
+        #TODO 0: use csv representation of connection instead of json
         cursor.execute('''
             INSERT INTO snapshots (timestamp, connections)
             VALUES (?, ?)
@@ -44,6 +45,7 @@ class SnapshotDatabase:
             connections=[
                 {
                     'hash': connection.hash,
+                    #TODO 0: ...
                     'dict': connection.to_dict()
                 } for connection in Netstat.get_connections()
             ]
@@ -57,6 +59,7 @@ class SnapshotDatabase:
         snapshots = []
         for row in rows:
             timestamp, connections_json = row
+            #TODO 0: ...
             connections = json.loads(connections_json)
             snapshots.append(Snapshot(timestamp, connections))
         return snapshots

@@ -24,8 +24,7 @@ class Interface:
     addresses: List[str] = None
 
 class Netstat:
-    '''
-    Class for retrieving network statistics and connections using the `netstat` command.
+    '''Class for retrieving network statistics and connections using the `netstat` command.
 
     Example:
         netstat_instance = Netstat()
@@ -36,8 +35,7 @@ class Netstat:
 
     @staticmethod
     def get_interfaces() -> List[Interface]:
-        '''
-        Retrieve a list of network interfaces.
+        '''Retrieve a list of network interfaces.
 
         Returns:
             List[Interface]: List of Interface objects representing network interfaces.
@@ -65,8 +63,7 @@ class Netstat:
             proto: Optional[str] = None,
             family: Optional[str] = None
         ) -> List[str]:
-        '''
-        Run the `netstat` command to retrieve connection information.
+        '''Run the `netstat` command to retrieve connection information.
 
         Args:
             proto (str, optional): Protocol filter (tcp/udp). Defaults to None.
@@ -86,8 +83,7 @@ class Netstat:
     def _parse_netstat_connection(
             netstat_connection_line: str
         ) -> Net_Connection:
-        '''
-        Parse a line of `netstat` output and create a Net_Connection object.
+        '''Parse a line of `netstat` output and create a Net_Connection object.
 
         Args:
             netstat_connection_line (str): A line of `netstat` output.
@@ -111,8 +107,7 @@ class Netstat:
             family: Optional[str] = None,
             netstat_lines: Optional[List[str]] = None
         ) -> List[Net_Connection]:
-        '''
-        Get a list of network connections.
+        '''Get a list of network connections.
 
         Args:
             proto (str, optional): Protocol filter (tcp/udp). Defaults to None.
@@ -135,8 +130,7 @@ class Netstat:
     def get_pids_of_processes_with_connections(
         connections: Optional[List[Net_Connection]] = None
     ) -> List[int]:
-        '''
-        Get a list of process IDs with active network connections.
+        '''Get a list of process IDs with active network connections.
 
         Args:
             connections (List[Net_Connection], optional): List of Net_Connection objects.
@@ -155,8 +149,7 @@ class Netstat:
         interface: str,
         connections: Optional[List[Net_Connection]] = None
     ) -> List[Net_Connection]:
-        '''
-        Get a list of network connections filtered by a specific network interface.
+        '''Get a list of network connections filtered by a specific network interface.
 
         Args:
             interface (str): The name or IP address of the network interface.

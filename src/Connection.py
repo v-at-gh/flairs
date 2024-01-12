@@ -23,8 +23,7 @@ UDP_States = (
 
 class _ConnectionProcessor:
     def __post_init__(self) -> None:
-        '''
-        Process and initialize connection attributes after dataclass initialization.
+        '''Process and initialize connection attributes after dataclass initialization.
 
         This method processes and initializes various connection attributes,
         such as converting specified attributes to integers, determining the address family,
@@ -47,8 +46,7 @@ class _ConnectionProcessor:
             setattr(self, attribute, int(getattr(self, attribute)))
 
     def _process_socket(self, socket_attr, socket_str, socket_location) -> None:
-        '''
-        Process socket information and set related attributes.
+        '''Process socket information and set related attributes.
 
         Args:
             socket_attr (str): The attribute name to be set.
@@ -75,8 +73,7 @@ class _ConnectionProcessor:
             setattr(self, f"{socket_location}Port", int(port))
 
     def to_csv(self) -> str:
-        '''
-        Return connection attributes as a CSV string.
+        '''Return connection attributes as a CSV string.
 
         Returns:
             str: CSV-formatted string containing connection attributes.
@@ -89,8 +86,7 @@ class _ConnectionProcessor:
         )
 
     def to_dict(self) -> Dict:
-        '''
-        Return the main connection attributes as a dictionary.
+        '''Return the main connection attributes as a dictionary.
 
         Returns:
             Dict: Dictionary containing connection attributes.
@@ -116,8 +112,7 @@ class _ConnectionProcessor:
 
     @property
     def hash(self) -> str:
-        '''
-        Return SHA-1 hash of connection attributes.
+        '''Return SHA-1 hash of connection attributes.
 
         Returns:
             str: SHA-1 hash of connection attributes.
@@ -128,8 +123,7 @@ class _ConnectionProcessor:
 
 @dataclass
 class BaseConnection:
-    '''
-    Base class for network connections.
+    '''Base class for network connections.
 
     Attributes:
         proto (str): Protocol of the connection.
@@ -156,8 +150,7 @@ class TCP_State:
 
 @dataclass
 class UDP_State:
-    '''
-    Class representing UDP connection state.
+    '''Class representing UDP connection state.
 
     Attributes:
         state (str, optional): UDP connection state. Defaults to None.
@@ -166,8 +159,7 @@ class UDP_State:
 
 @dataclass
 class Common_Connection_attrs_and_metrics:
-    '''
-    Common attributes and metrics for network connections.
+    '''Common attributes and metrics for network connections.
 
     Attributes:
         rhiwat (int): High-water mark for received data.
@@ -212,8 +204,7 @@ class TCP_Connection(
     TCP_State,
     BaseConnection, _ConnectionProcessor
 ):
-    '''
-    Class representing a TCP network connection.
+    '''Class representing a TCP network connection.
 
     Inherits attributes and methods from Common_Connection_attrs_and_metrics,
     TCP_State, BaseConnection, and _ConnectionProcessor.
@@ -226,8 +217,7 @@ class UDP_Connection(
     Common_Connection_attrs_and_metrics,
     BaseConnection, _ConnectionProcessor
 ):
-    '''
-    Class representing a UDP network connection.
+    '''Class representing a UDP network connection.
 
     Inherits attributes and methods from UDP_State,
     Common_Connection_attrs_and_metrics, BaseConnection, and _ConnectionProcessor.
@@ -248,8 +238,7 @@ Net_Connection = Union[TCP_Connection, UDP_Connection]
 @dataclass
 class ICMP_Exchange(Common_Connection_attrs_and_metrics,
                      BaseConnection, _ConnectionProcessor):
-    '''
-    Class representing an ICMP network connection.
+    '''Class representing an ICMP network connection.
 
     To be implemented.
 

@@ -27,6 +27,8 @@ class Process:
     def as_dict(self) -> Dict[str, Any]:
         return self.__dict__
 
+    #TODO 0: implement method for representation process as csv
+
     @staticmethod
     def get_dict_of_the_process_with_connections(
         process,

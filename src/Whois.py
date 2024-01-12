@@ -15,21 +15,26 @@ comment_chars = ('%', '#')
 @dataclass
 class Report:
     path: str
-    content: str = None #TODO: raw content should be removed after processing
-    sections: List[List[str]] = None #TODO: for now content is divided into lists of lists of strings.
-                                        # Should process them into dictionaries with `_process_sections`.
+
+    #TODO 0: raw content should be removed after processing
+    content: str = None
+
+    #TODO 1: for now content is divided into lists of lists of strings.
+    # Should process them into dictionaries with `_process_sections`.
+    sections: List[List[str]] = None
     ip_ranges: List[Tuple[IPv4Address]] = None
     ip_networks: List[IPv4Network] = None
 
     def __post_init__(self) -> None:
         self.content_lines = self._process_content()
         self.sections = self._split_to_sections()
-        #TODO: search for network objects in one run:
-        #   at first step look for IPv4 address pattern and then
-        #   check if it is a network or a part of an address range.
+
+        #TODO 2: search for network objects in one run:
+        #  at first step look for IPv4 address pattern and then
+        #  check if it is a network or a part of an address range.
         self.ip_ranges = self.find_ipv4_objects('range')
         self.ip_networks = self.find_ipv4_objects('network')
-        delattr(self, 'content')
+        delattr(self, 'content') #TODO 0: ...
 
     def _process_content(self) -> List[str]:
         content_lines = [line for line in self.content.splitlines()]
@@ -50,9 +55,10 @@ class Report:
         return sections
 
     def _process_sections(self) -> Dict:
-        #TODO: not really implemented yet.
-        # We should iterate over sections to concatenate values
-        # dictionary into entities.
+
+        #TODO 3: not really implemented yet.
+        #  We should iterate over sections to concatenate values
+        #  dictionary into entities.
         for section in self.sections:
             section_dict = {}
             for line in section:
@@ -66,6 +72,8 @@ class Report:
             return section_dict
 
     def find_ipv4_objects(self, object_type) -> List[Tuple[IPv4Address]|IPv4Network]:
+
+        #TODO 2: ...
         ipv4_address_pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
 
         network_pattern = r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b'
@@ -110,8 +118,9 @@ def print_reports_as_indented_sections(reports) -> None:
     for i, report in enumerate(reports, 1):
         print(f"{i}. {report.path}")
         for ii, section in enumerate(report.sections, 1):
-            print(f"  {ii}.{' '+section[0] if len(section)==1 else ''}")
-            if len(section) > 1:
+            section_length = len(section)
+            print(f"  {ii}.{f' {section[0]}' if section_length == 1 else ''}")
+            if section_length > 1:
                 for iii, line in enumerate(section, 1):
                     print(f"    {iii}. {line}")
         print()
