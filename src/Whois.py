@@ -24,6 +24,9 @@ class Report:
     def __post_init__(self) -> None:
         self.content_lines = self._process_content()
         self.sections = self._split_to_sections()
+        #TODO: search for network objects in one run:
+        #   at first step look for IPv4 address pattern and then
+        #   check if it is a network or a part of an address range.
         self.ip_ranges = self.find_ipv4_objects('range')
         self.ip_networks = self.find_ipv4_objects('network')
         delattr(self, 'content')
@@ -64,8 +67,9 @@ class Report:
 
     def find_ipv4_objects(self, object_type) -> List[Tuple[IPv4Address]|IPv4Network]:
         ipv4_address_pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
-        range_pattern = rf'\b({ipv4_address_pattern})\s*-\s*({ipv4_address_pattern})\b'
+
         network_pattern = r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b'
+        range_pattern = rf'\b({ipv4_address_pattern})\s*-\s*({ipv4_address_pattern})\b'
         object_regex_map = {
             'range': re.compile(range_pattern),
             'network': re.compile(network_pattern),

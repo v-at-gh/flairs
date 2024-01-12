@@ -11,9 +11,13 @@
     {% endif %}
 </head>
 <body>
-    <h1>Process Information</h1>
+    <div class="sticky-header">
+        <h1>Process Information</h1>
+        {% if process_list %}
+            {% include "processesSummary.html" %}
+        {% endif %}
+    </div>
     {% if process_list %}
-        {% include "processesSummary.html" %}
         {% include "processesTable.html" %}
     {% else %}
         <p>No process information available. ¯\_(ツ)_/¯</p>

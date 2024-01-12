@@ -1,4 +1,13 @@
 /* styles.css */
+.sticky-header {
+    background-color: #ddd;
+    padding: 1px;
+    color: #000;
+    /* position: sticky;
+    top: 0;
+    z-index: 100; */
+}
+
 table {
     width: 100%;
     margin-top: 1px;
@@ -6,14 +15,14 @@ table {
 }
 th, td {
     border: 1px solid #ddd;
-    /* text-align: left; */
-    padding: 8px;
+    padding: 1px;
 }
 th {
     background-color: #fff;
     cursor: pointer;
     position: sticky;
-    top: 0;
+    top: 1px;
+    z-index: 99; /* Adjusted to be below the sticky-header */
 }
 th:hover {
     background-color: #ccc;
@@ -57,11 +66,19 @@ th:hover {
     width: 5%;
 }
 
-/* #processesTable th:first-child, .connectionsTable th:first-child,
-#processesTable td:first-child, .connectionsTable td:first-child {
+/* Adjusted styling for the first child */
+#processesTable th:first-child,
+.connectionsTable th:first-child,
+#processesTable td:first-child,
+.connectionsTable td:first-child {
     text-align: center;
     width: 5%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-} */
+}
+
+/* Added a margin to the body to prevent content from being hidden under the sticky-header */
+body {
+    margin-top: 40px; /* Adjust the value based on the height of your sticky-header */
+}

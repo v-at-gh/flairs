@@ -57,8 +57,10 @@ class _ConnectionProcessor:
         '''
         def _translate_and_set_addr_from_asterisk_to_zeros() -> None:
             setattr(self, f"{socket_location}Addr", f"{'0.0.0.0' if self.family == 4 else '::'}")
+
         address = '.'.join(socket_str.split('.')[:-1])
         port = socket_str.split('.')[-1]
+
         if socket_str == '*.*':
             setattr(self, socket_attr, f"{'0.0.0.0:0' if self.family == 4 else ':::0'}")
             _translate_and_set_addr_from_asterisk_to_zeros()

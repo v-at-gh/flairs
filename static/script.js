@@ -1,4 +1,16 @@
 /* script.js */
+document.addEventListener('DOMContentLoaded', function () {
+    var header = document.querySelector('.sticky-header');
+
+    window.onscroll = function () {
+        if (window.pageYOffset > 100) { // Adjust the value based on when you want the header to become sticky
+            header.classList.add('sticky');
+        } else {
+            header.classList.remove('sticky');
+        }
+    };
+});
+
 function sortTable(header, columnIndex) {
     var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
     table = header.closest('table');
