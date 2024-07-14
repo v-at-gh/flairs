@@ -12,8 +12,7 @@ families = ('inet', 'inet6')
 
 @dataclass
 class Interface:
-    '''
-    Class representing a network interface.
+    '''Class representing a network interface.
 
     Attributes:
         name (str): The name of the network interface.

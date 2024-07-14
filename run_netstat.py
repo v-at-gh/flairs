@@ -22,7 +22,7 @@ def get_connections(
     ) -> List[Net_Connection]:
     connections = Netstat.get_connections()
 
-    if sort_by and sort_by in sort_keys:
+    if sort_by in sort_keys:
         #TODO 1: implement sorting by IP addresses:
                 # this must be done in the Net_Connection class definition,
                 # so that the attribute types are `localAddr` and `remoteAddr`
@@ -32,7 +32,9 @@ def get_connections(
         # if sort_by.endswith('Addr'):
         #     connections.sort(key=lambda c: ip_address(getattr(c, sort_by)))
         # else:
-            connections.sort(key=lambda c: getattr(c, sort_by))
+            # connections.sort(key=lambda c: getattr(c, sort_by))
+            sort_function = lambda c: getattr(c, sort_by)
+            connections.sort(key = sort_function)
 
     # if filter and filter in filter_keys:
     #     connections = [c for c in connections if getattr(c, filter) is not None]

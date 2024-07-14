@@ -36,8 +36,7 @@ class _ConnectionProcessor:
         self._process_socket("remoteSocket", self.remoteSocket, "remote")
 
     def _convert_to_int(self, *attributes) -> None:
-        '''
-        Convert specified attributes to integers.
+        '''Convert specified attributes to integers.
 
         Args:
             *attributes: Variable number of attribute names to be converted to integers.
@@ -102,8 +101,7 @@ class _ConnectionProcessor:
 
     @property
     def as_dict(self) -> Dict:
-        '''
-        Return all connection attributes as a dictionary.
+        '''Return all connection attributes as a dictionary.
 
         Returns:
             Dict: Dictionary containing connection attributes.
@@ -140,8 +138,7 @@ class BaseConnection:
 
 @dataclass
 class TCP_State:
-    '''
-    Class representing TCP connection state.
+    '''Class representing TCP connection state.
 
     Attributes:
         state (str): TCP connection state.
