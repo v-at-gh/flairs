@@ -16,13 +16,16 @@ def parse_filter(filter_expression) -> List[str]:
         return [item.strip() for item in filter_expression.split() if item.strip() != '']
     return filter_expression
 
-def validate_ip_address(item: str) -> bool:
+def is_ip_address(item: str) -> bool:
     try: ip_network(item); return True
     except: return False
 
 def address_filter_func(address: str, address_filters: Union[str, List[str]]) -> bool:
     if address_filters:
         address_filters = parse_filter(address_filters)
+        for filter in address_filters:
+            try: ip_network(filter)
+            except Exception as e: print(e); exit(1)
         return any(ip_address(address) in ip_network(filter) for filter in address_filters)
     return True
 
@@ -60,7 +63,7 @@ def instantiate_json_obj(
                 result['server_name_to_addresses'] = {k: v for k, v in server_name_dict.items() if v}
 
             if 'server_name_to_addresses' not in test_json_obj and 'address_to_server_names' not in test_json_obj:
-                if all(validate_ip_address(key) for key in test_json_obj.keys()):
+                if all(is_ip_address(key) for key in test_json_obj.keys()):
                     address_dict = {
                         k: [d for d in v if domain_filter_func(d, domain_filters)]
                         for k, v in test_json_obj.items()
@@ -95,7 +98,7 @@ def main():
         domain_filters=args.domains,
     )
 
-    print(json.dumps(obj, indent=args.indent))
+    print(json.dumps(obj, indent=int(args.indent)))
 
 if __name__ == '__main__':
     main()
