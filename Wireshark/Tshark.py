@@ -237,7 +237,7 @@ class Report_Processor:
                 resulting_report = cls(*init_args)
                 return resulting_report
 
-    def sort_entries(self, key, reverse: Optional[bool] = False) -> None:
+    def sort_entries(self, key, reverse: bool = False) -> None:
         if key in self.entries[0].as_dict.keys():
             if   isinstance(self, Endpoint_Report):     list_item = 'endpoints'
             elif isinstance(self, Conversation_Report): list_item = 'conversations'
@@ -262,14 +262,12 @@ class Report_Processor:
         return column_widths
 
     def as_pretty_table(
-            self, separator: Optional[str] = ' ',
-            merge_unit_columns: Optional[bool] = False, #TODO join columns
-            align: Optional[
-                Union[None,
-                      Literal['left'],
-                      Literal['center'],
-                      Literal['right']
-                     ]
+            self, separator: str = ' ',
+            merge_unit_columns: bool = False, #TODO join columns
+            align: Union[None,
+                    Literal['left'],
+                    Literal['center'],
+                    Literal['right']
                 ] = None,
     ) -> str:
         column_widths = self.calculate_column_widths()
@@ -425,8 +423,8 @@ class Tshark:
     def get_ipaddr_tls_server_name_pairs(
             pcap_file_path_str,
             filter: Optional[str] = None,
-            get_address_to_server_names: Optional[bool] = False,
-            get_server_name_to_addresses: Optional[bool] = False
+            get_address_to_server_names: bool = False,
+            get_server_name_to_addresses: bool = False
     ):
         if get_address_to_server_names is False and get_server_name_to_addresses is False:
             get_address_to_server_names = True
@@ -478,11 +476,10 @@ class Tshark:
     @staticmethod
     def get_endpoints_statistics_strings(
             pcap_file_path,
-            proto: Optional[
-                Union[str, List[str], Set[str], Tuple[str]]
-            ] = PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
+            proto: Union[str, List[str], Set[str], Tuple[str]]
+            = PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
             preview_filter: Optional[str] = None
-    ) -> Union[None, List[str]]:
+    ) -> Optional[List[str]]:
         def _parse_proto_arg(proto):
             if isinstance(proto, (str, list, set, tuple)):
                 if   isinstance(proto, str): protos = [p.strip() for p in proto.split(',')]
@@ -554,13 +551,13 @@ def collect_reports(
 def dump_sni_to_json(
         pcap_file_path_str,
         filter: Optional[str] = None,
-        verbose: Optional[bool] = True,
-        overwrite: Optional[bool] = False,
-        save_to_file: Optional[bool] = True,
+        verbose: bool = True,
+        overwrite: bool = False,
+        save_to_file: bool = True,
         file_suffix: Optional[str] = None,
         path_to_file: Optional[str] = None,
-        get_server_name_to_addresses: Optional[bool] = False,
-        get_address_to_server_names: Optional[bool] = False,
+        get_server_name_to_addresses: bool = False,
+        get_address_to_server_names: bool = False,
         indent: Optional[int] = None,
 ) -> None:
     pcap_file_path_obj = Path(pcap_file_path_str)
