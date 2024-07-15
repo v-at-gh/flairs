@@ -11,8 +11,8 @@ def run_lsof() -> str:
 
 def get_open_pcap_files(
         lsof_stdout: Optional[str]  = None,
-        finished:    Optional[bool] = False,
-        capturing:   Optional[bool] = False
+        finished:    bool = False,
+        capturing:   bool = False
 ) -> Union[Dict[str, List[str]], None]:
 
     # If none of options are set, then return both.
@@ -29,6 +29,9 @@ def get_open_pcap_files(
         line for line in open_files_lines_stdout
         if line.endswith(('.pcap', '.pcapng'))]
 
+    # Under Linux, we don't get file descriptors of dumpcap process,
+    # so we don't get the expected result.
+    #TODO: find a solution to this problem
     open_pcap_files_captuing = set(
         '/'+line.split('/',maxsplit=1)[-1]
         for line in open_pcap_files_lines

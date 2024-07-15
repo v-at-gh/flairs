@@ -12,6 +12,7 @@ def main():
     parser.add_argument('-f', '--filter', type=str, help='Filter expression for pcapng file traffic.')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output.')
     parser.add_argument('-s', '--stdout', action='store_true', help='Print the resulting json to stdout.')
+    #TODO: move file saving logic here
     parser.add_argument('-o', '--outfile', type=str, help='The path where the JSON file will be saved. By default, it is saved next to the packet capture file with the suffix `.sni.json`.')
     parser.add_argument('-w', '--overwrite', action='store_true', help='Overwrite existing json.')
     parser.add_argument('-N', '--ntoa', action='store_true', help='Returns a json of server names and their addresses.')

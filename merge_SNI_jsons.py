@@ -3,10 +3,11 @@
 import argparse
 import json
 from collections import defaultdict
+from typing import Any, List, Dict
 from ipaddress import ip_address
 from pathlib import Path
 
-def parse_paths_to_jsons(json_paths_list):
+def parse_paths_to_jsons(json_paths_list) -> list[str]:
     if isinstance(json_paths_list, str):
         if Path(json_paths_list).exists():
             with open(json_paths_list, 'r', encoding='utf-8') as f:
@@ -27,30 +28,39 @@ def parse_paths_to_jsons(json_paths_list):
                 print(f"File {path} is not a valid json.")
     return file_paths
 
-def parse_jsons_from_files(file_paths):
+def parse_jsons_from_files(file_paths) -> List[Dict[str, Any]]:
     snis = []
     for path in file_paths:
         with open(path, 'r', encoding='utf-8') as f:
             snis.append(json.load(f))
     return snis
 
-def merge_ip_addresses(dicts):
+def merge_ip_addresses_dicts(dicts) -> Dict[Any, List]:
     merged_dict = defaultdict(set)
     for d in dicts:
         for key, values in d.items():
             merged_dict[key].update(values)
     merged_dict = {
+        # Sorts addresses as objects, not strings.
+        # So if there are both IPv4 and IPv6 addresses,
+        # then it fails.
+        #TODO: mitigate error;
+        #TODO: implement a mechanism for selecting sorting criteria.
         key: sorted(list(values), key=lambda a: ip_address(a))
         for key, values in merged_dict.items()
     }
     return merged_dict
 
-def merge_server_names(dicts):
+def merge_server_names_dicts(dicts) -> Dict[Any, List]:
     merged_dict = defaultdict(set)
     for d in dicts:
         for key, values in d.items():
             merged_dict[key].update(values)
     merged_dict = {
+        # Sorts domain names from top level to bottom;
+        # if there is no dot in domain name, this will fail, so
+        #TODO: mitigate error;
+        #TODO: implement a mechanism for selecting sorting criteria.
         key: sorted(list(values), key=lambda a: a.split('.')[::-1])
         for key, values in merged_dict.items()
     }
@@ -59,6 +69,7 @@ def merge_server_names(dicts):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('jsons', type=str)
+    #TODO: implement option to set output file path.
     args = parser.parse_args()
 
     json_paths_list = args.jsons
@@ -69,14 +80,14 @@ def main():
     dict_type = 'server_name_to_addresses'
     with open(f'{dict_type}.merged.json', 'w', encoding='utf-8') as f:
         try:
-            json.dump(merge_ip_addresses(i[dict_type] for i in snis), f, ensure_ascii=False)
+            json.dump(merge_ip_addresses_dicts(i[dict_type] for i in snis), f, ensure_ascii=False)
         except Exception as e:
             print(e)
 
     dict_type = 'address_to_server_names'
     with open(f'{dict_type}.merged.json', 'w', encoding='utf-8') as f:
         try:
-            json.dump(merge_server_names(i[dict_type] for i in snis), f, ensure_ascii=False)
+            json.dump(merge_server_names_dicts(i[dict_type] for i in snis), f, ensure_ascii=False)
         except Exception as e:
             print(e)
 

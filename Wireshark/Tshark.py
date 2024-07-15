@@ -552,6 +552,7 @@ def dump_sni_to_json(
         pcap_file_path_str,
         filter: Optional[str] = None,
         verbose: bool = True,
+        #TODO: move the file saving logic to the executable script
         overwrite: bool = False,
         save_to_file: bool = True,
         file_suffix: Optional[str] = None,
@@ -571,6 +572,8 @@ def dump_sni_to_json(
         raise e
     if not 'pcap capture file' in pcap_file_type and not 'pcapng capture file' in pcap_file_type:
         raise Exception(f"File {pcap_file_path_str} is not packet capture file.")
+
+    #TODO: move the file saving logic to the executable script
     if save_to_file:
         if not path_to_file:
             if not file_suffix:
@@ -590,6 +593,8 @@ def dump_sni_to_json(
         get_address_to_server_names = get_address_to_server_names,
         get_server_name_to_addresses = get_server_name_to_addresses
     )
+
+    #TODO: move the file saving logic to the executable script
     if save_to_file:
         if verbose: print(f"Saving server names as JSON to: {data_json_path_obj}")
         with open(data_json_path_obj, 'w', encoding='utf-8') as f:
