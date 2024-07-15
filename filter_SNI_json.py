@@ -100,7 +100,7 @@ def main():
     #TODO: implement complex [negative] filters,
     # ex: `not (net 17.0.0.0/8 or 192.168.0.0/16) and not (host 1.3.1.2 or 1.4.8.8)`
     parser.add_argument('-n', '--domains')
-    parser.add_argument('-i', '--indent' type=int)
+    parser.add_argument('-i', '--indent', type=int)
 
     args = parser.parse_args()
 
