@@ -3,7 +3,7 @@ import subprocess
 import io
 import csv
 import json
-from typing import Any, Callable, Dict, List, Literal, Set, Tuple, Union
+from typing import Any, Callable, Dict, List, Literal, Set, Tuple, Optional, Union
 from pathlib import Path
 from collections import defaultdict
 from datetime import datetime
@@ -11,8 +11,6 @@ from copy import copy
 from dataclasses import dataclass, asdict, field
 from ipaddress import ip_address, IPv4Address, IPv6Address
 
-# `tshark` binary must be in your $PATH, overwise change it.
-#TODO: validate binary.
 TSHARK_BINARY = 'tshark'
 
 PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS = {
@@ -239,7 +237,7 @@ class Report_Processor:
                 resulting_report = cls(*init_args)
                 return resulting_report
 
-    def sort_entries(self, key, reverse=False) -> None:
+    def sort_entries(self, key, reverse: Optional[bool] = False) -> None:
         if key in self.entries[0].as_dict.keys():
             if   isinstance(self, Endpoint_Report):     list_item = 'endpoints'
             elif isinstance(self, Conversation_Report): list_item = 'conversations'
@@ -264,11 +262,15 @@ class Report_Processor:
         return column_widths
 
     def as_pretty_table(
-            self, separator: str = ' ',
-            merge_unit_columns: bool = False, #TODO join columns
-            align: Union[None,
-                         Literal['left'], Literal['center'], Literal['right']
-                        ] = None,
+            self, separator: Optional[str] = ' ',
+            merge_unit_columns: Optional[bool] = False, #TODO join columns
+            align: Optional[
+                Union[None,
+                      Literal['left'],
+                      Literal['center'],
+                      Literal['right']
+                     ]
+                ] = None,
     ) -> str:
         column_widths = self.calculate_column_widths()
 
@@ -356,7 +358,7 @@ class Report_Processor:
             items.append(item)
         return resulting_class(header=data['header'] , filter=data['filter'], **{list_key: items})
 
-    def to_json(self, indent=None) -> str:
+    def to_json(self, indent: Optional[int] = None) -> str:
         obj = copy(self.as_dict)
         if   isinstance(self, Endpoint_Report):     list_key = 'endpoints'
         elif isinstance(self, Conversation_Report): list_key = 'conversations'
@@ -422,9 +424,9 @@ class Tshark:
     @staticmethod
     def get_ipaddr_tls_server_name_pairs(
             pcap_file_path_str,
-            filter: str = None,
-            get_address_to_server_names: bool = False,
-            get_server_name_to_addresses: bool = False
+            filter: Optional[str] = None,
+            get_address_to_server_names: Optional[bool] = False,
+            get_server_name_to_addresses: Optional[bool] = False
     ):
         if get_address_to_server_names is False and get_server_name_to_addresses is False:
             get_address_to_server_names = True
@@ -476,8 +478,10 @@ class Tshark:
     @staticmethod
     def get_endpoints_statistics_strings(
             pcap_file_path,
-            proto: Union[str, List[str], Set[str], Tuple[str]] = PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
-            preview_filter: str = None
+            proto: Optional[
+                Union[str, List[str], Set[str], Tuple[str]]
+            ] = PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
+            preview_filter: Optional[str] = None
     ) -> Union[None, List[str]]:
         def _parse_proto_arg(proto):
             if isinstance(proto, (str, list, set, tuple)):
@@ -529,7 +533,8 @@ class Tshark:
             for ReportClass, entry_key, sort_key in report_classes:
                 parsed_report = ReportClass.parse_report_str(report)
                 if parsed_report and len(parsed_report.entries) > 0:
-                    getattr(parsed_report, entry_key).sort(key=lambda r: getattr(r, sort_key))
+                    #TODO: fix sorting for IPv4 and IPv6 addresses
+                    # getattr(parsed_report, entry_key).sort(key=lambda r: getattr(r, sort_key))
                     parsed_reports.append(parsed_report)
         return parsed_reports
 
@@ -548,14 +553,15 @@ def collect_reports(
 
 def dump_sni_to_json(
         pcap_file_path_str,
-        filter: str = None,
-        verbose: bool = True,
-        overwrite: bool = False,
-        save_to_file: bool = True,
-        path_to_file: str = None,
-        get_server_name_to_addresses: bool = False,
-        get_address_to_server_names: bool = False,
-        indent = None,
+        filter: Optional[str] = None,
+        verbose: Optional[bool] = True,
+        overwrite: Optional[bool] = False,
+        save_to_file: Optional[bool] = True,
+        file_suffix: Optional[str] = None,
+        path_to_file: Optional[str] = None,
+        get_server_name_to_addresses: Optional[bool] = False,
+        get_address_to_server_names: Optional[bool] = False,
+        indent: Optional[int] = None,
 ) -> None:
     pcap_file_path_obj = Path(pcap_file_path_str)
     if not Path.exists(pcap_file_path_obj):
@@ -570,7 +576,11 @@ def dump_sni_to_json(
         raise Exception(f"File {pcap_file_path_str} is not packet capture file.")
     if save_to_file:
         if not path_to_file:
-            data_json_path_obj = pcap_file_path_obj.with_suffix('.sni.json')
+            if not file_suffix:
+                file_suffix = '.sni.json'
+            elif not file_suffix.startswith('.') or file_suffix == '.':
+                file_suffix = f'.{file_suffix}'
+            data_json_path_obj = pcap_file_path_obj.with_suffix(file_suffix)
         elif isinstance(path_to_file, str):
             data_json_path_obj = Path(path_to_file)
         if not overwrite:
