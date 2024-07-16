@@ -28,8 +28,8 @@ def _exclude_addresses(
         print(error_message)
         exit(1)
 
-    addresses_to_exclude = sorted(collapse_addresses(
-        [ip_network(a) for a in addresses_to_exclude]))
+    addresses_to_exclude = sorted(
+        collapse_addresses([ip_network(a) for a in addresses_to_exclude]))
     # if all(ip_network(address_to_exclude) not in target_network for address_to_exclude in ip_network(addresses_to_exclude)):
     #     return target_network
     # else:

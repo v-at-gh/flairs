@@ -25,11 +25,9 @@ def main() -> None:
     from pathlib import Path
     sys_path.append(str(Path(__file__).resolve().parents[1]))
 
-    from sys import exit
-
-    args = parse_arguments()
 
     if not Path(args.pcap).exists():
+        from sys import exit
         print(f"Error: The file {args.pcap} does not exist.")
         exit(1)
 
@@ -44,33 +42,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
-    # verbose: bool = True,
-    # overwrite: bool = False,
-    # save_to_file: bool = True,
-    # file_suffix: Optional[str] = None,
-    # path_to_file: Optional[str] = None,
-
-    # #TODO: move the file saving logic to the executable script
-    # if save_to_file:
-    #     if not path_to_file:
-    #         if not file_suffix:
-    #             file_suffix = '.sni.json'
-    #         elif not file_suffix.startswith('.') or file_suffix == '.':
-    #             file_suffix = f'.{file_suffix}'
-    #         data_json_path_obj = pcap_file_path_obj.with_suffix(file_suffix)
-    #     elif isinstance(path_to_file, str):
-    #         data_json_path_obj = Path(path_to_file)
-    #     if not overwrite:
-    #         if Path.exists(data_json_path_obj):
-    #             raise Exception(f"File {data_json_path_obj} exists.")
-    # if verbose: print(f"Collecting SNIs from handshakes of {pcap_file_path_str}")
-
-    # #TODO: move the file saving logic to the executable script
-    # if save_to_file:
-    #     if verbose: print(f"Saving server names as JSON to: {data_json_path_obj}")
-    #     with open(data_json_path_obj, 'w', encoding='utf-8') as f:
-    #         json.dump(data, f, ensure_ascii=False, indent=indent)
-    #     if verbose: print("Saved successfully.\n")
-    # else:
-    #     print(json.dumps(data, ensure_ascii=False, indent=indent))

@@ -9,7 +9,7 @@ def run_lsof() -> str:
     return open_files_lines_stdout
 
 def get_open_pcap_files(
-        lsof_stdout: Optional[str]  = None,
+        lsof_stdout: Optional[str] = None,
         finished:    bool = False,
         capturing:   bool = False
 ) -> Dict[str, List[str]]:
@@ -34,13 +34,14 @@ def get_open_pcap_files(
     open_pcap_files_captuing = set(
         '/'+line.split('/',maxsplit=1)[-1]
         for line in open_pcap_files_lines
-        if line.startswith('dumpcap'))
+        if line.startswith('dumpcap')
+    )
     open_pcap_files = set(
         '/'+line.split('/',maxsplit=1)[-1]
-        for line in open_pcap_files_lines)
+        for line in open_pcap_files_lines
+    )
 
-    open_pcap_files_finished = open_pcap_files.difference(
-        open_pcap_files_captuing)
+    open_pcap_files_finished = open_pcap_files.difference(open_pcap_files_captuing)
 
     if capturing is True and finished is True:
         return {'finished': list(open_pcap_files_finished),

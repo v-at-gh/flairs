@@ -6,10 +6,10 @@ from subprocess import run
 from pathlib import Path
 
 def get_script_directory() -> Path:
-    return Path(__file__).resolve().parent
+    return Path(__file__).resolve().parent / 'exe'
 
 def list_available_scripts() -> list:
-    script_dir = get_script_directory() / 'exe'
+    script_dir = get_script_directory()
     scripts = [f.stem for f in script_dir.glob('*.py')]
     return scripts
 
@@ -23,11 +23,11 @@ def parse_arguments() -> Namespace:
     )
     parser.add_argument('script', help="Script to run (e.g., netstat)")
     parser.add_argument('script_args', nargs=REMAINDER, help="Arguments to pass to the script")
-
     return parser.parse_args()
 
 def select_script(script_name: str) -> Path:
-    script_path = get_script_directory() / 'exe' / f"{script_name}.py"
+    script_dir = get_script_directory()
+    script_path = script_dir / f"{script_name}.py"
     return script_path
 
 def main() -> None:
@@ -39,7 +39,10 @@ def main() -> None:
     if script_path.exists():
         try:
             #TODO: capture exit code from a child process and return it instead of own
-            result = run([sys.executable, script_path] + args.script_args, capture_output=True, text=True)
+            result = run(
+                [sys.executable, script_path] + args.script_args,
+                capture_output=True, text=True
+            )
             print(result.stdout)
             if result.stderr:
                 print(result.stderr, file=sys.stderr)
@@ -51,6 +54,7 @@ def main() -> None:
         print("Available scripts:")
         for script in available_scripts:
             print(f" - {script}")
+        sys.exit(255)
 
 if __name__ == '__main__':
     main()

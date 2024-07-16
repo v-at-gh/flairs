@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 
-from sys import path as sys_path
-from pathlib import Path
-sys_path.append(str(Path(__file__).resolve().parents[1]))
+from argparse import ArgumentParser, Namespace
 
 whois_data_dir = '/Users/v/data/net/ipv4'
-
-from argparse import ArgumentParser, Namespace
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
@@ -18,7 +14,13 @@ def parse_arguments() -> Namespace:
 
 def main() -> None:
     args = parse_arguments()
+
+    from sys import path as sys_path
+    from pathlib import Path
+    sys_path.append(str(Path(__file__).resolve().parents[1]))
+
     from src.Whois import is_valid_ip_address
+
     print(is_valid_ip_address(args.address))
 
 if __name__ == '__main__':

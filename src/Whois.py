@@ -23,9 +23,11 @@ def invoke_whois_request(address: str):
                 print(result.stderr, file=sys.stderr)
         except Exception as e:
             print(f"An error occurred: {e}", file=sys.stderr)
+            sys.exit(2)
         return result.stdout
     else:
         print(f"Address {address} is not valid", file=sys.stderr)
+        sys.exit(1)
 
 COMMENT_CHARS = ('%', '#')
 
@@ -55,12 +57,13 @@ class Whois_report:
     @staticmethod
     def find_ipv4_objects(self, object_type) -> List[Tuple[IPv4Address]|IPv4Network]:
         ipv4_address_pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
+        ipv4_network_pattern = r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b'
+        ipv4_range_pattern = rf'\b({ipv4_address_pattern})\s*-\s*({ipv4_address_pattern})\b'
 
-        network_pattern = r'\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2})\b'
-        range_pattern = rf'\b({ipv4_address_pattern})\s*-\s*({ipv4_address_pattern})\b'
         object_regex_map = {
-            'range': re.compile(range_pattern),
-            'network': re.compile(network_pattern),
+            'address': re.compile(ipv4_address_pattern),
+            'network': re.compile(ipv4_network_pattern),
+            'range': re.compile(ipv4_range_pattern),
         }
         object_regex = object_regex_map[object_type]
         object_list = []
