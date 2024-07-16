@@ -27,9 +27,6 @@ def test_reports_module(pcap_file_path):
 def main() -> None:
     args = parse_arguments()
 
-    from json import dumps
-    print(dumps(args.__dict__, indent=2, ensure_ascii=False))
-
     test_reports_module(args.pcap)
 
 if __name__ == '__main__':

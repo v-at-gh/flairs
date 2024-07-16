@@ -26,23 +26,17 @@ def main() -> None:
     sys_path.append(str(Path(__file__).resolve().parents[1]))
 
     from sys import exit
-    from src.Wireshark.Tshark import dump_sni_to_json
 
     args = parse_arguments()
 
-    pcap_file_path_obj = Path(args.pcap)
+    if not Path(args.pcap).exists():
+        print(f"Error: The file {args.pcap} does not exist.")
+        exit(1)
 
-    if not pcap_file_path_obj.exists():
-        print(f"Error: The file {pcap_file_path_obj} does not exist.")
-        sys.exit(1)
-    verbose = args.verbose,
-    overwrite = args.overwrite,
-    save_to_file = not args.stdout,
-    path_to_file = args.outfile,
-    indent = args.indent,
+    from src.Wireshark.Tshark import dump_sni_to_json
 
     dump_sni_to_json(
-        pcap_file_path_obj,
+        args.pcap,
         filter = args.filter,
         get_server_name_to_addresses = args.ntoa,
         get_address_to_server_names = args.aton,

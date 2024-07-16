@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-from sys import path as sys_path
-from pathlib import Path
-sys_path.append(str(Path(__file__).resolve().parents[1]))
-
 from argparse import ArgumentParser, Namespace
 
 def parse_arguments() -> Namespace:
@@ -20,8 +16,13 @@ def parse_arguments() -> Namespace:
 
 def main() -> None:
     args = parse_arguments()
-    from json import dumps
-    print(dumps(args.__dict__))
+
+    from sys import path as sys_path
+    from pathlib import Path
+    sys_path.append(str(Path(__file__).resolve().parents[1]))
+
+    #TODO: implement further processing logic using 
+    # from src.Utils.Netstat
 
 if __name__ == '__main__':
     main()

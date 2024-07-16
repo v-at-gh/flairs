@@ -10,7 +10,7 @@ from pathlib import Path
 
 def is_valid_ip_address(address: str) -> bool:
     try: ip_address(address); return True
-    except Exception as e: return False
+    except ValueError: return False
 
 def report_file_exists(path: str) -> bool:
     return Path(path).exists()

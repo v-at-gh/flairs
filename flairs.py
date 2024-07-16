@@ -21,7 +21,7 @@ def parse_arguments() -> Namespace:
         description="Run a specified script with arguments.",
         epilog=f"Available scripts: {script_list_str}"
     )
-    parser.add_argument('script', help="Script to run (e.g., run-netstat)")
+    parser.add_argument('script', help="Script to run (e.g., netstat)")
     parser.add_argument('script_args', nargs=REMAINDER, help="Arguments to pass to the script")
 
     return parser.parse_args()
@@ -38,6 +38,7 @@ def main() -> None:
 
     if script_path.exists():
         try:
+            #TODO: capture exit code from a child process and return it instead of own
             result = run([sys.executable, script_path] + args.script_args, capture_output=True, text=True)
             print(result.stdout)
             if result.stderr:
