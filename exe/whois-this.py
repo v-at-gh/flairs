@@ -2,6 +2,8 @@
 
 from argparse import ArgumentParser, Namespace
 
+#TODO: implement configuration file processing logic for, say `$HOME/.config/flairs/stuff.{conf|ini|yml|json}`
+#TODO: and maybe even caching for, say `$HOME/.cache/flairs/{data,reports,statistics,etc}'
 whois_data_dir = '/Users/v/data/net/ipv4'
 
 def parse_arguments() -> Namespace:

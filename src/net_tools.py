@@ -1,15 +1,57 @@
-from ipaddress import ip_network, ip_address
+from typing import Iterator, List, Union
+from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
+from ipaddress import ip_address, ip_network, collapse_addresses
 
-def is_ip_address(item: str) -> bool:
+def is_string_a_valid_ip_address(item: str) -> bool:
     try: ip_address(item); return True
     except: return False
 
-def is_ip_network(item: str, strict: bool = False) -> bool:
+def is_string_a_valid_ip_network(item: str, strict: bool = False) -> bool:
     if not strict:
         try: ip_network(item); return True
         except: return False
     else:
-        if is_ip_network(item) and not is_ip_address(item):
+        if is_string_a_valid_ip_network(item) and not is_string_a_valid_ip_address(item):
             return True
         else:
             return False
+
+def exclude_addresses(
+        target_network:       Union[IPv4Network, IPv6Network],
+        addresses_to_exclude: Union[List[IPv4Network], List[IPv6Network]]
+) -> Union[Iterator[IPv4Network], Iterator[IPv6Network]]:
+
+    # Pre-process `addresses_to_exclude`.
+    invalid_addrs = set()
+    for a in addresses_to_exclude:
+        if not is_string_a_valid_ip_network(a):
+            invalid_addrs.add(a)
+    if invalid_addrs:
+        error_message = (
+            f"Invalid address{'es:' if len(invalid_addrs) > 1 else ':'}"
+            f" {', '.join(invalid_addrs)}"
+        )
+        print(error_message)
+
+    addresses_to_exclude = sorted(collapse_addresses(
+        [ip_network(a) for a in addresses_to_exclude]
+    ))
+
+    # Process addresses.
+    networks = []
+    for address in addresses_to_exclude:
+        if address.subnet_of(target_network):
+            networks.extend(target_network.address_exclude(address))
+    networks = sorted(set(networks))
+
+    # Post-process resulting network list.
+    networks_to_remove = []
+    for network in networks:
+        for address in addresses_to_exclude:
+            if address.subnet_of(network) or address.supernet_of(network):
+                networks_to_remove.append(network)
+    for network in networks_to_remove:
+        if network in networks:
+            networks.remove(network)
+
+    return collapse_addresses(networks)

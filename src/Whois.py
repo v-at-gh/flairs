@@ -1,24 +1,22 @@
-import os, sys, re
+import sys, re
 import subprocess
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 from dataclasses import dataclass, field
 from ipaddress import ip_address, ip_network
-
 from ipaddress import IPv4Address, IPv4Network
-
 from pathlib import Path
 
-def is_valid_ip_address(address: str) -> bool:
-    try: ip_address(address); return True
-    except ValueError: return False
+from .net_tools import is_string_a_valid_ip_address
+
+WHOIS_BINARY = 'whois'
 
 def report_file_exists(path: str) -> bool:
     return Path(path).exists()
 
 def invoke_whois_request(address: str):
-    if is_valid_ip_address(address):
+    if is_string_a_valid_ip_address(address):
         try:
-            result = subprocess.run(['whois', address], capture_output=True, text=True, encoding='utf-8')
+            result = subprocess.run([WHOIS_BINARY, address], capture_output=True, text=True, encoding='utf-8')
             if result.stderr:
                 print(result.stderr, file=sys.stderr)
         except Exception as e:
