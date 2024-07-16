@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from typing import List, Union
 from time import time
 
-from .Connection import Net_Connection
-from .Netstat import Netstat
+from ..Utils.Connection import Net_Connection
+from ..Utils.Netstat import Netstat
 
 @dataclass
 class Snapshot:

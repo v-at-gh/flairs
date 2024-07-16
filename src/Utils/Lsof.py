@@ -8,12 +8,11 @@ def run_lsof() -> str:
     ).stdout
     return open_files_lines_stdout
 
-
 def get_open_pcap_files(
         lsof_stdout: Optional[str]  = None,
         finished:    bool = False,
         capturing:   bool = False
-) -> Union[Dict[str, List[str]], None]:
+) -> Dict[str, List[str]]:
 
     # If none of options are set, then return both.
     if capturing is False and finished is False:

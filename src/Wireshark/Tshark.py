@@ -215,7 +215,7 @@ class Report_Processor:
     }
 
     @classmethod
-    def parse_report_str(cls, report_str: str):
+    def parse_report_strings(cls, report_str: str):
         for protocol, Report_class in cls.Classes_dict.items():
             if report_str.startswith(protocol):
                 report_lines = report_str.splitlines()
@@ -425,12 +425,15 @@ class Tshark:
             filter: Optional[str] = None,
             get_address_to_server_names: bool = False,
             get_server_name_to_addresses: bool = False
-    ):
+    ) -> Dict[str, Dict[str, List[str]] | Any]:
+        # If none of these options are set--get both dictionaries.
         if get_address_to_server_names is False and get_server_name_to_addresses is False:
             get_address_to_server_names = True
             get_server_name_to_addresses = True
         server_name_field = 'tls.handshake.extensions_server_name'
         if filter is None: preview_filter = server_name_field
+        #TODO: implement filter expression validation
+        # (Why? tshark will not spawn if filter is not valid!)
         else: preview_filter = f"{server_name_field} and {filter}"
         command = [TSHARK_BINARY, "-n", "-r", pcap_file_path_str, "-Y", preview_filter,
                    "-T", "fields", "-E", "separator=,",
@@ -528,7 +531,7 @@ class Tshark:
         ]
         for report in conversation_reports:
             for ReportClass, entry_key, sort_key in report_classes:
-                parsed_report = ReportClass.parse_report_str(report)
+                parsed_report = ReportClass.parse_report_strings(report)
                 if parsed_report and len(parsed_report.entries) > 0:
                     #TODO: fix sorting for IPv4 and IPv6 addresses
                     # getattr(parsed_report, entry_key).sort(key=lambda r: getattr(r, sort_key))
@@ -551,19 +554,14 @@ def collect_reports(
 def dump_sni_to_json(
         pcap_file_path_str,
         filter: Optional[str] = None,
-        verbose: bool = True,
-        #TODO: move the file saving logic to the executable script
-        overwrite: bool = False,
-        save_to_file: bool = True,
-        file_suffix: Optional[str] = None,
-        path_to_file: Optional[str] = None,
         get_server_name_to_addresses: bool = False,
         get_address_to_server_names: bool = False,
-        indent: Optional[int] = None,
 ) -> None:
+
     pcap_file_path_obj = Path(pcap_file_path_str)
     if not Path.exists(pcap_file_path_obj):
-        raise Exception(f"File {pcap_file_path_str} does not exist.")
+        print(f"File {pcap_file_path_str} does not exist.")
+        return
     try:
         pcap_file_type = subprocess.run(
             ['file', pcap_file_path_str], text=True, capture_output=True
@@ -573,35 +571,13 @@ def dump_sni_to_json(
     if not 'pcap capture file' in pcap_file_type and not 'pcapng capture file' in pcap_file_type:
         raise Exception(f"File {pcap_file_path_str} is not packet capture file.")
 
-    #TODO: move the file saving logic to the executable script
-    if save_to_file:
-        if not path_to_file:
-            if not file_suffix:
-                file_suffix = '.sni.json'
-            elif not file_suffix.startswith('.') or file_suffix == '.':
-                file_suffix = f'.{file_suffix}'
-            data_json_path_obj = pcap_file_path_obj.with_suffix(file_suffix)
-        elif isinstance(path_to_file, str):
-            data_json_path_obj = Path(path_to_file)
-        if not overwrite:
-            if Path.exists(data_json_path_obj):
-                raise Exception(f"File {data_json_path_obj} exists.")
-    if verbose: print(f"Collecting SNIs from handshakes of {pcap_file_path_str}")
     data = Tshark.get_ipaddr_tls_server_name_pairs(
         pcap_file_path_str,
         filter = filter,
         get_address_to_server_names = get_address_to_server_names,
         get_server_name_to_addresses = get_server_name_to_addresses
     )
-
-    #TODO: move the file saving logic to the executable script
-    if save_to_file:
-        if verbose: print(f"Saving server names as JSON to: {data_json_path_obj}")
-        with open(data_json_path_obj, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=indent)
-        if verbose: print("Saved successfully.\n")
-    else:
-        print(json.dumps(data, ensure_ascii=False, indent=indent))
+    return data
 
 
 def test_reports_export_import(pcap_file_path):

@@ -11,8 +11,6 @@ class Filter:
     def construct_endpoint_filter(
             purpose, proto=None, addr=None, port=None, filter_goal='exclude'
     ) -> str:
-
-        #TODO: maybe we can come up with a better naming?
         if purpose not in purposes:
             raise ValueError(
                 f"Invalid purpose: {purpose}\n"
