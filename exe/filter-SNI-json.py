@@ -2,6 +2,8 @@
 
 from argparse import ArgumentParser, Namespace
 
+class ArgHelp: ...
+
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument('file', help='path to json file containing domain names and addresses dicts')

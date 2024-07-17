@@ -2,6 +2,8 @@
 
 from argparse import ArgumentParser, Namespace
 
+class ArgHelp: ...
+
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument('pcap', type=str, help="path to the packet capture file")

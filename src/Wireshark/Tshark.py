@@ -557,7 +557,7 @@ def dump_sni_to_json(
         filter: Optional[str] = None,
         get_server_name_to_addresses: bool = False,
         get_address_to_server_names: bool = False,
-) -> None:
+) -> Dict[str, Dict[str, List[str]] | Any]:
 
     pcap_file_path_obj = Path(pcap_file_path_str)
     if not Path.exists(pcap_file_path_obj):

@@ -6,6 +6,8 @@ from argparse import ArgumentParser, Namespace
 #TODO: and maybe even caching for, say `$HOME/.cache/flairs/{data,reports,statistics,etc}'
 whois_data_dir = '/Users/v/data/net/ipv4'
 
+class ArgHelp: ...
+
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument('address', type=str, help="address to get info about")

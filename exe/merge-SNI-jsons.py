@@ -2,6 +2,8 @@
 
 from argparse import ArgumentParser, Namespace
 
+class ArgHelp: ...
+
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
     #TODO: implement stdin/stdout json piping
