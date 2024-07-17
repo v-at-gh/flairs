@@ -1,4 +1,4 @@
-from typing import Iterator, List, Union
+from typing import Iterator, List, Tuple, Union
 from ipaddress import IPv4Network, IPv6Network
 from ipaddress import ip_address, ip_network, collapse_addresses
 
@@ -20,6 +20,33 @@ def exclude_addresses(
         addresses_to_exclude: Union[List[IPv4Network], List[IPv6Network]]
 ) -> Union[Iterator[IPv4Network], Iterator[IPv6Network]]:
 
+    target_network, addresses_to_exclude = _validate_network_args(target_network, addresses_to_exclude)
+
+    addresses_to_exclude = sorted(collapse_addresses(addresses_to_exclude))
+    # Process addresses.
+    networks = []
+    for address in addresses_to_exclude:
+        if address.subnet_of(target_network):
+            networks.extend(target_network.address_exclude(address))
+    networks = sorted(set(networks))
+
+    # Post-process resulting network list.
+    networks_to_remove = []
+    for network in networks:
+        for address in addresses_to_exclude:
+            if address.subnet_of(network) or address.supernet_of(network):
+                networks_to_remove.append(network)
+    for network in networks_to_remove:
+        if network in networks:
+            networks.remove(network)
+
+    return collapse_addresses(networks)
+
+def _validate_network_args(
+        target_network:       Union[IPv4Network, IPv6Network],
+        addresses_to_exclude: Union[List[IPv4Network], List[IPv6Network]]
+) -> Union[Tuple[IPv4Network, List[IPv4Network]],
+           Tuple[IPv6Network, List[IPv6Network]]]:
     if not isinstance(target_network, (IPv4Network, IPv6Network)):
         raise TypeError("target_network '%s' is not a network object" % target_network)
     net_family = type(target_network)
@@ -44,24 +71,5 @@ def exclude_addresses(
             f"{' '.join(str(a) for a in not_related_addresses_to_exclude)} "
             f"are not related to target network {target_network}"
         )
-
-    addresses_to_exclude = sorted(collapse_addresses(addresses_to_exclude_net_objs))
-
-    # Process addresses.
-    networks = []
-    for address in addresses_to_exclude:
-        if address.subnet_of(target_network):
-            networks.extend(target_network.address_exclude(address))
-    networks = sorted(set(networks))
-
-    # Post-process resulting network list.
-    networks_to_remove = []
-    for network in networks:
-        for address in addresses_to_exclude:
-            if address.subnet_of(network) or address.supernet_of(network):
-                networks_to_remove.append(network)
-    for network in networks_to_remove:
-        if network in networks:
-            networks.remove(network)
-
-    return collapse_addresses(networks)
+    addresses_to_exclude = addresses_to_exclude_net_objs
+    return target_network, addresses_to_exclude

@@ -45,9 +45,10 @@ def main() -> None:
             print(result.stdout)
             if result.stderr:
                 print(result.stderr, file=sys.stderr)
-                sys.exit(result.returncode)
+            sys.exit(result.returncode)
         except Exception as e:
             print(f"An error occurred: {e}", file=sys.stderr)
+            sys.exit(result.returncode)
     else:
         available_scripts = list_available_scripts()
         print(f"Script '{script_name}' not found.", file=sys.stderr)
