@@ -10,7 +10,7 @@
         Secondly it's quite easy to subtract sets simply use set(c) = set(a) - set(b)
     """
     try to execute:
-    set(ipaddress.ip_network('0.0.0.0/8')) - set(ipaddress.ip_network('1.1.1.1')) - set(ipaddress.ip_network('1.3.1.2'))
+    set(ipaddress.ip_network('0.0.0.0/1')) - set(ipaddress.ip_network('1.1.1.1')) - set(ipaddress.ip_network('1.3.1.2'))
     and see how long it takes. (:
 '''
 
