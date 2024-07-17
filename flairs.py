@@ -38,7 +38,6 @@ def main() -> None:
 
     if script_path.exists():
         try:
-            #TODO: capture exit code from a child process and return it instead of own
             result = run(
                 [sys.executable, script_path] + args.script_args,
                 capture_output=True, text=True
@@ -46,6 +45,7 @@ def main() -> None:
             print(result.stdout)
             if result.stderr:
                 print(result.stderr, file=sys.stderr)
+                sys.exit(result.returncode)
         except Exception as e:
             print(f"An error occurred: {e}", file=sys.stderr)
     else:

@@ -225,7 +225,7 @@ class Report_Processor:
                     report_lines.pop(0)
                 else:
                     report_filter = report_lines.pop(0).split(':', 1)[-1]
-                # remove column headers -- conversation headers span two rows
+                # remove column headers--conversation headers span two rows
                 if cls.__name__.startswith('Endpoint'):
                     report_lines.pop(0)
                 elif cls.__name__.startswith('Conversation'):
@@ -250,6 +250,7 @@ class Report_Processor:
     def as_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
+    #TODO: make this method universal for any class
     def calculate_column_widths(self):
         column_widths = defaultdict(list)
         for k in self.entries[0].__annotations__.keys():
@@ -302,8 +303,8 @@ class Report_Processor:
             resulting_class = Endpoint_Report
             list_key = 'endpoints'
         elif header.lower().endswith('conversations'):
-            list_key = 'conversations'
             resulting_class = Conversation_Report
+            list_key = 'conversations'
         else:
             raise ValueError("Unknown report type")
         filter_line = next(reader)[0]
@@ -330,7 +331,7 @@ class Report_Processor:
         for entry in self.entries:
             writer.writerow([
                 str(getattr(entry, k))
-                if isinstance(getattr(entry, k), (IPv4Address, IPv6Address)) 
+                if isinstance(getattr(entry, k), (IPv4Address, IPv6Address))
                 else getattr(entry, k)
                 for k in entry.__annotations__.keys()
             ])
@@ -433,7 +434,7 @@ class Tshark:
         server_name_field = 'tls.handshake.extensions_server_name'
         if filter is None: preview_filter = server_name_field
         #TODO: implement filter expression validation
-        # (Why? tshark will not spawn if filter is not valid!)
+        # (Why? tshark will not run if filter is not valid!)
         else: preview_filter = f"{server_name_field} and {filter}"
         command = [TSHARK_BINARY, "-n", "-r", pcap_file_path_str, "-Y", preview_filter,
                    "-T", "fields", "-E", "separator=,",

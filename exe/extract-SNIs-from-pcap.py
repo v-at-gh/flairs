@@ -25,7 +25,6 @@ def main() -> None:
     from pathlib import Path
     sys_path.append(str(Path(__file__).resolve().parents[1]))
 
-
     if not Path(args.pcap).exists():
         from sys import exit
         print(f"Error: The file {args.pcap} does not exist.")

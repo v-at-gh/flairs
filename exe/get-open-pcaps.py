@@ -20,7 +20,7 @@ def main() -> None:
 
     from src.Utils.Lsof import get_open_pcap_files
 
-    #TODO: in Linux, find a way for unprivileged user to get files open by dumpcap
+    #TODO: in Linux, find a way for an unprivileged user to get files open by dumpcap
     result = get_open_pcap_files(
         capturing=args.capturing,
         finished=args.finished,
