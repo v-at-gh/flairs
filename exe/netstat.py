@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from argparse import ArgumentParser, Namespace
 
 class ArgHelp:
@@ -32,10 +36,6 @@ def parse_arguments() -> Namespace:
 def main() -> None:
     import sys
     args = parse_arguments()
-
-    from sys import path as sys_path
-    from pathlib import Path
-    sys_path.append(str(Path(__file__).resolve().parents[1]))
 
     if   args.ipv4 and args.ipv4 and args.unix: family = None
     elif args.ipv4 and not args.ipv6 and not args.unix: family = 'inet'

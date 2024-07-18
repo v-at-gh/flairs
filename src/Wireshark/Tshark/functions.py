@@ -2,6 +2,7 @@ import subprocess
 from typing import Any, Dict, List, Set, Tuple, Optional, Union
 from pathlib import Path
 
+# from src.Wireshark.common import PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS
 from .common import PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS
 from .Classes import Report_Processor, Endpoint_Report, Conversation_Report
 from .Main import Tshark
@@ -19,7 +20,7 @@ def collect_reports(
         ))
     return reports
 
-def dump_sni_to_json(
+def get_sni_dict(
         pcap_file_path_str,
         filter: Optional[str] = None,
         get_server_name_to_addresses: bool = False,
@@ -50,9 +51,10 @@ def dump_sni_to_json(
 
 def test_reports_export_import(pcap_file_path):
     reports = collect_reports(pcap_file_path)
+    reports.sort(key=lambda r: len(r.entries))
     for report in reports:
         print(
-    f"{report.header} ({len(report.entries)}):"
+    f"({len(report.entries)}) {report.header}:"
     f"\n  json [ex|im]port works correctly:"
     f" {report == Report_Processor.from_json(report.to_json())}"
     f"\n  csv  [ex|im]port works correctly:"

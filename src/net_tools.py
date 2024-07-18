@@ -1,4 +1,4 @@
-from typing import Iterator, List, Tuple, Union
+from typing import Iterator, List, Union
 from ipaddress import IPv4Network, IPv6Network
 from ipaddress import ip_address, ip_network, collapse_addresses
 
@@ -19,10 +19,19 @@ def exclude_addresses(
         target_network:       Union[IPv4Network, IPv6Network],
         addresses_to_exclude: Union[List[IPv4Network], List[IPv6Network]]
 ) -> Union[Iterator[IPv4Network], Iterator[IPv6Network]]:
-
-    # # Atm no need to validate args--they're validated 
-    # # and casted in executable script `flairs/exe/exclude-addresses.py`
-    # target_network, addresses_to_exclude = _validate_network_args(target_network, addresses_to_exclude)
+    '''This function solves the following problem:
+    ### https://stackoverflow.com/questions/66204457/how-can-i-remove-two-or-more-subnet-from-a-network
+    ### https://codereview.stackexchange.com/questions/245922/ip-address-exclusion-algorithm
+    Since the last answer is technically correct:
+    - Use sets!
+    - Lists are O(N), while sets are O(1)!
+    - Secondly it's quite easy to subtract sets simply use set(c) = set(a) - set(b)
+    #### Try to execute:
+    ```
+    set(ipaddress.ip_network('0.0.0.0/1')) - set(ipaddress.ip_network('1.1.1.1')) - set(ipaddress.ip_network('1.3.1.2'))
+    ```
+    #### and see how long it takes. (:
+    '''
 
     addresses_to_exclude = sorted(collapse_addresses(addresses_to_exclude))
     # Process addresses.
@@ -43,35 +52,3 @@ def exclude_addresses(
             networks.remove(network)
 
     return collapse_addresses(networks)
-
-# def _validate_network_args(
-#         target_network:       Union[IPv4Network, IPv6Network],
-#         addresses_to_exclude: Union[List[IPv4Network], List[IPv6Network]]
-# ) -> Union[Tuple[IPv4Network, List[IPv4Network]],
-#            Tuple[IPv6Network, List[IPv6Network]]]:
-#     if not isinstance(target_network, (IPv4Network, IPv6Network)):
-#         raise TypeError("target_network '%s' is not a network object" % target_network)
-#     net_family = type(target_network)
-#     invalid_addresses_to_exclude = set()
-#     not_related_addresses_to_exclude = set()
-#     addresses_to_exclude_net_objs = set()
-#     for a in addresses_to_exclude:
-#         if not isinstance(a, net_family):
-#             invalid_addresses_to_exclude.add(a)
-#         elif not a.subnet_of(target_network) and \
-#              not a.supernet_of(target_network):
-#                 not_related_addresses_to_exclude.add(a)
-#         else:
-#             addresses_to_exclude_net_objs.add(a)
-#     if invalid_addresses_to_exclude:
-#         raise TypeError(
-#             f"{' '.join(invalid_addresses_to_exclude)} "
-#             f"are not {net_family.__name__} addresses"
-#         )
-#     if not_related_addresses_to_exclude:
-#         raise ValueError(
-#             f"{' '.join(str(a) for a in not_related_addresses_to_exclude)} "
-#             f"are not related to target network {target_network}"
-#         )
-#     addresses_to_exclude = addresses_to_exclude_net_objs
-#     return target_network, addresses_to_exclude

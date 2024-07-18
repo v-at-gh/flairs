@@ -2,6 +2,7 @@ from sys import exit
 import argparse
 import json
 from typing import Dict, List, Optional, Union
+from pathlib import Path
 from ipaddress import ip_network, ip_address
 
 def is_ip_address(item: str) -> bool:

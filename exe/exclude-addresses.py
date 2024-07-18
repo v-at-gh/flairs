@@ -1,25 +1,19 @@
 #!/usr/bin/env python3
-'''
-    # This script solves the following problem:
-    # https://stackoverflow.com/questions/66204457/how-can-i-remove-two-or-more-subnet-from-a-network
-    # https://codereview.stackexchange.com/questions/245922/ip-address-exclusion-algorithm
-    Since the last answer is technically correct:
-    """
-        Use sets!
-        Lists are O(N), while sets are O(1)!
-        Secondly it's quite easy to subtract sets simply use set(c) = set(a) - set(b)
-    """
-    try to execute:
-    set(ipaddress.ip_network('0.0.0.0/1')) - set(ipaddress.ip_network('1.1.1.1')) - set(ipaddress.ip_network('1.3.1.2'))
-    and see how long it takes. (:
-'''
+
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from argparse import ArgumentParser, Namespace
+from ipaddress import ip_network
+
+from src.net_tools import exclude_addresses, is_string_a_valid_ip_network
+
 
 class ArgHelp:
-    network   = "Network from which we are excluding addresses"
+    network   = "The network from which we exclude addresses"
     addresses = "comma or whitespace separated addresses of hosts and/or networks to be excluded"
-    separator = "separator for a list of resulting networks. Default is the new line"
+    separator = "separator for the list of resulting networks. Default is the new line"
     ignore    = "ignore non-valid input arguments (except the target network)"
 
 def parse_arguments() -> Namespace:
@@ -30,46 +24,18 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-i', '--ignore', action='store_true', help=ArgHelp.ignore)
     return parser.parse_args()
 
-def main() -> None:
-    args = parse_arguments()
-
-    from sys import path as sys_path
-    from pathlib import Path
-    sys_path.append(str(Path(__file__).resolve().parents[1]))
-
-    import sys
-    from src.net_tools import exclude_addresses, is_string_a_valid_ip_network
-
-    if not args.separator:
-        separator = "\n"
-    else:
-        separator = str(args.separator)
-
-    #TODO 1: Maybe implement the following as a new argument validation function?
-    if not is_string_a_valid_ip_network(args.network):
-        print(f"{args.network} is not a valid ip network.", file=sys.stderr)
-        sys.exit(1)
-    elif not args.addresses:
-        print(f"Missing addresses argument. It must be a {ArgHelp.addresses}.", file=sys.stderr)
-        sys.exit(2)
-    else:
-        from ipaddress import ip_network
-        target_network = ip_network(args.network)
-
+def process_args(target_network, addresses_str) -> tuple[set, set, set, set]:
     address_objs = set()
     invalid_addresses = set()
     misfitting_addresses = set()
     irrelevant_addresses = set()
-
-    # remove leading and trailing whitespaces if any 
-    addresses_str = str(args.addresses).strip()
     if is_string_a_valid_ip_network(addresses_str):
         net_a = ip_network(addresses_str)
         if not isinstance(net_a, type(target_network)):
             misfitting_addresses.add(net_a)
         elif not net_a.subnet_of(target_network):
             if net_a.supernet_of(target_network):
-                  irrelevant_addresses.add(net_a)
+                irrelevant_addresses.add(net_a)
             else: irrelevant_addresses.add(net_a)
         else: address_objs.add(net_a)
     else:
@@ -81,18 +47,36 @@ def main() -> None:
                 print(f"{addresses_str} is not a valid ip network.", file=sys.stderr)
                 sys.exit(2)
             addresses = set(a.strip() for a in addresses_str.split() if a.strip() != '')
-
         for a in addresses:
             if not is_string_a_valid_ip_network(a, strict=False):
-                   invalid_addresses.add(a); continue
+                invalid_addresses.add(a); continue
             else:  net_a = ip_network(a)
-            # populate corresponding sets with addresses
             if not isinstance(net_a, type(target_network)): misfitting_addresses.add(net_a)
             elif   not net_a.subnet_of(target_network): irrelevant_addresses.add(a)
             else:  address_objs.add(net_a)
+    return address_objs, invalid_addresses, misfitting_addresses, irrelevant_addresses
 
-    def print_result(resulting_networks) -> None:
-        print(separator.join((str(n) for n in resulting_networks)).strip(), file=sys.stdout)
+def print_result(resulting_networks, separator) -> None:
+    print(separator.join((str(n) for n in resulting_networks)).strip(), file=sys.stdout)
+
+def main() -> None:
+    args = parse_arguments()
+
+    if not args.separator: separator = "\n"
+    else:  separator = str(args.separator)
+
+    if not is_string_a_valid_ip_network(args.network):
+        print(f"{args.network} is not a valid ip network.", file=sys.stderr)
+        sys.exit(1)
+    elif not args.addresses:
+        print(f"Missing addresses argument. It must be a {ArgHelp.addresses}.", file=sys.stderr)
+        sys.exit(2)
+
+    target_network = ip_network(args.network)
+    addresses_str = str(args.addresses).strip()
+
+    address_objs, invalid_addresses, misfitting_addresses, irrelevant_addresses \
+        = process_args(target_network, addresses_str)
 
     if not args.ignore and (invalid_addresses or misfitting_addresses or irrelevant_addresses):
         wrong_stuff_message_list = []
@@ -109,7 +93,7 @@ def main() -> None:
     else:
         resulting_networks = sorted(list(exclude_addresses(target_network, (a for a in address_objs))))
         if len(resulting_networks) == 0: print(target_network)
-        print_result(resulting_networks)
+        print_result(resulting_networks, separator)
         sys.exit(0)
 
 if __name__ == '__main__':

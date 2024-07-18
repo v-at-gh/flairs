@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from argparse import ArgumentParser, Namespace
 
 #TODO: implement configuration file processing logic for, say `$HOME/.config/flairs/stuff.{conf|ini|yml|json}`
@@ -21,10 +25,6 @@ def parse_arguments() -> Namespace:
 
 def main() -> None:
     args = parse_arguments()
-
-    from sys import path as sys_path
-    from pathlib import Path
-    sys_path.append(str(Path(__file__).resolve().parents[1]))
 
     from src.Whois import is_valid_ip_address
 

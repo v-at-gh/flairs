@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from argparse import ArgumentParser, Namespace
 
 class ArgHelp:
@@ -18,9 +22,6 @@ def parse_arguments() -> Namespace:
     return parser.parse_args()
 
 def test_reports_module(pcap_file_path):
-    from sys import path as sys_path
-    from pathlib import Path
-    sys_path.append(str(Path(__file__).resolve().parents[1]))
 
     if Path(pcap_file_path).exists():
         from src.Wireshark.Tshark.functions import test_reports_export_import
