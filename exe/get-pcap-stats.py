@@ -23,7 +23,7 @@ def test_reports_module(pcap_file_path):
     sys_path.append(str(Path(__file__).resolve().parents[1]))
 
     if Path(pcap_file_path).exists():
-        from src.Wireshark.Tshark import test_reports_export_import
+        from src.Wireshark.Tshark.functions import test_reports_export_import
         test_reports_export_import(pcap_file_path)
     else:
         from sys import exit, stderr

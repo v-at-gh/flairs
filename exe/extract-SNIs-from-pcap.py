@@ -38,7 +38,7 @@ def main() -> None:
         print(f"Error: The file {args.pcap} does not exist.")
         exit(1)
 
-    from src.Wireshark.Tshark import dump_sni_to_json
+    from Wireshark.Tshark.functions import dump_sni_to_json
 
     #TODO: all of the declared arguments and error handling
     dump_sni_to_json(

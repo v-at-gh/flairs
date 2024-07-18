@@ -103,7 +103,7 @@ def run_netstat(
         proto: Optional[str] = None
 ) -> CompletedProcess[str]:
 
-    command = [NETSTAT_BINARY, '-n', '-f', 'inet', '-l', '-v', '-a', '-b']
+    command = [NETSTAT_BINARY, '-n', '-l', '-v', '-a', '-b']
     if proto and proto.lower() in SUPPORTED_PROTOS:
         proto = proto.lower()
         command.extend(['-p', proto])
