@@ -24,40 +24,40 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-i', '--ignore', action='store_true', help=ArgHelp.ignore)
     return parser.parse_args()
 
-def process_args(target_network, addresses_str) -> tuple[set, set, set, set]:
-    address_objs = set()
-    invalid_addresses = set()
-    misfitting_addresses = set()
-    irrelevant_addresses = set()
-    if is_string_a_valid_ip_network(addresses_str):
-        net_a = ip_network(addresses_str)
-        if not isinstance(net_a, type(target_network)):
-            misfitting_addresses.add(net_a)
-        elif not net_a.subnet_of(target_network):
-            if net_a.supernet_of(target_network):
-                irrelevant_addresses.add(net_a)
-            else: irrelevant_addresses.add(net_a)
-        else: address_objs.add(net_a)
+def process_args(target_net, addrs_str) -> tuple[set, set, set, set]:
+    addr_objs = set()
+    inv_addrs = set()
+    mis_addrs = set()
+    irr_addrs = set()
+    if is_string_a_valid_ip_network(addrs_str):
+        net_a = ip_network(addrs_str)
+        if not isinstance(net_a, type(target_net)):
+            mis_addrs.add(net_a)
+        elif not net_a.subnet_of(target_net):
+            if net_a.supernet_of(target_net):
+                irr_addrs.add(net_a)
+            else: irr_addrs.add(net_a)
+        else: addr_objs.add(net_a)
     else:
         # split the string of addresses to be excluded into a set of strings to avoid duplication
-        if ',' in addresses_str:
-            addresses = set(a.strip() for a in addresses_str.split(',') if a.strip() != '')
+        if ',' in addrs_str:
+            addrs = set(a.strip() for a in addrs_str.split(',') if a.strip() != '')
         else:
-            if not ' ' in addresses_str:
-                print(f"{addresses_str} is not a valid ip network.", file=sys.stderr)
+            if not ' ' in addrs_str:
+                print(f"{addrs_str} is not a valid ip network.", file=sys.stderr)
                 sys.exit(2)
-            addresses = set(a.strip() for a in addresses_str.split() if a.strip() != '')
-        for a in addresses:
+            addrs = set(a.strip() for a in addrs_str.split() if a.strip() != '')
+        for a in addrs:
             if not is_string_a_valid_ip_network(a, strict=False):
-                invalid_addresses.add(a); continue
+                inv_addrs.add(a); continue
             else:  net_a = ip_network(a)
-            if not isinstance(net_a, type(target_network)): misfitting_addresses.add(net_a)
-            elif   not net_a.subnet_of(target_network): irrelevant_addresses.add(a)
-            else:  address_objs.add(net_a)
-    return address_objs, invalid_addresses, misfitting_addresses, irrelevant_addresses
+            if not isinstance(net_a, type(target_net)): mis_addrs.add(net_a)
+            elif   not net_a.subnet_of(target_net): irr_addrs.add(a)
+            else:  addr_objs.add(net_a)
+    return addr_objs, inv_addrs, mis_addrs, irr_addrs
 
-def print_result(resulting_networks, separator) -> None:
-    print(separator.join((str(n) for n in resulting_networks)).strip(), file=sys.stdout)
+def print_result(result_nets, separator) -> None:
+    print(separator.join((str(n) for n in result_nets)).strip(), file=sys.stdout)
 
 def main() -> None:
     args = parse_arguments()
@@ -72,17 +72,17 @@ def main() -> None:
         print(f"Missing addresses argument. It must be a {ArgHelp.addresses}.", file=sys.stderr)
         sys.exit(2)
 
-    target_network = ip_network(args.network)
-    addresses_str = str(args.addresses).strip()
+    target_net = ip_network(args.network)
+    addrs_str = str(args.addresses).strip()
 
-    address_objs, invalid_addresses, misfitting_addresses, irrelevant_addresses \
-        = process_args(target_network, addresses_str)
+    addr_objs, inv_addrs, mis_addrs, irr_addrs \
+        = process_args(target_net, addrs_str)
 
-    if not args.ignore and (invalid_addresses or misfitting_addresses or irrelevant_addresses):
+    if not args.ignore and (inv_addrs or mis_addrs or irr_addrs):
         wrong_stuff_message_list = []
         for wrong_stuff in zip(
                 ('invalid address', 'misfitting address', 'irrelevant address'),
-                (invalid_addresses, misfitting_addresses, irrelevant_addresses)):
+                (inv_addrs, mis_addrs, irr_addrs)):
             if len(wrong_stuff[1]) > 0:
                 plural = 'es' if len(wrong_stuff[1]) > 1 else ''
                 wrong_stuff_message_list.append(
@@ -91,9 +91,9 @@ def main() -> None:
         print('\n'.join(wrong_stuff_message_list).strip(), file=sys.stderr)
         sys.exit(2)
     else:
-        resulting_networks = sorted(list(exclude_addresses(target_network, (a for a in address_objs))))
-        if len(resulting_networks) == 0: print(target_network)
-        print_result(resulting_networks, separator)
+        result_nets = sorted(list(exclude_addresses(target_net, (a for a in addr_objs))))
+        if len(result_nets) == 0: print(target_net)
+        print_result(result_nets, separator)
         sys.exit(0)
 
 if __name__ == '__main__':

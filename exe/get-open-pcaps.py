@@ -20,7 +20,7 @@ def parse_arguments() -> Namespace:
 def main() -> None:
     args = parse_arguments()
 
-    from src.Utils.Lsof import get_open_pcap_files
+    from src.System.Lsof import get_open_pcap_files
 
     #TODO: in Linux, find a way for an unprivileged user to get files open by dumpcap
     result = get_open_pcap_files(

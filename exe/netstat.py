@@ -37,21 +37,42 @@ def main() -> None:
     import sys
     args = parse_arguments()
 
-    if   args.ipv4 and args.ipv4 and args.unix: family = None
+    # TODO: yes, sir. Unlike the Linux version, 
+    # the family and protocol flags in MacOS are mutually exclusive.
+    # Implement an algorithm that would reproduce Linux behavior.
+
+    if   args.ipv4   and   args.ipv6   and   args.unix: family = None
     elif args.ipv4 and not args.ipv6 and not args.unix: family = 'inet'
     elif args.ipv6 and not args.ipv4 and not args.unix: family = 'inet6'
     elif args.unix and not args.ipv4 and not args.ipv6: family = 'unix'
     else: family = None
 
-    if   args.tcp and args.udp:     transport = None
+    if   args.tcp   and   args.udp: transport = None
     elif args.tcp and not args.udp: transport = 'tcp'
     elif args.udp and not args.tcp: transport = 'udp'
     else: transport = None
 
-    from src.Netstat import run_netstat
+    from src.System.Netstat import SUPPORTED_FAMILIES, SUPPORTED_PROTOS
+
+    command_options = []
+    if transport:
+        transport = transport.lower().strip()
+        if transport in SUPPORTED_PROTOS: command_options.extend(['-p', transport])
+        else: raise Exception(
+            f"Protocol {transport} is not supported. "
+            f"Supported protos are: {' '.join(SUPPORTED_PROTOS)}")
+    if family:
+        family = family.lower().strip()
+        if family in SUPPORTED_FAMILIES: command_options.extend(['-f', family])
+        else: raise Exception(
+            f"Family {family} is not supported. "
+            f"Supported families are: {' '.join(SUPPORTED_FAMILIES)}")
+
+    from src.System.Netstat import run_netstat
 
     try:
-        result = run_netstat(family=family, proto=transport)
+        # result = run_netstat(family=family, proto=transport)
+        result = run_netstat(command_options=command_options)
         print(result.stdout.strip(), file=sys.stdout)
         if result.stderr:
             print(result.stderr.strip(), file=sys.stderr)

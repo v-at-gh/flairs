@@ -167,3 +167,4 @@ test/
 *.db
 .backup.d
 data/
+*_scratch_*
