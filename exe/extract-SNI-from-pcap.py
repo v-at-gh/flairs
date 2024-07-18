@@ -3,6 +3,7 @@
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from argparse import ArgumentParser, Namespace
 
 from src.Wireshark.Tshark.functions import get_sni_dict
@@ -12,10 +13,10 @@ class Arg_help:
     indent    = 'Set indentation value for resulting json.'
     ntoa      = 'Returns a json of server names and their addresses.'
     aton      = 'Returns a json of addresses and their server names.'
-    verbose   = 'Enable verbose output.'
-    outfile   = ('The path where the JSON file will be saved. '
-                 'By default, it is saved next to the packet '
-                 'capture file with the suffix `.sni.json`.')
+    # verbose   = 'Enable verbose output.'
+    outfile  = ('The path where the JSON file will be saved. '
+                'By default, it is saved next to the packet '
+                'capture file with the suffix `.sni.json`.')
     overwrite = 'Overwrite existing json.'
     stdout    = 'Print the resulting json to stdout.'
 
@@ -26,7 +27,7 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-i', '--indent', type=int, help=Arg_help.indent)
     parser.add_argument('-N', '--ntoa', action='store_true', help=Arg_help.ntoa)
     parser.add_argument('-A', '--aton', action='store_true', help=Arg_help.aton)
-    parser.add_argument('-v', '--verbose', action='store_true', help=Arg_help.verbose)
+    # parser.add_argument('-v', '--verbose', action='store_true', help=Arg_help.verbose)
     parser.add_argument('-o', '--outfile', type=str, help=Arg_help.outfile)
     parser.add_argument('-w', '--overwrite', action='store_true', help=Arg_help.overwrite)
     parser.add_argument('-s', '--stdout', action='store_true', help=Arg_help.stdout)
@@ -51,13 +52,21 @@ def main() -> None:
     )
 
     from json import dump
+
     if args.stdout:
-        dump(sni_dict, fp=sys.stdout, ensure_ascii=False)
-    
-    if args.outfile and Path(args.outfile).exists() and args.overwrite:
-        dump(sni_dict, fp=open(args.outfile, 'w'), ensure_ascii=False)
-    elif args.outfile:
-        dump(sni_dict, fp=open(args.outfile, 'w'), ensure_ascii=False)
+        try:
+            dump(sni_dict, fp=sys.stdout, ensure_ascii=False, indent=args.indent)
+        except Exception as e:
+            print(e, file=sys.stderr)
+            sys.exit(3)
+
+    if args.outfile:
+        try:
+            with open(args.outfile, 'w', encoding='utf-8') as outfile:
+                dump(sni_dict, fp=outfile, ensure_ascii=False, indent=args.indent)
+        except Exception as e:
+            print(e, file=sys.stderr)
+            sys.exit(4)
 
     sys.exit(0)
 

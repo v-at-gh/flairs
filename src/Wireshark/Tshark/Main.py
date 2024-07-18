@@ -1,4 +1,3 @@
-import os
 import subprocess
 from collections import defaultdict
 from typing import Any, Dict, List, Set, Tuple, Optional, Union
@@ -45,14 +44,21 @@ class Tshark:
         if filter is None: preview_filter = server_name_field
         #TODO: implement filter expression validation
         # (Why? tshark will not run if filter is not valid!)
+        # And here we are...
         else: preview_filter = f"{server_name_field} and {filter}"
         command = [TSHARK_BINARY, "-n", "-r", pcap_file_path_str, "-Y", preview_filter,
                    "-T", "fields", "-E", "separator=,",
                    "-e", "ip.dst", "-e", server_name_field]
         try:
-            pairs = subprocess.run(command,
+            result = subprocess.run(command,
                 capture_output=True, text=True, encoding='utf-8'
-            ).stdout.splitlines()
+            )
+            if result.returncode != 0:
+                import sys
+                print(f"Error: {result.stderr}", file=sys.stderr)
+                sys.exit(result.returncode)
+            else:
+                pairs = result.stdout.splitlines()
         except Exception as e:
             raise e
         pairs = set(p for p in [tuple(p.split(',')) for p in pairs if len(p.split(',')) == 2])
