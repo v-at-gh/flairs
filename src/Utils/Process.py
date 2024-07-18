@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from .Common import subprocess_run_kwargs
 from .Connection import Net_Connection
-from .Netstat import Netstat
+from .Netstat_old import Netstat
 
 @dataclass
 class Process:

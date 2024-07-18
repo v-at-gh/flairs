@@ -6,13 +6,16 @@ from argparse import ArgumentParser, Namespace
 #TODO: and maybe even caching for, say `$HOME/.cache/flairs/{data,reports,statistics,etc}'
 whois_data_dir = '/Users/v/data/net/ipv4'
 
-class ArgHelp: ...
+class ArgHelp:
+    address =  "address to get info about"
+    outfile = f"path to save a report (default is {whois_data_dir}/IPv*.whois.txt)"
+    force   =  "overwrite whois report if it exists"
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument('address', type=str, help="address to get info about")
-    parser.add_argument('-o', '--outfile', type=str, help=f"path to save a report (default is {whois_data_dir}/IPv*.whois.txt)")
-    parser.add_argument('-f', '--force', action='store_true', help="overwrite whois report if it exists")
+    parser.add_argument('address', type=str, help=ArgHelp.address)
+    parser.add_argument('-o', '--outfile', type=str, help=ArgHelp.outfile)
+    parser.add_argument('-f', '--force', action='store_true', help=ArgHelp.force)
 
     return parser.parse_args()
 

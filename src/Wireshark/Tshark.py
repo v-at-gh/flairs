@@ -26,8 +26,9 @@ def get_file_size(file_path):
         print(f"Error getting file size: {e}")
         return 0
 
-def cast_value(value, target_type) -> Union[
-           int, float, str, IPv4Address, IPv6Address]:
+def cast_value(value: Any, target_type:
+     Union[int, float, str, IPv4Address, IPv6Address]
+) -> Union[int, float, str, IPv4Address, IPv6Address]:
     if target_type == Union[IPv4Address, IPv6Address]: return ip_address(value)
     elif target_type == int:
         if isinstance(value, int): return value
@@ -36,7 +37,7 @@ def cast_value(value, target_type) -> Union[
     elif target_type == str:   return str(value)
 
 
-class Item_Processor:
+class _Item_Processor:
 
     @classmethod
     def parse_str(cls, obj_str: str):
@@ -74,7 +75,7 @@ class Item_Processor:
         return json.dumps(obj)
 
 @dataclass
-class Base_Endpoint(Item_Processor):
+class _Base_Endpoint(_Item_Processor):
     address: str
     packets: int
     bytes: int
@@ -82,15 +83,15 @@ class Base_Endpoint(Item_Processor):
     tx_bytes: int
     rx_packets: int
     rx_bytes: int
-class Ethernet_Endpoint(Base_Endpoint):
-    __annotations__ = Base_Endpoint.__annotations__
-class IEEE_802_11_Endpoint(Base_Endpoint):
-    __annotations__ = Base_Endpoint.__annotations__
-class ZigBee_Endpoint(Base_Endpoint):
-    __annotations__ = Base_Endpoint.__annotations__
+class Ethernet_Endpoint(_Base_Endpoint):
+    __annotations__ = _Base_Endpoint.__annotations__
+class IEEE_802_11_Endpoint(_Base_Endpoint):
+    __annotations__ = _Base_Endpoint.__annotations__
+class ZigBee_Endpoint(_Base_Endpoint):
+    __annotations__ = _Base_Endpoint.__annotations__
 
 @dataclass
-class Network_Endpoint(Item_Processor):
+class Network_Endpoint(_Item_Processor):
     address: Union[IPv4Address, IPv6Address]
     packets: int
     bytes: int
@@ -104,7 +105,7 @@ class IPv6_Endpoint(Network_Endpoint):
     __annotations__ = Network_Endpoint.__annotations__
 
 @dataclass
-class Transport_Endpoint(Item_Processor):
+class Transport_Endpoint(_Item_Processor):
     address: Union[IPv4Address, IPv6Address]
     port: int
     packets: int
@@ -121,7 +122,7 @@ class SCTP_Endpoint(Transport_Endpoint):
     __annotations__ = Transport_Endpoint.__annotations__
 
 @dataclass
-class Base_Conversation(Item_Processor):
+class _Base_Conversation(_Item_Processor):
     address_A: str
     address_B: str
     frames_to_A: int
@@ -135,15 +136,15 @@ class Base_Conversation(Item_Processor):
     total_units: str
     relative_start: float
     duration: float
-class Ethernet_Conversation(Base_Conversation):
-    __annotations__ = Base_Conversation.__annotations__
-class IEEE_802_11_Conversation(Base_Conversation):
-    __annotations__ = Base_Conversation.__annotations__
-class ZigBee_Conversation(Base_Conversation):
-    __annotations__ = Base_Conversation.__annotations__
+class Ethernet_Conversation(_Base_Conversation):
+    __annotations__ = _Base_Conversation.__annotations__
+class IEEE_802_11_Conversation(_Base_Conversation):
+    __annotations__ = _Base_Conversation.__annotations__
+class ZigBee_Conversation(_Base_Conversation):
+    __annotations__ = _Base_Conversation.__annotations__
 
 @dataclass
-class Network_Conversation(Item_Processor):
+class Network_Conversation(_Item_Processor):
     address_A: Union[IPv4Address, IPv6Address]
     address_B: Union[IPv4Address, IPv6Address]
     frames_to_A: int
@@ -163,7 +164,7 @@ class IPv6_Conversation(Network_Conversation):
     __annotations__ = Network_Conversation.__annotations__
 
 @dataclass
-class Transport_Conversation(Item_Processor):
+class Transport_Conversation(_Item_Processor):
     address_A: Union[IPv4Address, IPv6Address]
     port_A: int
     address_B: Union[IPv4Address, IPv6Address]
@@ -192,7 +193,7 @@ class Conversation_Report: ...
 class Endpoint_Report: ...
 
 
-class Report_Processor:
+class _Report_Processor:
 
     Classes_dict = {
         'Ethernet Endpoints': Ethernet_Endpoint,
@@ -215,7 +216,7 @@ class Report_Processor:
     }
 
     @classmethod
-    def parse_report_strings(cls, report_str: str):
+    def parse_report_page(cls, report_str: str):
         for protocol, Report_class in cls.Classes_dict.items():
             if report_str.startswith(protocol):
                 report_lines = report_str.splitlines()
@@ -250,7 +251,7 @@ class Report_Processor:
     def as_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
-    #TODO: make this method universal for any class
+    #TODO: make this method universal for every package
     def calculate_column_widths(self):
         column_widths = defaultdict(list)
         for k in self.entries[0].__annotations__.keys():
@@ -266,9 +267,9 @@ class Report_Processor:
             self, separator: str = ' ',
             merge_unit_columns: bool = False, #TODO join columns
             align: Union[None,
-                    Literal['left'],
-                    Literal['center'],
-                    Literal['right']
+                Literal['left'],
+                Literal['center'],
+                Literal['right']
                 ] = None,
     ) -> str:
         column_widths = self.calculate_column_widths()
@@ -278,7 +279,7 @@ class Report_Processor:
                 if "port" in key.lower() or "units" in key.lower(): return str.ljust
                 else: return str.rjust
             else:
-                if align == 'right': return str.rjust
+                if   align == 'right': return str.rjust
                 elif align == 'center': return str.center
                 else: return str.ljust
 
@@ -305,8 +306,7 @@ class Report_Processor:
         elif header.lower().endswith('conversations'):
             resulting_class = Conversation_Report
             list_key = 'conversations'
-        else:
-            raise ValueError("Unknown report type")
+        else: raise ValueError("Unknown report type")
         filter_line = next(reader)[0]
         filter_value = '' if filter_line.startswith('Filter:<No Filter>') else filter_line.split(':', 1)[1]
         field_names = next(reader)
@@ -370,12 +370,12 @@ class Report_Processor:
 
 
 @dataclass
-class Endpoint_Report(Report_Processor):
+class Endpoint_Report(_Report_Processor):
     header: str
     filter: str = ''
     endpoints: list = field(default_factory=list)
     Classes_dict = {
-        Name: Class for Name, Class in Report_Processor.Classes_dict.items()
+        Name: Class for Name, Class in _Report_Processor.Classes_dict.items()
         if Name.endswith('Endpoints')
     }
 
@@ -385,12 +385,13 @@ class Endpoint_Report(Report_Processor):
 
 
 @dataclass
-class Conversation_Report(Report_Processor):
+class Conversation_Report(_Report_Processor):
     header: str
     filter: str = ''
     conversations: list = field(default_factory=list)
     Classes_dict = {
-        Name: Class for Name, Class in Report_Processor.Classes_dict.items()
+        Name: Class for Name, Class
+        in _Report_Processor.Classes_dict.items()
         if Name.endswith('Conversations')
     }
 
@@ -531,8 +532,9 @@ class Tshark:
             (Endpoint_Report, 'endpoints', 'address')
         ]
         for report in conversation_reports:
-            for ReportClass, entry_key, sort_key in report_classes:
-                parsed_report = ReportClass.parse_report_strings(report)
+            # for ReportClass, entry_key, sort_key in report_classes:
+            for ReportClass, _, _ in report_classes:
+                parsed_report = ReportClass.parse_report_page(report)
                 if parsed_report and len(parsed_report.entries) > 0:
                     #TODO: fix sorting for IPv4 and IPv6 addresses
                     # getattr(parsed_report, entry_key).sort(key=lambda r: getattr(r, sort_key))
@@ -580,14 +582,13 @@ def dump_sni_to_json(
     )
     return data
 
-
 def test_reports_export_import(pcap_file_path):
     reports = collect_reports(pcap_file_path)
     for report in reports:
         print(
     f"{report.header} ({len(report.entries)}):"
-    f"\n  json [ex|im]port works correctly: {report == Report_Processor.from_json(report.to_json())}"
-    f"\n  csv  [ex|im]port works correctly: {report == Report_Processor.from_csv(report.to_csv())}"
+    f"\n  json [ex|im]port works correctly: {report == _Report_Processor.from_json(report.to_json())}"
+    f"\n  csv  [ex|im]port works correctly: {report == _Report_Processor.from_csv(report.to_csv())}"
         )
 
 if __name__ == '__main__':

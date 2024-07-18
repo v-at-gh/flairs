@@ -2,14 +2,18 @@
 
 from argparse import ArgumentParser, Namespace
 
-class ArgHelp: ...
+class ArgHelp:
+    pcap   = "path to the packet capture file"
+    filter = "filter expression for packet capture file processing (wireshark `preview` syntax)"
+    json   = "return stats as json (default)"
+    csv    = "return stats as csv"
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument('pcap', type=str, help="path to the packet capture file")
-    parser.add_argument('-f', '--filter', type=str, help="filter expression for packet capture file processing (wireshark `preview` syntax)")
-    parser.add_argument('-j', '--json', action='store_true', help="return stats as json (default)")
-    parser.add_argument('-c', '--csv', action='store_true', help="return stats as csv")
+    parser.add_argument('pcap', type=str, help=ArgHelp.pcap)
+    parser.add_argument('-f', '--filter', type=str, help=ArgHelp.filter)
+    parser.add_argument('-j', '--json', action='store_true', help=ArgHelp.json)
+    parser.add_argument('-c', '--csv', action='store_true', help=ArgHelp.csv)
 
     return parser.parse_args()
 

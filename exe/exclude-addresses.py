@@ -17,10 +17,10 @@
 from argparse import ArgumentParser, Namespace
 
 class ArgHelp:
-    network = "Network from which we are excluding addresses"
+    network   = "Network from which we are excluding addresses"
     addresses = "comma or whitespace separated addresses of hosts and/or networks to be excluded"
     separator = "separator for a list of resulting networks. Default is the new line"
-    ignore = "ignore non-valid input arguments (except the target network)"
+    ignore    = "ignore non-valid input arguments (except the target network)"
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()

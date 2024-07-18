@@ -5,7 +5,7 @@ from typing import List, Union
 from time import time
 
 from ..Utils.Connection import Net_Connection
-from ..Utils.Netstat import Netstat
+from .Netstat_old import Netstat
 
 @dataclass
 class Snapshot:

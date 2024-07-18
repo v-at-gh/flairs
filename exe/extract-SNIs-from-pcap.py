@@ -3,15 +3,15 @@
 from argparse import ArgumentParser, Namespace
 
 class Arg_help:
-    filter = 'Filter expression for pcapng file traffic.'
-    indent = 'Set indentation value for resulting json.'
-    ntoa = 'Returns a json of server names and their addresses.'
-    aton = 'Returns a json of addresses and their server names.'
-    verbose = 'Enable verbose output.'
-    outfile = ('The path where the JSON file will be saved. '
-               'By default, it is saved next to the packet capture file with the suffix `.sni.json`.')
+    filter    = 'Filter expression for pcapng file traffic.'
+    indent    = 'Set indentation value for resulting json.'
+    ntoa      = 'Returns a json of server names and their addresses.'
+    aton      = 'Returns a json of addresses and their server names.'
+    verbose   = 'Enable verbose output.'
+    outfile   = ('The path where the JSON file will be saved. '
+                 'By default, it is saved next to the packet capture file with the suffix `.sni.json`.')
     overwrite = 'Overwrite existing json.'
-    stdout = 'Print the resulting json to stdout.'
+    stdout    = 'Print the resulting json to stdout.'
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser(description='Process a pcap or pcapng file and save SNIs as a JSON file.')

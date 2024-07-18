@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import sys
 from argparse import ArgumentParser, Namespace, REMAINDER
 from subprocess import run
 from pathlib import Path
@@ -18,21 +17,25 @@ def select_script(script_name: str) -> Path:
     script_path = script_dir / f"{script_name}.py"
     return script_path
 
-class ArgHelp: ...
+class ArgHelp:
+    description = "Run a specified script with arguments."
+    script      = "Script to run (e.g., exclude-addresses)"
+    script_args = "Arguments to pass to the script"
 
 def parse_arguments() -> Namespace:
     available_scripts = list_available_scripts()
     script_list_str = ', '.join(script for script in available_scripts)
 
     parser = ArgumentParser(
-        description="Run a specified script with arguments.",
+        description=ArgHelp.description,
         epilog=f"Available scripts: {script_list_str}"
     )
-    parser.add_argument('script', help="Script to run (e.g., exclude-addresses)")
-    parser.add_argument('script_args', nargs=REMAINDER, help="Arguments to pass to the script")
+    parser.add_argument('script', help=ArgHelp.script)
+    parser.add_argument('script_args', nargs=REMAINDER, help=ArgHelp.script_args)
     return parser.parse_args()
 
 def main() -> None:
+    import sys
     args = parse_arguments()
 
     script_name = args.script

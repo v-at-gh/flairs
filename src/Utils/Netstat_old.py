@@ -7,7 +7,7 @@ from ipaddress import ip_address
 from .Common import subprocess_run_kwargs
 from .Connection import Net_Connection, TCP_Connection, UDP_Connection
 
-protos = ('tcp', 'udp')
+protos   = ('tcp', 'udp')
 families = ('inet', 'inet6')
 
 @dataclass
@@ -39,7 +39,7 @@ class Netstat:
 
     @staticmethod
     def _run_netstat_to_get_connections(
-            proto: Optional[str] = None,
+            proto:  Optional[str] = None,
             family: Optional[str] = None
         ) -> List[str]:
         proto_selector = f'-p {proto}' if proto is not None else ''
