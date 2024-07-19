@@ -17,6 +17,12 @@ class ArgHelp:
     separator = "separator for the list of resulting networks. Default is the new line"
     ignore    = "ignore non-valid input arguments (except the target network)"
 
+def die(code, message: str = None) -> NoReturn:
+    if code != 0: out = sys.stderr
+    else: out = sys.stdout
+    if message: print(message, file=out)
+    sys.exit(code)
+
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument('network', type=str, help=ArgHelp.network)
@@ -25,13 +31,13 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-i', '--ignore', action='store_true', help=ArgHelp.ignore)
     return parser.parse_args()
 
-def validate_args(target_net: str, addrs_str: str) -> Union[tuple[Union[IPv4Network, IPv6Network], str], NoReturn]:
+def validate_args(
+        target_net: str, addrs_str: str
+) -> Union[tuple[Union[IPv4Network, IPv6Network], str], NoReturn]:
     if not is_string_a_valid_ip_network(target_net):
-        print(f"{target_net} is not a valid ip network.", file=sys.stderr)
-        sys.exit(1)
+        die(1, f"{target_net} is not a valid ip network.")
     elif not addrs_str:
-        print(f"Missing addresses argument. It must be a {ArgHelp.addresses}.", file=sys.stderr)
-        sys.exit(2)
+        die(2, f"Missing addresses argument. It must be a {ArgHelp.addresses}.")
 
     target_net = ip_network(target_net)
     addrs_str = str(addrs_str).strip()
@@ -59,8 +65,7 @@ def process_args(target_net: Union[IPv4Network, IPv6Network], addrs_str: str
             addrs = set(a.strip() for a in addrs_str.split(',') if a.strip() != '')
         else:
             if not ' ' in addrs_str:
-                print(f"{addrs_str} is not a valid ip network.", file=sys.stderr)
-                sys.exit(2)
+                die(2, f"{addrs_str} is not a valid ip network.")
             addrs = set(a.strip() for a in addrs_str.split() if a.strip() != '')
         for a in addrs:
             if not is_string_a_valid_ip_network(a, strict=False):
@@ -81,12 +86,10 @@ def print_errors_and_exit(inv_addrs, mis_addrs, irr_addrs) -> NoReturn:
             wrong_stuff_message_list.append(
                 f"{wrong_stuff[0]+plural+': '+' '.join(str(item) for item in wrong_stuff[1])}"
             )
-    print('\n'.join(wrong_stuff_message_list).strip(), file=sys.stderr)
-    sys.exit(2)
+    die(2, '\n'.join(wrong_stuff_message_list).strip())
 
 def print_result_and_exit(result_nets, separator) -> NoReturn:
-    print(separator.join((str(n) for n in result_nets)).strip(), file=sys.stdout)
-    sys.exit(0)
+    die(0, separator.join((str(n) for n in result_nets)).strip())
 
 def main() -> NoReturn:
     args = parse_arguments()
@@ -103,7 +106,7 @@ def main() -> NoReturn:
         print_errors_and_exit(inv_addrs, mis_addrs, irr_addrs)
     else:
         result_nets = sorted(list(exclude_addresses(target_net, (a for a in addr_objs))))
-        if len(result_nets) == 0: print(target_net); sys.exit(0)
+        if len(result_nets) == 0: die(0, target_net)
         print_result_and_exit(result_nets, separator)
 
 if __name__ == '__main__':
