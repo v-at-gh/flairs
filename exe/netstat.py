@@ -4,7 +4,11 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from typing import NoReturn
 from argparse import ArgumentParser, Namespace
+
+from src.tools import die
+from src.System.Netstat import SUPPORTED_FAMILIES, SUPPORTED_PROTOS, run_netstat
 
 class ArgHelp:
     # all       = "display all sockets"
@@ -33,8 +37,7 @@ def parse_arguments() -> Namespace:
 
     return parser.parse_args()
 
-def main() -> None:
-    import sys
+def main() -> NoReturn:
     args = parse_arguments()
 
     # TODO: yes, sir. Unlike the Linux version, 
@@ -52,8 +55,6 @@ def main() -> None:
     elif args.udp and not args.tcp: transport = 'udp'
     else: transport = None
 
-    from src.System.Netstat import SUPPORTED_FAMILIES, SUPPORTED_PROTOS
-
     command_options = []
     if transport:
         transport = transport.lower().strip()
@@ -68,20 +69,13 @@ def main() -> None:
             f"Family {family} is not supported. "
             f"Supported families are: {' '.join(SUPPORTED_FAMILIES)}")
 
-    from src.System.Netstat import run_netstat
-
     try:
-        # result = run_netstat(family=family, proto=transport)
         result = run_netstat(command_options=command_options)
-        print(result.stdout.strip(), file=sys.stdout)
-        if result.stderr:
-            print(result.stderr.strip(), file=sys.stderr)
-        sys.exit(result.returncode)
-
+        if not result.stderr:
+              die(result.returncode, result.stdout.strip())
+        else: die(result.returncode, result.stderr.strip())
     except Exception as e:
-        print(f"An error occurred: {e}", file=sys.stderr)
-        sys.exit(result.returncode)
-
+        die(result.returncode, f"An error occurred: {e}")
 
 if __name__ == '__main__':
     main()

@@ -6,6 +6,8 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from argparse import ArgumentParser, Namespace
 
+from src.tools import die
+
 class ArgHelp:
     pcap   = "path to the packet capture file"
     filter = "filter expression for packet capture file processing (wireshark `preview` syntax)"
@@ -18,22 +20,16 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-f', '--filter', type=str, help=ArgHelp.filter)
     parser.add_argument('-j', '--json', action='store_true', help=ArgHelp.json)
     parser.add_argument('-c', '--csv', action='store_true', help=ArgHelp.csv)
-
     return parser.parse_args()
 
 def test_reports_module(pcap_file_path):
-
     if not Path(pcap_file_path).exists():
-        from sys import exit, stderr
-        print(f"File {pcap_file_path} does not exist.", file=stderr)
-        exit(1)
-
+        die(1, f"File {pcap_file_path} does not exist.")
     from src.Wireshark.Tshark.functions import test_reports_export_import
     test_reports_export_import(pcap_file_path)
 
-def main() -> None:
+def main():
     args = parse_arguments()
-
     test_reports_module(args.pcap)
 
 if __name__ == '__main__':

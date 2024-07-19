@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 
+import sys
+
 from argparse import ArgumentParser, Namespace, REMAINDER
+from typing import NoReturn
 from subprocess import run
 from pathlib import Path
+
+from src.tools import die
 
 def get_script_directory() -> Path:
     return Path(__file__).resolve().parent / 'exe'
@@ -34,33 +39,29 @@ def parse_arguments() -> Namespace:
     parser.add_argument('script_args', nargs=REMAINDER, help=ArgHelp.script_args)
     return parser.parse_args()
 
-def main() -> None:
-    import sys
+def main() -> NoReturn:
     args = parse_arguments()
-
     script_name = args.script
     script_path = select_script(script_name)
-
     if script_path.exists():
         try:
             result = run(
                 [sys.executable, script_path] + args.script_args,
                 capture_output=True, text=True
             )
-            print(result.stdout.strip(), file=sys.stdout)
-            if result.stderr:
-                print(result.stderr.strip(), file=sys.stderr)
-            sys.exit(result.returncode)
+            if not result.stderr:
+                die(result.returncode, result.stdout.strip())
+            else:
+                die(result.returncode, result.stderr.strip())
         except Exception as e:
-            print(f"An error occurred: {e}", file=sys.stderr)
-            sys.exit(result.returncode)
+            die(result.returncode, f"An error occurred: {e}")
     else:
         available_scripts = list_available_scripts()
         print(f"Script '{script_name}' not found.", file=sys.stderr)
         print("Available scripts:")
         for script in available_scripts:
             print(f" - {script}")
-        sys.exit(255)
+        die(255)
 
 if __name__ == '__main__':
     main()

@@ -8,20 +8,14 @@ from argparse import ArgumentParser, Namespace
 from typing import NoReturn, Union
 from ipaddress import IPv4Network, IPv6Network, ip_network
 
+from src.tools import die
 from src.net_tools import exclude_addresses, is_string_a_valid_ip_network
-
 
 class ArgHelp:
     network   = "The network from which we exclude addresses"
     addresses = "comma or whitespace separated addresses of hosts and/or networks to be excluded"
     separator = "separator for the list of resulting networks. Default is the new line"
     ignore    = "ignore non-valid input arguments (except the target network)"
-
-def die(code, message: str = None) -> NoReturn:
-    if code != 0: out = sys.stderr
-    else: out = sys.stdout
-    if message: print(message, file=out)
-    sys.exit(code)
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
@@ -38,10 +32,8 @@ def validate_args(
         die(1, f"{target_net} is not a valid ip network.")
     elif not addrs_str:
         die(2, f"Missing addresses argument. It must be a {ArgHelp.addresses}.")
-
     target_net = ip_network(target_net)
     addrs_str = str(addrs_str).strip()
-
     return target_net, addrs_str
 
 def process_args(target_net: Union[IPv4Network, IPv6Network], addrs_str: str
@@ -93,15 +85,11 @@ def print_result_and_exit(result_nets, separator) -> NoReturn:
 
 def main() -> NoReturn:
     args = parse_arguments()
-
     if not args.separator: separator = "\n"
     else:  separator = str(args.separator)
-
     target_net, addrs_str = validate_args(args.network, args.addresses)
-
     addr_objs, inv_addrs, mis_addrs, irr_addrs \
         = process_args(target_net, addrs_str)
-
     if not args.ignore and (inv_addrs or mis_addrs or irr_addrs):
         print_errors_and_exit(inv_addrs, mis_addrs, irr_addrs)
     else:

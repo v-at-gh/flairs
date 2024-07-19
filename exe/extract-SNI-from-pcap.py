@@ -4,8 +4,10 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from typing import NoReturn
 from argparse import ArgumentParser, Namespace
 
+from src.tools import die
 from src.Wireshark.Tshark.functions import get_sni_dict
 
 class Arg_help:
@@ -33,16 +35,14 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-s', '--stdout', action='store_true', help=Arg_help.stdout)
     return parser.parse_args()
 
-def main() -> None:
+def main() -> NoReturn:
     args = parse_arguments()
 
     if not Path(args.pcap).exists():
-        print(f"Error: The file {args.pcap} does not exist.")
-        sys.exit(1)
+        die(1, f"Error: The file {args.pcap} does not exist.")
 
     if args.outfile and Path(args.outfile).exists() and not args.overwrite:
-        print(f"Error: The file {args.outfile} does not exist. Add `-w` to overwrite.", file=sys.stderr)
-        sys.exit(2)
+        die(2, f"Error: The file {args.outfile} does not exist. Add `-w` to overwrite.")
 
     sni_dict = get_sni_dict(
         args.pcap,
@@ -56,19 +56,14 @@ def main() -> None:
     if args.stdout:
         try:
             dump(sni_dict, fp=sys.stdout, ensure_ascii=False, indent=args.indent)
-        except Exception as e:
-            print(e, file=sys.stderr)
-            sys.exit(3)
-
+        except Exception as e: die(3, e)
     if args.outfile:
         try:
             with open(args.outfile, 'w', encoding='utf-8') as outfile:
                 dump(sni_dict, fp=outfile, ensure_ascii=False, indent=args.indent)
-        except Exception as e:
-            print(e, file=sys.stderr)
-            sys.exit(4)
+        except Exception as e: die(4, e)
 
-    sys.exit(0)
+    die(0)
 
 if __name__ == '__main__':
     main()

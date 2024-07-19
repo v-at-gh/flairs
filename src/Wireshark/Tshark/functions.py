@@ -1,5 +1,5 @@
 import subprocess
-from typing import Any, Dict, List, Set, Tuple, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 from pathlib import Path
 
 # from src.Wireshark.common import PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS
@@ -25,8 +25,7 @@ def get_sni_dict(
         filter: Optional[str] = None,
         get_server_name_to_addresses: bool = False,
         get_address_to_server_names: bool = False,
-) -> Dict[str, Dict[str, List[str]] | Any]:
-
+) -> Dict[str, Union[Dict[str, List[str]], Any]]:
     pcap_file_path_obj = Path(pcap_file_path_str)
     if not Path.exists(pcap_file_path_obj):
         print(f"File {pcap_file_path_str} does not exist.")
@@ -35,12 +34,10 @@ def get_sni_dict(
         pcap_file_type = subprocess.run(
             ['file', pcap_file_path_str], text=True, capture_output=True
         ).stdout.strip()
-    except Exception as e:
-        raise e
+    except Exception as e: raise e
     if not 'pcap capture file' in pcap_file_type and \
        not 'pcapng capture file' in pcap_file_type:
         raise Exception(f"File {pcap_file_path_str} is not packet capture file.")
-
     data = Tshark.get_ipaddr_tls_server_name_pairs(
         pcap_file_path_str,
         filter = filter,
@@ -49,7 +46,7 @@ def get_sni_dict(
     )
     return data
 
-def test_reports_export_import(pcap_file_path):
+def test_reports_export_import(pcap_file_path) -> None:
     reports = collect_reports(pcap_file_path)
     reports.sort(key=lambda r: len(r.entries))
     for report in reports:
@@ -66,5 +63,4 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('pcap', type=str, help='Path to pcap or pcapng file to be processed.')
     args = parser.parse_args()
-
     test_reports_export_import(args.pcap)

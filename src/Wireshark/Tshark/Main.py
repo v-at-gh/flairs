@@ -35,7 +35,7 @@ class Tshark:
             filter: Optional[str] = None,
             get_address_to_server_names: bool = False,
             get_server_name_to_addresses: bool = False
-    ) -> Dict[str, Dict[str, List[str]] | Any]:
+    ) -> Dict[str, Union[Dict[str, List[str]], Any]]:
         # If none of these options are set--get both dictionaries.
         if get_address_to_server_names is False and get_server_name_to_addresses is False:
             get_address_to_server_names = True
@@ -54,9 +54,8 @@ class Tshark:
                 capture_output=True, text=True, encoding='utf-8'
             )
             if result.returncode != 0:
-                import sys
-                print(f"Error: {result.stderr}", file=sys.stderr)
-                sys.exit(result.returncode)
+                from src.tools import die
+                die(result.returncode, f"Error: {result.stderr}")
             else:
                 pairs = result.stdout.splitlines()
         except Exception as e:
@@ -80,8 +79,7 @@ class Tshark:
                 sorted(
                     server_name_to_addresses.items(),
                     key=lambda k: k[0].split('.')[::-1]
-                )
-            )
+            ))
         if get_address_to_server_names and get_server_name_to_addresses:
             resulting_dict = {
                 'address_to_server_names': sorted_address_to_server_names,
@@ -114,16 +112,13 @@ class Tshark:
                     f"Unsupported protocols specified: {', '.join(unsupported_protos)}")
             else:
                 return protos
-
         protos = _parse_proto_arg(proto)
-
         def create_expression(prefix, protos, preview_filter=None) -> str:
             if preview_filter is None:
                 return " ".join(f"-z {prefix},{proto}" for proto in protos)
             else:
                 return " ".join(f"-z {prefix},{proto},'{preview_filter}'"
                                 for proto in protos)
-
         endpoints_expression = create_expression("endpoints", protos, preview_filter)
         conversations_expression = create_expression("conv", protos, preview_filter)
         command = (

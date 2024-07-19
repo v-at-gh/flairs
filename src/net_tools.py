@@ -18,7 +18,7 @@ def is_string_a_valid_ip_network(item: str, strict: bool = False) -> bool:
 def exclude_addresses(
         target_network:       Union[IPv4Network, IPv6Network],
         addresses_to_exclude: Union[List[IPv4Network], List[IPv6Network]]
-) -> Union[Iterator[IPv4Network], Iterator[IPv6Network]]:
+)    -> Union[Iterator[IPv4Network], Iterator[IPv6Network]]:
     '''This function solves the following problem:
 
     https://stackoverflow.com/questions/66204457/how-can-i-remove-two-or-more-subnet-from-a-network
@@ -38,7 +38,6 @@ def exclude_addresses(
 
     and see how long it takes. (:
     '''
-
     addresses_to_exclude = sorted(collapse_addresses(addresses_to_exclude))
     # Process addresses.
     networks = []
@@ -46,7 +45,6 @@ def exclude_addresses(
         if address.subnet_of(target_network):
             networks.extend(target_network.address_exclude(address))
     networks = sorted(set(networks))
-
     # Post-process resulting network list.
     networks_to_remove = []
     for network in networks:
@@ -56,5 +54,4 @@ def exclude_addresses(
     for network in networks_to_remove:
         if network in networks:
             networks.remove(network)
-
     return collapse_addresses(networks)

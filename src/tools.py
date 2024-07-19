@@ -1,9 +1,17 @@
 import os
-from typing import Any, Union
+import sys
+from typing import Any, NoReturn, Optional, Union
 from datetime import datetime
 from ipaddress import IPv4Address, IPv6Address
 from ipaddress import IPv4Network, IPv6Network
 from ipaddress import ip_address, ip_network
+
+def die(code: int, message: Optional[str] = None) -> NoReturn:
+    if message:
+        if code != 0: out = sys.stderr
+        else: out = sys.stdout
+        print(message, file=out)
+    sys.exit(code)
 
 def cast_value(value: Any, target_type:
      Union[int, float, str, datetime, IPv4Address, IPv6Address, IPv4Network, IPv6Network]
