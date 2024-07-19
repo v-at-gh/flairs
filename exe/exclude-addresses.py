@@ -5,7 +5,8 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from argparse import ArgumentParser, Namespace
-from ipaddress import ip_network
+from typing import NoReturn, Union
+from ipaddress import IPv4Network, IPv6Network, ip_network
 
 from src.net_tools import exclude_addresses, is_string_a_valid_ip_network
 
@@ -24,7 +25,21 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-i', '--ignore', action='store_true', help=ArgHelp.ignore)
     return parser.parse_args()
 
-def process_args(target_net, addrs_str) -> tuple[set, set, set, set]:
+def validate_args(target_net: str, addrs_str: str) -> Union[tuple[Union[IPv4Network, IPv6Network], str], NoReturn]:
+    if not is_string_a_valid_ip_network(target_net):
+        print(f"{target_net} is not a valid ip network.", file=sys.stderr)
+        sys.exit(1)
+    elif not addrs_str:
+        print(f"Missing addresses argument. It must be a {ArgHelp.addresses}.", file=sys.stderr)
+        sys.exit(2)
+
+    target_net = ip_network(target_net)
+    addrs_str = str(addrs_str).strip()
+
+    return target_net, addrs_str
+
+def process_args(target_net: Union[IPv4Network, IPv6Network], addrs_str: str
+                        ) -> Union[tuple[set, set, set, set], NoReturn]:
     addr_objs = set()
     inv_addrs = set()
     mis_addrs = set()
@@ -56,45 +71,40 @@ def process_args(target_net, addrs_str) -> tuple[set, set, set, set]:
             else:  addr_objs.add(net_a)
     return addr_objs, inv_addrs, mis_addrs, irr_addrs
 
-def print_result(result_nets, separator) -> None:
-    print(separator.join((str(n) for n in result_nets)).strip(), file=sys.stdout)
+def print_errors_and_exit(inv_addrs, mis_addrs, irr_addrs) -> NoReturn:
+    wrong_stuff_message_list = []
+    for wrong_stuff in zip(
+            ('invalid address', 'misfitting address', 'irrelevant address'),
+            (inv_addrs, mis_addrs, irr_addrs)):
+        if len(wrong_stuff[1]) > 0:
+            plural = 'es' if len(wrong_stuff[1]) > 1 else ''
+            wrong_stuff_message_list.append(
+                f"{wrong_stuff[0]+plural+': '+' '.join(str(item) for item in wrong_stuff[1])}"
+            )
+    print('\n'.join(wrong_stuff_message_list).strip(), file=sys.stderr)
+    sys.exit(2)
 
-def main() -> None:
+def print_result_and_exit(result_nets, separator) -> NoReturn:
+    print(separator.join((str(n) for n in result_nets)).strip(), file=sys.stdout)
+    sys.exit(0)
+
+def main() -> NoReturn:
     args = parse_arguments()
 
     if not args.separator: separator = "\n"
     else:  separator = str(args.separator)
 
-    if not is_string_a_valid_ip_network(args.network):
-        print(f"{args.network} is not a valid ip network.", file=sys.stderr)
-        sys.exit(1)
-    elif not args.addresses:
-        print(f"Missing addresses argument. It must be a {ArgHelp.addresses}.", file=sys.stderr)
-        sys.exit(2)
-
-    target_net = ip_network(args.network)
-    addrs_str = str(args.addresses).strip()
+    target_net, addrs_str = validate_args(args.network, args.addresses)
 
     addr_objs, inv_addrs, mis_addrs, irr_addrs \
         = process_args(target_net, addrs_str)
 
     if not args.ignore and (inv_addrs or mis_addrs or irr_addrs):
-        wrong_stuff_message_list = []
-        for wrong_stuff in zip(
-                ('invalid address', 'misfitting address', 'irrelevant address'),
-                (inv_addrs, mis_addrs, irr_addrs)):
-            if len(wrong_stuff[1]) > 0:
-                plural = 'es' if len(wrong_stuff[1]) > 1 else ''
-                wrong_stuff_message_list.append(
-                    f"{wrong_stuff[0]+plural+': '+' '.join(str(item) for item in wrong_stuff[1])}"
-                )
-        print('\n'.join(wrong_stuff_message_list).strip(), file=sys.stderr)
-        sys.exit(2)
+        print_errors_and_exit(inv_addrs, mis_addrs, irr_addrs)
     else:
         result_nets = sorted(list(exclude_addresses(target_net, (a for a in addr_objs))))
-        if len(result_nets) == 0: print(target_net)
-        print_result(result_nets, separator)
-        sys.exit(0)
+        if len(result_nets) == 0: print(target_net); sys.exit(0)
+        print_result_and_exit(result_nets, separator)
 
 if __name__ == '__main__':
     main()

@@ -23,13 +23,13 @@ def parse_arguments() -> Namespace:
 
 def test_reports_module(pcap_file_path):
 
-    if Path(pcap_file_path).exists():
-        from src.Wireshark.Tshark.functions import test_reports_export_import
-        test_reports_export_import(pcap_file_path)
-    else:
+    if not Path(pcap_file_path).exists():
         from sys import exit, stderr
         print(f"File {pcap_file_path} does not exist.", file=stderr)
         exit(1)
+
+    from src.Wireshark.Tshark.functions import test_reports_export_import
+    test_reports_export_import(pcap_file_path)
 
 def main() -> None:
     args = parse_arguments()
