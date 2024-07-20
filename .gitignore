@@ -169,4 +169,4 @@ test/
 data/
 *_scratch_*
 bin/*
-*.md5sum
+src/System/MacOS/tcp_daemon.c.md5sum

@@ -41,7 +41,7 @@ int main() {
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
     int pipe_fd = open("/tmp/tcp_connections.pipe", O_WRONLY);
-    if (pipe_fd == -1) { exit(1); }
+    if (pipe_fd == -1) { exit(1); };
     while (1) {
         size_t len;
         int mib[] = { CTL_NET, PF_INET, IPPROTO_TCP, TCPCTL_PCBLIST };
