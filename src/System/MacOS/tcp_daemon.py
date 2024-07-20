@@ -29,9 +29,17 @@ PATH_TO_DAEMON_SRC_MD5 = SOURCES_SRCDIR_PATH / 'tcp_daemon.c.md5sum'
 PATH_TO_DAEMON_BIN     = SOURCES_BINDIR_PATH / 'tcp_daemon'
 # PATH_TO_DAEMON_BIN_MD5 = './tcp_daemon.md5sum'
 
-def compile_daemon():
+def compile_daemon() -> subprocess.CompletedProcess[str]:
     COMPILER_ARGS= [C_COMPILER, PATH_TO_DAEMON_SRC, '-o', PATH_TO_DAEMON_BIN]
-    result = subprocess.run(COMPILER_ARGS, capture_output=True)
+    result = subprocess.run(COMPILER_ARGS, capture_output=True, text=True)
+    if result.stderr:
+        print('EXIT CODE: '+str(result.returncode), file=sys.stderr)
+        print('STDOUT:\n'+result.stdout, file=sys.stderr)
+        print('STDERR:\n'+result.stderr, file=sys.stderr)
+        print('Try to compile yourself:', file=sys.stderr)
+        print('# '+' '.join(str(a) for a in COMPILER_ARGS), file=sys.stderr)
+        print(file=sys.stdout)
+        sys.exit(254)
     return result
 
 if not Path(PATH_TO_DAEMON_SRC).exists():
@@ -54,9 +62,6 @@ else:
     if SOURCE_MD5_PREVIOUS != SOURCE_MD5_CURRENT:
         print(f"Sources file {PATH_TO_DAEMON_SRC} has changed. Recompiling...", file=sys.stdout)
         result = compile_daemon()
-        if result.stderr:
-            print(result.returncode, result.stderr, file=sys.stderr)
-            sys.exit(254)
         with open(PATH_TO_DAEMON_SRC_MD5, 'w') as file:
             file.write(SOURCE_MD5_CURRENT)
 
