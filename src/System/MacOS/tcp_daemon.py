@@ -4,10 +4,6 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-def get_project_directory() -> Path:
-    #TODO: ... pretty self-explanatory
-    return Path(__file__).resolve().parent.parent.parent.parent
-
 import os
 import sys
 import hashlib
@@ -18,9 +14,19 @@ from pathlib import Path
 
 C_COMPILER = '/usr/bin/cc'
 
-PATH_TO_DAEMON_SRC     = get_project_directory() / 'src/System/MacOS/tcp_daemon.c'
-PATH_TO_DAEMON_SRC_MD5 = get_project_directory() / 'src/System/MacOS/tcp_daemon.c.md5sum'
-PATH_TO_DAEMON_BIN     = get_project_directory() / 'bin/tcp_daemon'
+def get_project_directory() -> Path:
+    #TODO:... pretty self-explanatory
+    return Path(__file__).resolve().parent.parent.parent.parent
+
+SOURCES_SRCDIR_PATH = get_project_directory() / 'src/System/MacOS'
+SOURCES_BINDIR_PATH = get_project_directory() / 'bin'
+
+if not SOURCES_BINDIR_PATH.exists():
+    Path.mkdir(SOURCES_BINDIR_PATH)
+
+PATH_TO_DAEMON_SRC     = SOURCES_SRCDIR_PATH / 'tcp_daemon.c'
+PATH_TO_DAEMON_SRC_MD5 = SOURCES_SRCDIR_PATH / 'tcp_daemon.c.md5sum'
+PATH_TO_DAEMON_BIN     = SOURCES_BINDIR_PATH / 'tcp_daemon'
 # PATH_TO_DAEMON_BIN_MD5 = './tcp_daemon.md5sum'
 
 def compile_daemon():
