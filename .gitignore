@@ -168,3 +168,5 @@ test/
 .backup.d
 data/
 *_scratch_*
+bin/*
+*.md5sum
