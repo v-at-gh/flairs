@@ -8,7 +8,7 @@ from typing import NoReturn
 from argparse import ArgumentParser, Namespace
 
 from src.tools import die
-from src.System.Netstat import SUPPORTED_FAMILIES, SUPPORTED_PROTOS, run_netstat
+from src.System.MacOS.Netstat import SUPPORTED_FAMILIES, SUPPORTED_PROTOS, run_netstat
 
 class ArgHelp:
     # all       = "display all sockets"

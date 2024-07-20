@@ -7,6 +7,8 @@ from .common import PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS
 from .Classes import Report_Processor, Endpoint_Report, Conversation_Report
 from .Main import Tshark
 
+FILE_BINARY = '/usr/bin/file'
+
 def collect_reports(
         pcap_file_path,
         proto=PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
@@ -32,7 +34,7 @@ def get_sni_dict(
         return
     try:
         pcap_file_type = subprocess.run(
-            ['file', pcap_file_path_str], text=True, capture_output=True
+            [FILE_BINARY, pcap_file_path_str], text=True, capture_output=True
         ).stdout.strip()
     except Exception as e: raise e
     if not 'pcap capture file' in pcap_file_type and \
