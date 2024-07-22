@@ -1,15 +1,13 @@
+#include <libproc.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <netinet/tcp_var.h>
 #include <arpa/inet.h>
-#include <libproc.h>
-#include <signal.h>
-#include <fcntl.h>
+#include <netinet/tcp_var.h>
+#include <sys/sysctl.h>
+#include <sys/fcntl.h>
+#include <unistd.h>
 
-void print_address(int fd, struct inpcb *inp) {
+void print_tcp_socket(int fd, struct inpcb *inp) {
     char local_addr[INET6_ADDRSTRLEN], remote_addr[INET6_ADDRSTRLEN];
     if (inp->inp_vflag & INP_IPV4) {
         inet_ntop(AF_INET, &inp->inp_laddr.s_addr, local_addr, sizeof(local_addr));
@@ -62,7 +60,7 @@ int main() {
             struct xtcpcb *tp = (struct xtcpcb *)xig;
             struct inpcb *inp = &tp->xt_inp;
             struct xsocket *so = &tp->xt_socket;
-            print_address(pipe_fd, inp);
+            print_tcp_socket(pipe_fd, inp);
             xig = (struct xinpgen *)((char *)xig + xig->xig_len);
         }
         dprintf(pipe_fd, "\n");

@@ -82,7 +82,8 @@ def main():
 
     if not os.path.exists(pipe_path):
         os.mkfifo(pipe_path)
-    subprocess.run([PATH_TO_DAEMON_BIN])
+    # subprocess.run([PATH_TO_DAEMON_BIN])
+    daemon_pid = subprocess.Popen([PATH_TO_DAEMON_BIN]).pid
 
     with open(pipe_path, 'r') as pipe_fd:
         try:
@@ -91,9 +92,11 @@ def main():
                     if line: process_data(line)
                 time.sleep(1)
         except KeyboardInterrupt:
+            os.kill(daemon_pid, 2)
+            print(file=sys.stdout)
             for i, s in enumerate(connections_big_list, 1):
-                print(i)
-                for c in s[1]: print(f"  {c}")
+                print(f"{i}. {datetime.datetime.fromtimestamp(s[0])}", file=sys.stdout)
+                for j, c in enumerate(s[1], 1): print(f"  {j}. {c}", file=sys.stdout)
 
 if __name__ == "__main__":
     main()
