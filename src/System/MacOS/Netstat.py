@@ -1,10 +1,10 @@
-import json
+# import json
 from typing import Any, Optional, Union
-from dataclasses import dataclass, asdict, field
-from ipaddress import IPv4Address, IPv6Address, ip_address
+# from dataclasses import dataclass, asdict, field
+# from ipaddress import IPv4Address, IPv6Address, ip_address
 from subprocess import CompletedProcess, run
-from copy import copy
-from time import time as now
+# from copy import copy
+# from time import time as now
 
 NETSTAT_BINARY = '/usr/sbin/netstat'
 SUPPORTED_PROTOS = ('divert', 'icmp', 'igmp', 'ip', 'tcp', 'udp')
