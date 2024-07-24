@@ -10,7 +10,7 @@ This structure is utilized to generalize the process of obtaining and displaying
 
 ### `inpcb`
 
-The term `inpcb` stands for **In**ternet **P**rotocol **C**ontrol **B**lock. In the context of kernel programming, particularly within network stacks, an `inpcb` structure is used to store information about a network connection for protocols like TCP, UDP, and IP. This structure is essential for managing and maintaining the state of network connections and sockets. It's described in the [Apple Developer Documentation](https://developer.apple.com/documentation/kernel/inpcb).
+The term `inpcb` stands for **I**nter**n**et **P**rotocol **C**ontrol **B**lock. In the context of kernel programming, particularly within network stacks, an `inpcb` structure is used to store information about a network connection for protocols like TCP, UDP, and IP. This structure is essential for managing and maintaining the state of network connections and sockets. It's described in the [Apple Developer Documentation](https://developer.apple.com/documentation/kernel/inpcb).
 
 Here are some key functions and characteristics of the `inpcb`:
 

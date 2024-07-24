@@ -1,21 +1,17 @@
 #include <libproc.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <arpa/inet.h>
-#include <sys/sysctl.h>
-#include <sys/fcntl.h>
-#include <unistd.h>
-#include <sys/socketvar.h>
+#include <sys/fcntl.h> // for `open` function
 
+#include <arpa/inet.h> // for `inet_ntop` function
 #include <netinet/udp_var.h>
-
 #include <netinet/tcp_var.h>
-#include <netinet/tcp_fsm.h> // tcp states
+
 
 #include <getopt.h>
 
 #define DEFAULT_INTERVAL  1000000
-#define DEFAULT_PIPE_PATH "/tmp/tcp_connections.pipe"
+#define DEFAULT_PIPE_PATH "/tmp/inet_daemon.pipe"
 
 const char *tcpstates[] = {
     "CLOSED", "LISTEN", "SYN_SENT", "SYN_RECEIVED",
@@ -46,8 +42,10 @@ void print_tcp_socket(int fd, struct inpcb *inp, int state) {
         inet_ntop(AF_INET6, &inp->in6p_laddr, local_addr, sizeof(local_addr));
         inet_ntop(AF_INET6, &inp->in6p_faddr, remote_addr, sizeof(remote_addr));
     }
-    const char *state_string = (state >= 0 && state < sizeof(tcpstates) / sizeof(tcpstates[0])) ? tcpstates[state] : tcpstates[11];
-    dprintf(fd, "TCP_%s:%d,%s:%d,%s\t",
+    const char *state_string = (state >= 0
+        && state < sizeof(tcpstates) / sizeof(tcpstates[0]))
+        ? tcpstates[state] : tcpstates[11];
+    dprintf(fd, "TCP,%s:%d,%s:%d,%s\t",
            local_addr,  ntohs(inp->inp_lport),
            remote_addr, ntohs(inp->inp_fport),
            state_string
@@ -63,7 +61,7 @@ void print_udp_socket(int fd, struct inpcb *inp) {
         inet_ntop(AF_INET6, &inp->in6p_laddr, local_addr, sizeof(local_addr));
         inet_ntop(AF_INET6, &inp->in6p_faddr, remote_addr, sizeof(remote_addr));
     }
-    dprintf(fd, "UDP_%s:%d,%s:%d\t",
+    dprintf(fd, "UDP,%s:%d,%s:%d\t",
            local_addr,  ntohs(inp->inp_lport),
            remote_addr, ntohs(inp->inp_fport)
            );
@@ -121,7 +119,17 @@ int main(int argc, char *argv[]) {
         struct xinpgen *xig_udp, *oxig_udp;
         xig_udp = oxig_udp = (struct xinpgen *)buf_udp;
         xig_udp = (struct xinpgen *)((char *)xig_udp + xig_udp->xig_len);
-        // TODO: process udp structures...
+
+        while (xig_udp->xig_len > sizeof(struct xinpgen)) {
+            struct xtcpcb *tp = (struct xtcpcb *)xig_udp;
+            struct tcpcb *tcp = &tp->xt_tp;
+            struct inpcb *inp = &tp->xt_inp;
+            struct xsocket *so = &tp->xt_socket;
+            print_udp_socket(pipe_fd, inp);
+            xig_udp = (struct xinpgen *)((char *)xig_udp + xig_udp->xig_len);
+        }
+        // Print new-line terminator
+        dprintf(pipe_fd, "\n");
 
 
         // TCP mib processing
@@ -153,8 +161,12 @@ int main(int argc, char *argv[]) {
             print_tcp_socket(pipe_fd, inp, state);
             xig_tcp = (struct xinpgen *)((char *)xig_tcp + xig_tcp->xig_len);
         }
+
         // Print new-line terminator
         dprintf(pipe_fd, "\n");
+
+        // Free memory and wait for next invocation
+        free(buf_udp);
         free(buf_tcp);
         usleep(interval);
     }

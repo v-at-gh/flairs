@@ -25,10 +25,9 @@ SOURCES_BINDIR_PATH = get_project_directory() / 'bin/System/MacOS'
 
 Path.mkdir(SOURCES_BINDIR_PATH, parents=True, exist_ok=True)
 
-PATH_TO_DAEMON_SRC     = SOURCES_SRCDIR_PATH / 'tcp_daemon.c'
-PATH_TO_DAEMON_SRC_MD5 = SOURCES_SRCDIR_PATH / 'tcp_daemon.c.md5sum'
-PATH_TO_DAEMON_BIN     = SOURCES_BINDIR_PATH / 'tcp_daemon'
-# PATH_TO_DAEMON_BIN_MD5 = './tcp_daemon.md5sum'
+PATH_TO_DAEMON_SRC     = SOURCES_SRCDIR_PATH / 'inet_daemon.c'
+PATH_TO_DAEMON_SRC_MD5 = SOURCES_SRCDIR_PATH / 'inet_daemon.c.md5sum'
+PATH_TO_DAEMON_BIN     = SOURCES_BINDIR_PATH / 'inet_daemon'
 
 def compile_daemon() -> subprocess.CompletedProcess[str]:
     COMPILER_ARGS= [C_COMPILER, PATH_TO_DAEMON_SRC, '-o', PATH_TO_DAEMON_BIN]
@@ -91,7 +90,7 @@ def parse_arguments() -> Namespace:
 
 def main():
     DEFAULT_INTERVAL  = 1000000 # time to sleep in microseconds
-    DEFAULT_PIPE_PATH = "/tmp/tcp_connections.pipe"
+    DEFAULT_PIPE_PATH = "/tmp/inet_daemon.pipe"
 
     args = parse_arguments()
     if args.interval:
