@@ -70,8 +70,13 @@ def process_data(data):
     connections_list = []
     connections = data.strip().split('\t')
     for conn in connections:
-        local, remote, state = conn.split(',')
-        connections_list.append((local, remote, state))
+        # testing tcp state gathering
+        if len(conn.split(',')) == 2:
+            local, remote = conn.split(',')
+            connections_list.append((local, remote))
+        elif len(conn.split(',')) == 3:
+            local, remote, state = conn.split(',')
+            connections_list.append((local, remote, state))
     connections_big_list.append((now, connections_list))
     print(datetime.datetime.now(), len(connections_list), file=sys.stdout)
     sys.stdout.flush()
