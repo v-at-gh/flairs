@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <sys/socketvar.h>
 
+#include <netinet/udp_var.h>
+
 #include <netinet/tcp_var.h>
 #include <netinet/tcp_fsm.h> // tcp states
 
@@ -21,6 +23,8 @@ const char *tcpstates[] = {
     "LAST_ACK", "FIN_WAIT_2", "TIME_WAIT", "UNKNOWN"
 };
 
+void signal_handler(int sig) { exit(0); }
+
 void daemonize() {
     pid_t pid, sid;
     pid = fork();
@@ -32,8 +36,6 @@ void daemonize() {
     if ((chdir("/")) < 0) { exit(EXIT_FAILURE); }
     close(STDIN_FILENO); close(STDOUT_FILENO); close(STDERR_FILENO);
 }
-
-void signal_handler(int sig) { exit(0); }
 
 void print_tcp_socket(int fd, struct inpcb *inp, int state) {
     char local_addr[INET6_ADDRSTRLEN], remote_addr[INET6_ADDRSTRLEN];
@@ -56,7 +58,6 @@ void print_tcp_socket(int fd, struct inpcb *inp, int state) {
 }
 
 int main(int argc, char *argv[]) {
-    // TODO: move arg parsing to a new function
     int interval = DEFAULT_INTERVAL;
     char *pipe_path = DEFAULT_PIPE_PATH;
     int opt;
@@ -67,7 +68,7 @@ int main(int argc, char *argv[]) {
         {0, 0, 0, 0}
     };
 
-
+    // TODO: move arg parsing to a new function
     while ((opt = getopt_long(argc, argv, "i:p:", long_options, NULL)) != -1)
     {
         switch (opt) {
@@ -88,37 +89,61 @@ int main(int argc, char *argv[]) {
     }
 
     while (1) {
-        int mib[] = { CTL_NET, PF_INET, IPPROTO_TCP, TCPCTL_PCBLIST };
-        size_t len;
-        // Test getting the size of the data
-        if (sysctl(mib, 4, NULL, &len, NULL, 0) < 0) {
+
+        // UDP mib processing
+        int mib_udp[] = { CTL_NET, PF_INET, IPPROTO_UDP, UDPCTL_PCBLIST };
+        // Test getting the size of the UDP data
+        size_t len_udp_mem;
+        if (sysctl(mib_udp, 4, NULL, &len_udp_mem, NULL, 0) < 0) {
             perror("sysctl: size retrieval"); exit(EXIT_FAILURE);
         }
         // Allocate memory to hold the data
-        char *buf = malloc(len); if (buf == NULL) {
+        char *buf_udp = malloc(len_udp_mem); if (buf_udp == NULL) {
             perror("malloc"); exit(EXIT_FAILURE);
         }
-        // Get the actual data to allocated buf
-        if (sysctl(mib, 4, buf, &len, NULL, 0) < 0) {
+        // Get the actual data to allocated buf_udp
+        if (sysctl(mib_udp, 4, buf_udp, &len_udp_mem, NULL, 0) < 0) {
             perror("sysctl: data retrieval");
-            free(buf); exit(EXIT_FAILURE);
+            free(buf_udp); exit(EXIT_FAILURE);
         }
-        struct xinpgen *xig, *oxig;
-        xig = oxig = (struct xinpgen *)buf;
-        xig = (struct xinpgen *)((char *)xig + xig->xig_len);
+        struct xinpgen *xig_udp, *oxig_udp;
+        xig_udp = oxig_udp = (struct xinpgen *)buf_udp;
+        xig_udp = (struct xinpgen *)((char *)xig_udp + xig_udp->xig_len);
+        // TODO: process udp structures...
 
-        while (xig->xig_len > sizeof(struct xinpgen)) {
-            struct xtcpcb *tp = (struct xtcpcb *)xig;
+
+        // TCP mib processing
+        int mib_tcp[] = { CTL_NET, PF_INET, IPPROTO_TCP, TCPCTL_PCBLIST };
+        size_t len_tcp_mem;
+        // Test getting the size of the TCP data
+        if (sysctl(mib_tcp, 4, NULL, &len_tcp_mem, NULL, 0) < 0) {
+            perror("sysctl: size retrieval"); exit(EXIT_FAILURE);
+        }
+        // Allocate memory to hold the data
+        char *buf_tcp = malloc(len_tcp_mem); if (buf_tcp == NULL) {
+            perror("malloc"); exit(EXIT_FAILURE);
+        }
+        // Get the actual data to allocated buf_tcp
+        if (sysctl(mib_tcp, 4, buf_tcp, &len_tcp_mem, NULL, 0) < 0) {
+            perror("sysctl: data retrieval");
+            free(buf_tcp); exit(EXIT_FAILURE);
+        }
+        struct xinpgen *xig_tcp, *oxig_tcp;
+        xig_tcp = oxig_tcp = (struct xinpgen *)buf_tcp;
+        xig_tcp = (struct xinpgen *)((char *)xig_tcp + xig_tcp->xig_len);
+
+        while (xig_tcp->xig_len > sizeof(struct xinpgen)) {
+            struct xtcpcb *tp = (struct xtcpcb *)xig_tcp;
             struct tcpcb *tcp = &tp->xt_tp;
             int state = tcp->t_state;
             struct inpcb *inp = &tp->xt_inp;
             struct xsocket *so = &tp->xt_socket;
             print_tcp_socket(pipe_fd, inp, state);
-            xig = (struct xinpgen *)((char *)xig + xig->xig_len);
+            xig_tcp = (struct xinpgen *)((char *)xig_tcp + xig_tcp->xig_len);
         }
         // Print new-line terminator
         dprintf(pipe_fd, "\n");
-        free(buf);
+        free(buf_tcp);
         usleep(interval);
     }
 
