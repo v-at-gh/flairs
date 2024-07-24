@@ -12,6 +12,8 @@ import time
 import datetime
 from pathlib import Path
 
+from argparse import ArgumentParser, Namespace
+
 C_COMPILER = '/usr/bin/cc'
 
 def get_project_directory() -> Path:
@@ -65,18 +67,12 @@ else:
             file.write(SOURCE_MD5_CURRENT)
 
 connections_big_list = []
-def process_data(data):
+def process_data_and_print_to_stdout(data):
     now = time.time()
     connections_list = []
     connections = data.strip().split('\t')
     for conn in connections:
-        # testing tcp state gathering
-        if len(conn.split(',')) == 2:
-            local, remote = conn.split(',')
-            connections_list.append((local, remote))
-        elif len(conn.split(',')) == 3:
-            local, remote, state = conn.split(',')
-            connections_list.append((local, remote, state))
+        connections_list.append(tuple(conn.split(',')))
     connections_big_list.append((now, connections_list))
     print(datetime.datetime.now(), len(connections_list), file=sys.stdout)
     sys.stdout.flush()
@@ -85,22 +81,25 @@ class ArgHelp:
     interval  = "interval for fetching a snapshot of the system's network connections at the moment in seconds"
     pipe_path = "path to the named pipe through which the daemon transmits a snapshot of network connections"
 
-def main():
-    DEFAULT_INTERVAL  = 1
-    DEFAULT_PIPE_PATH = "/tmp/tcp_connections.pipe"
-
-    from argparse import ArgumentParser, Namespace
-
+def parse_arguments() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument('-i', '--interval', type=float, help=ArgHelp.interval)
     parser.add_argument('-p', '--pipe-path', type=str, help=ArgHelp.pipe_path)
     args = parser.parse_args()
 
+    return args
+
+def main():
+    DEFAULT_INTERVAL  = 1000000 # time to sleep in microseconds
+    DEFAULT_PIPE_PATH = "/tmp/tcp_connections.pipe"
+
+    args = parse_arguments()
     if args.interval:
         try:
             float(args.interval)
             if args.interval > 0:
-                interval = args.interval
+                # convert `float seconds` to `int microseconds`
+                interval = float(args.interval*(10**6))
             else:
                 print(f"Interval must be a number more than zero", file=sys.stderr)
                 sys.exit(254)
@@ -124,7 +123,7 @@ def main():
         try:
             while True:
                 for line in pipe_fd:
-                    if line: process_data(line)
+                    if line: process_data_and_print_to_stdout(line)
                 time.sleep(interval)
         except KeyboardInterrupt:
             os.kill(daemon_pid, 2)

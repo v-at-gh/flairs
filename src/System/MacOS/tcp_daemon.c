@@ -10,8 +10,14 @@
 #include <netinet/tcp_var.h>
 #include <netinet/tcp_fsm.h> // tcp states
 
-#define DEFAULT_INTERVAL 1
+#define DEFAULT_INTERVAL  1000000
 #define DEFAULT_PIPE_PATH "/tmp/tcp_connections.pipe"
+
+const char *tcpstates[] = {
+    "CLOSED", "LISTEN", "SYN_SENT", "SYN_RECEIVED",
+    "ESTABLISHED", "CLOSE_WAIT", "FIN_WAIT_1", "CLOSING",
+    "LAST_ACK", "FIN_WAIT_2", "TIME_WAIT", "UNKNOWN"
+};
 
 void daemonize() {
     pid_t pid, sid;
@@ -26,12 +32,6 @@ void daemonize() {
 }
 
 void signal_handler(int sig) { exit(0); }
-
-const char *tcpstates[] = {
-    "CLOSED", "LISTEN", "SYN_SENT", "SYN_RECEIVED",
-    "ESTABLISHED", "CLOSE_WAIT", "FIN_WAIT_1", "CLOSING",
-    "LAST_ACK", "FIN_WAIT_2", "TIME_WAIT", "UNKNOWN"
-};
 
 void print_tcp_socket(int fd, struct inpcb *inp, int state) {
     char local_addr[INET6_ADDRSTRLEN], remote_addr[INET6_ADDRSTRLEN];
@@ -107,9 +107,10 @@ int main(int argc, char *argv[]) {
             print_tcp_socket(pipe_fd, inp, state);
             xig = (struct xinpgen *)((char *)xig + xig->xig_len);
         }
+        // Print new-line terminator
         dprintf(pipe_fd, "\n");
         free(buf);
-        sleep(interval);
+        usleep(interval);
     }
 
     close(pipe_fd);
