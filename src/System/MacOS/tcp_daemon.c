@@ -28,14 +28,13 @@ void daemonize() {
 void signal_handler(int sig) { exit(0); }
 
 const char *tcpstates[] = {
-    "CLOSED", "LISTEN", "SYN_SENT", "SYN_RECEIVED", "ESTABLISHED",
-    "CLOSE_WAIT", "FIN_WAIT_1", "CLOSING", "LAST_ACK", "FIN_WAIT_2", "TIME_WAIT"
+    "CLOSED", "LISTEN", "SYN_SENT", "SYN_RECEIVED",
+    "ESTABLISHED", "CLOSE_WAIT", "FIN_WAIT_1", "CLOSING",
+    "LAST_ACK", "FIN_WAIT_2", "TIME_WAIT", "UNKNOWN"
 };
 
-// void print_tcp_socket(int fd, struct inpcb *inp, int t_flags) {
-void print_tcp_socket(int fd, struct inpcb *inp) {
+void print_tcp_socket(int fd, struct inpcb *inp, int state) {
     char local_addr[INET6_ADDRSTRLEN], remote_addr[INET6_ADDRSTRLEN];
-    // const char *state = (t_flags >= 0 && t_flags < 11) ? tcpstates[t_flags] : "UNKNOWN";
 
     if (inp->inp_vflag & INP_IPV4) {
         inet_ntop(AF_INET, &inp->inp_laddr.s_addr, local_addr, sizeof(local_addr));
@@ -45,30 +44,13 @@ void print_tcp_socket(int fd, struct inpcb *inp) {
         inet_ntop(AF_INET6, &inp->in6p_faddr, remote_addr, sizeof(remote_addr));
     }
 
-    // dprintf(fd, "%s:%d,%s:%d,%s\t",
-    dprintf(fd, "%s:%d,%s:%d\t",
-           local_addr,  ntohs(inp->inp_lport),
-           remote_addr, ntohs(inp->inp_fport)
-           );
-        //    remote_addr, ntohs(inp->inp_fport),
-        //    state);
-}
+    const char *state_string = (state >= 0 && state < sizeof(tcpstates) / sizeof(tcpstates[0])) ? tcpstates[state] : tcpstates[11];
 
-void print_tcp_state(int fd, int state) {
-    switch (state) {
-        case TCPS_CLOSED: dprintf(fd, "CLOSED,"); break;
-        case TCPS_LISTEN: dprintf(fd, "LISTEN,"); break;
-        case TCPS_SYN_SENT: dprintf(fd, "SYN_SENT,"); break;
-        case TCPS_SYN_RECEIVED: dprintf(fd, "SYN_RECEIVED,"); break;
-        case TCPS_ESTABLISHED: dprintf(fd, "ESTABLISHED,"); break;
-        case TCPS_CLOSE_WAIT: dprintf(fd, "CLOSE_WAIT,"); break;
-        case TCPS_FIN_WAIT_1: dprintf(fd, "FIN_WAIT_1,"); break;
-        case TCPS_CLOSING: dprintf(fd, "CLOSING,"); break;
-        case TCPS_LAST_ACK: dprintf(fd, "LAST_ACK,"); break;
-        case TCPS_FIN_WAIT_2: dprintf(fd, "FIN_WAIT_2,"); break;
-        case TCPS_TIME_WAIT: dprintf(fd, "TIME_WAIT,"); break;
-        default: dprintf(fd, "UNKNOWN,"); break;
-    }
+    dprintf(fd, "%s:%d,%s:%d,%s\t",
+           local_addr,  ntohs(inp->inp_lport),
+           remote_addr, ntohs(inp->inp_fport),
+           state_string
+           );
 }
 
 int main(int argc, char *argv[]) {
@@ -112,7 +94,6 @@ int main(int argc, char *argv[]) {
             perror("sysctl: data retrieval");
             free(buf); exit(EXIT_FAILURE);
         }
-
         struct xinpgen *xig, *oxig;
         xig = oxig = (struct xinpgen *)buf;
         xig = (struct xinpgen *)((char *)xig + xig->xig_len);
@@ -120,10 +101,10 @@ int main(int argc, char *argv[]) {
         while (xig->xig_len > sizeof(struct xinpgen)) {
             struct xtcpcb *tp = (struct xtcpcb *)xig;
             struct tcpcb *tcp = &tp->xt_tp;
-            print_tcp_state(pipe_fd, tcp->t_state);
+            int state = tcp->t_state;
             struct inpcb *inp = &tp->xt_inp;
             struct xsocket *so = &tp->xt_socket;
-            print_tcp_socket(pipe_fd, inp);
+            print_tcp_socket(pipe_fd, inp, state);
             xig = (struct xinpgen *)((char *)xig + xig->xig_len);
         }
         dprintf(pipe_fd, "\n");
