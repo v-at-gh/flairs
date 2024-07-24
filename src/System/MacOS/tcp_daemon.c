@@ -10,6 +10,8 @@
 #include <netinet/tcp_var.h>
 #include <netinet/tcp_fsm.h> // tcp states
 
+#include <getopt.h>
+
 #define DEFAULT_INTERVAL  1000000
 #define DEFAULT_PIPE_PATH "/tmp/tcp_connections.pipe"
 
@@ -57,16 +59,23 @@ int main(int argc, char *argv[]) {
     // TODO: move arg parsing to a new function
     int interval = DEFAULT_INTERVAL;
     char *pipe_path = DEFAULT_PIPE_PATH;
-
     int opt;
-    while ((opt = getopt(argc, argv, "i:p:")) != -1) {
+
+    struct option long_options[] = {
+        {"interval", required_argument, 0, 'i'},
+        {"pipe_path", required_argument, 0, 'p'},
+        {0, 0, 0, 0}
+    };
+
+
+    while ((opt = getopt_long(argc, argv, "i:p:", long_options, NULL)) != -1)
+    {
         switch (opt) {
-        case 'i': interval = atoi(optarg); break;
-        // TODO fix pipe path parsing
-        case 'p': pipe_path = optarg; break;
-        default:
-            fprintf(stderr, "Usage: %s [-i interval] [-p pipe_path]\n", argv[0]);
-            exit(EXIT_FAILURE);
+            case 'i': interval = atoi(optarg); break;
+            case 'p': pipe_path = optarg; break;
+            default: fprintf(stderr,
+                    "Usage: %s [-i interval] [-p pipe_path]\n",
+                    argv[0]); exit(EXIT_FAILURE);
         }
     }
 
