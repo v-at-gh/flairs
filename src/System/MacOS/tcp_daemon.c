@@ -39,7 +39,6 @@ void daemonize() {
 
 void print_tcp_socket(int fd, struct inpcb *inp, int state) {
     char local_addr[INET6_ADDRSTRLEN], remote_addr[INET6_ADDRSTRLEN];
-
     if (inp->inp_vflag & INP_IPV4) {
         inet_ntop(AF_INET, &inp->inp_laddr.s_addr, local_addr, sizeof(local_addr));
         inet_ntop(AF_INET, &inp->inp_faddr.s_addr, remote_addr, sizeof(remote_addr));
@@ -47,13 +46,26 @@ void print_tcp_socket(int fd, struct inpcb *inp, int state) {
         inet_ntop(AF_INET6, &inp->in6p_laddr, local_addr, sizeof(local_addr));
         inet_ntop(AF_INET6, &inp->in6p_faddr, remote_addr, sizeof(remote_addr));
     }
-
     const char *state_string = (state >= 0 && state < sizeof(tcpstates) / sizeof(tcpstates[0])) ? tcpstates[state] : tcpstates[11];
-
-    dprintf(fd, "%s:%d,%s:%d,%s\t",
+    dprintf(fd, "TCP_%s:%d,%s:%d,%s\t",
            local_addr,  ntohs(inp->inp_lport),
            remote_addr, ntohs(inp->inp_fport),
            state_string
+           );
+}
+
+void print_udp_socket(int fd, struct inpcb *inp) {
+    char local_addr[INET6_ADDRSTRLEN], remote_addr[INET6_ADDRSTRLEN];
+    if (inp->inp_vflag & INP_IPV4) {
+        inet_ntop(AF_INET, &inp->inp_laddr.s_addr, local_addr, sizeof(local_addr));
+        inet_ntop(AF_INET, &inp->inp_faddr.s_addr, remote_addr, sizeof(remote_addr));
+    } else if (inp->inp_vflag & INP_IPV6) {
+        inet_ntop(AF_INET6, &inp->in6p_laddr, local_addr, sizeof(local_addr));
+        inet_ntop(AF_INET6, &inp->in6p_faddr, remote_addr, sizeof(remote_addr));
+    }
+    dprintf(fd, "UDP_%s:%d,%s:%d\t",
+           local_addr,  ntohs(inp->inp_lport),
+           remote_addr, ntohs(inp->inp_fport)
            );
 }
 

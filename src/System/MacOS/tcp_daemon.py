@@ -133,6 +133,7 @@ def main():
             for i, s in enumerate(connections_big_list, 1):
                 print(f"{i}. {datetime.datetime.fromtimestamp(s[0])}", file=sys.stdout)
                 for j, c in enumerate(s[1], 1): print(f"  {j}. {c}", file=sys.stdout)
+                print(file=sys.stdout)
 
 if __name__ == "__main__":
     main()
