@@ -2,15 +2,46 @@
 
 ## Structures
 
+### `MIB`
+
+The Management Information Base (MIB) is a hierarchical database used to manage network devices and services. In the context of network protocols, MIB paths are used to navigate the system's internal management information and retrieve specific data. A MIB path is typically represented as an array of integers, each specifying a level in the MIB hierarchy.
+
+#### Common `MIB` Path Components
+
+1. **CTL_NET**: The top-level identifier for network-related queries. It indicates that the subsequent elements in the array pertain to network information.
+
+2. **PF_INET**: This specifies the protocol family, in this case, the Internet Protocol version 4 (IPv4). It is used to indicate that the query relates to IPv4 networking information.
+
+3. **IPPROTO_* (e.g., IPPROTO_TCP, IPPROTO_UDP)**: This specifies the protocol within the IPv4 family. `IPPROTO_TCP` indicates the Transmission Control Protocol (TCP), while `IPPROTO_UDP` indicates the User Datagram Protocol (UDP).
+
+4. ***CTL_PCBLIST (e.g., TCPCTL_PCBLIST, UDPCTL_PCBLIST)**: This specifies that the query should return a list of Protocol Control Blocks (PCBs) for the specified protocol. PCBs are data structures that hold information about each active network connection or socket.
+
+##### Example `MIB` Paths
+##### TCP `Protocol Control Block List`
+```c
+int mib_tcp[] = { CTL_NET, PF_INET, IPPROTO_TCP, TCPCTL_PCBLIST };
+```
+- **CTL_NET**: Indicates network-related query.
+- **PF_INET**: Specifies IPv4 family.
+- **IPPROTO_TCP**: Indicates TCP protocol.
+- **TCPCTL_PCBLIST**: Requests a list of TCP PCBs.
+##### UDP `Protocol Control Block List`
+```c
+int mib_udp[] = { CTL_NET, PF_INET, IPPROTO_UDP, UDPCTL_PCBLIST };
+```
+- **CTL_NET**: Indicates network-related query.
+- **PF_INET**: Specifies IPv4 family.
+- **IPPROTO_UDP**: Indicates UDP protocol.
+- **UDPCTL_PCBLIST**: Requests a list of UDP PCBs.
+
+
 ### `xinpgen`
 
-The `xinpgen` structure, as described in the [Apple Developer Documentation](https://developer.apple.com/documentation/kernel/xinpgen), is used within the kernel framework. The name `xinpgen` stands for **X**tended **In**ternal **P**rotocol **Gen**eric structure. It is designed to provide a generic interface for handling protocol information in the kernel's networking stack.
-
-This structure is utilized to generalize the process of obtaining and displaying network protocol information, allowing developers to work with different types of network protocols in a unified manner. It is part of the broader set of tools and structures that facilitate low-level networking operations and diagnostics within macOS and other Apple operating systems.
+The `xinpgen` structure, as described in the [Apple Developer Documentation](https://developer.apple.com/documentation/kernel/xinpgen), is used within the kernel framework. The name `xinpgen` stands for E**X**tended **IN**ternal **P**rotocol **GEN**eric structure. It is designed to provide a generic interface for handling protocol information in the kernel's networking stack.
 
 ### `inpcb`
 
-The term `inpcb` stands for **I**nter**n**et **P**rotocol **C**ontrol **B**lock. In the context of kernel programming, particularly within network stacks, an `inpcb` structure is used to store information about a network connection for protocols like TCP, UDP, and IP. This structure is essential for managing and maintaining the state of network connections and sockets. It's described in the [Apple Developer Documentation](https://developer.apple.com/documentation/kernel/inpcb).
+The term `inpcb` stands for **I**nter**N**et **P**rotocol **C**ontrol **B**lock. In the context of kernel programming, particularly within network stacks, an `inpcb` structure is used to store information about a network connection for protocols like TCP, UDP, and IP. This structure is essential for managing and maintaining the state of network connections and sockets. It's described in the [Apple Developer Documentation](https://developer.apple.com/documentation/kernel/inpcb).
 
 Here are some key functions and characteristics of the `inpcb`:
 
