@@ -10,6 +10,13 @@
 
 #include "config.h"
 
+
+/*  Seems like this structure is what we are looking for.
+    Tt can be found at
+https://github.com/apple-oss-distributions/xnu/blob/94d3b452840153a99b38a3a9659680b2a006908e/bsd/sys/socketvar.h#L499 
+    but for some reason it cannot be found in the current versions of SDK
+    TODO: check if this assumption is correct */
+
 // struct  xsocket_n {
 // 	u_int32_t               xso_len;        /* length of this structure */
 // 	u_int32_t               xso_kind;       /* XSO_SOCKET */
@@ -34,7 +41,6 @@
 // };
 
 
-
 const char *tcpstates[] = {
     "CLOSED", "LISTEN", "SYN_SENT", "SYN_RECEIVED",
     "ESTABLISHED", "CLOSE_WAIT", "FIN_WAIT_1", "CLOSING",
@@ -53,6 +59,24 @@ void daemonize() {
     if (sid < 0) { exit(EXIT_FAILURE); }
     if ((chdir("/")) < 0) { exit(EXIT_FAILURE); }
     close(STDIN_FILENO); close(STDOUT_FILENO); close(STDERR_FILENO);
+}
+
+void parse_arguments(int argc, char *argv[], int *interval, char **pipe_path) {
+    int opt;
+    struct option long_options[] = {
+        {"interval", optional_argument, 0, 'i'},
+        {"pipe_path", optional_argument, 0, 'p'},
+        {0, 0, 0, 0}
+    };
+    while ((opt = getopt_long(argc, argv, "i:p:", long_options, NULL)) != -1) {
+        switch (opt) {
+            case 'i': *interval = atoi(optarg); break;
+            case 'p': *pipe_path = optarg; break;
+            default: fprintf(stderr,
+                    "Usage: %s [-i interval] [-p pipe_path]\n",
+                    argv[0]); exit(EXIT_FAILURE);
+        }
+    }
 }
 
 void convert_addresses(struct inpcb *inp, char *local_addr, char *remote_addr) {
@@ -87,24 +111,6 @@ void print_udp_socket(int fd, struct inpcb *inp) {
     );
 }
 
-void parse_arguments(int argc, char *argv[], int *interval, char **pipe_path) {
-    int opt;
-    struct option long_options[] = {
-        {"interval", optional_argument, 0, 'i'},
-        {"pipe_path", optional_argument, 0, 'p'},
-        {0, 0, 0, 0}
-    };
-    while ((opt = getopt_long(argc, argv, "i:p:", long_options, NULL)) != -1) {
-        switch (opt) {
-            case 'i': *interval = atoi(optarg); break;
-            case 'p': *pipe_path = optarg; break;
-            default: fprintf(stderr,
-                    "Usage: %s [-i interval] [-p pipe_path]\n",
-                    argv[0]); exit(EXIT_FAILURE);
-        }
-    }
-}
-
 void process_mib(int mib[], int pipe_fd){
     size_t size_of_buf;
     if (sysctl(mib, 4, NULL, &size_of_buf, NULL, 0) < 0) {
@@ -122,9 +128,8 @@ void process_mib(int mib[], int pipe_fd){
     struct xinpgen *xig;
     xig = (struct xinpgen *)buf;
     xig = (struct xinpgen *)((char *)xig + xig->xig_len);
-    if (mib[2] == 6) {
+    if (mib[2] == 6) { /* 6 defined as IPPROTO_TCP in MIB */
         while (xig->xig_len > sizeof(struct xinpgen)) {
-            // so = (struct xsocket_n *)xgn;
             struct xtcpcb *tp = (struct xtcpcb *)xig;
             struct tcpcb *tcp = &tp->xt_tp;
             struct inpcb *inp = &tp->xt_inp;
@@ -132,7 +137,7 @@ void process_mib(int mib[], int pipe_fd){
             print_tcp_socket(pipe_fd, inp, state);
             xig = (struct xinpgen *)((char *)xig + xig->xig_len);
         } 
-    } else if (mib[2] == 17 ) {
+    } else if (mib[2] == 17 ) { /* 17 defined as IPPROTO_UDP in MIB */
         while (xig->xig_len > sizeof(struct xinpgen)) {
             struct xtcpcb *tp = (struct xtcpcb *)xig;
             struct inpcb *inp = &tp->xt_inp;
