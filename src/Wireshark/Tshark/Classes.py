@@ -57,12 +57,9 @@ class _Base_Endpoint(Item_Processor):
     tx_bytes: int
     rx_packets: int
     rx_bytes: int
-class Ethernet_Endpoint(_Base_Endpoint):
-    __annotations__ = _Base_Endpoint.__annotations__
-class IEEE_802_11_Endpoint(_Base_Endpoint):
-    __annotations__ = _Base_Endpoint.__annotations__
-class ZigBee_Endpoint(_Base_Endpoint):
-    __annotations__ = _Base_Endpoint.__annotations__
+class Ethernet_Endpoint(_Base_Endpoint):    __annotations__ = _Base_Endpoint.__annotations__
+class IEEE_802_11_Endpoint(_Base_Endpoint): __annotations__ = _Base_Endpoint.__annotations__
+class ZigBee_Endpoint(_Base_Endpoint):      __annotations__ = _Base_Endpoint.__annotations__
 
 @dataclass
 class Network_Endpoint(Item_Processor):
@@ -73,10 +70,8 @@ class Network_Endpoint(Item_Processor):
     tx_bytes: int
     rx_packets: int
     rx_bytes: int
-class IPv4_Endpoint(Network_Endpoint):
-    __annotations__ = Network_Endpoint.__annotations__
-class IPv6_Endpoint(Network_Endpoint):
-    __annotations__ = Network_Endpoint.__annotations__
+class IPv4_Endpoint(Network_Endpoint): __annotations__ = Network_Endpoint.__annotations__
+class IPv6_Endpoint(Network_Endpoint): __annotations__ = Network_Endpoint.__annotations__
 
 @dataclass
 class Transport_Endpoint(Item_Processor):
@@ -88,12 +83,9 @@ class Transport_Endpoint(Item_Processor):
     tx_bytes: int
     rx_packets: int
     rx_bytes: int
-class TCP_Endpoint(Transport_Endpoint):
-    __annotations__ = Transport_Endpoint.__annotations__
-class UDP_Endpoint(Transport_Endpoint):
-    __annotations__ = Transport_Endpoint.__annotations__
-class SCTP_Endpoint(Transport_Endpoint):
-    __annotations__ = Transport_Endpoint.__annotations__
+class TCP_Endpoint(Transport_Endpoint):  __annotations__ = Transport_Endpoint.__annotations__
+class UDP_Endpoint(Transport_Endpoint):  __annotations__ = Transport_Endpoint.__annotations__
+class SCTP_Endpoint(Transport_Endpoint): __annotations__ = Transport_Endpoint.__annotations__
 
 @dataclass
 class _Base_Conversation(Item_Processor):
@@ -110,12 +102,9 @@ class _Base_Conversation(Item_Processor):
     total_units: str
     relative_start: float
     duration: float
-class Ethernet_Conversation(_Base_Conversation):
-    __annotations__ = _Base_Conversation.__annotations__
-class IEEE_802_11_Conversation(_Base_Conversation):
-    __annotations__ = _Base_Conversation.__annotations__
-class ZigBee_Conversation(_Base_Conversation):
-    __annotations__ = _Base_Conversation.__annotations__
+class Ethernet_Conversation(_Base_Conversation):    __annotations__ = _Base_Conversation.__annotations__
+class IEEE_802_11_Conversation(_Base_Conversation): __annotations__ = _Base_Conversation.__annotations__
+class ZigBee_Conversation(_Base_Conversation):      __annotations__ = _Base_Conversation.__annotations__
 
 @dataclass
 class Network_Conversation(Item_Processor):
@@ -132,10 +121,8 @@ class Network_Conversation(Item_Processor):
     total_units: str
     relative_start: float
     duration: float
-class IPv4_Conversation(Network_Conversation):
-    __annotations__ = Network_Conversation.__annotations__
-class IPv6_Conversation(Network_Conversation):
-    __annotations__ = Network_Conversation.__annotations__
+class IPv4_Conversation(Network_Conversation): __annotations__ = Network_Conversation.__annotations__
+class IPv6_Conversation(Network_Conversation): __annotations__ = Network_Conversation.__annotations__
 
 @dataclass
 class Transport_Conversation(Item_Processor):
@@ -154,12 +141,9 @@ class Transport_Conversation(Item_Processor):
     total_units: str
     relative_start: float
     duration: float
-class TCP_Conversation(Transport_Conversation):
-    __annotations__ = Transport_Conversation.__annotations__
-class UDP_Conversation(Transport_Conversation):
-    __annotations__ = Transport_Conversation.__annotations__
-class SCTP_Conversation(Transport_Conversation):
-    __annotations__ = Transport_Conversation.__annotations__
+class TCP_Conversation(Transport_Conversation):  __annotations__ = Transport_Conversation.__annotations__
+class UDP_Conversation(Transport_Conversation):  __annotations__ = Transport_Conversation.__annotations__
+class SCTP_Conversation(Transport_Conversation): __annotations__ = Transport_Conversation.__annotations__
 
 
 # Satisfy type-hinting

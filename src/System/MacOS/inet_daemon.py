@@ -2,17 +2,16 @@
 
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[3]))
 
 import os
-import sys
 import hashlib
 import subprocess
 import time
 import datetime
-from pathlib import Path
-
 from argparse import ArgumentParser, Namespace
+
+from src.tools import die
 
 C_COMPILER = '/usr/bin/cc'
 
@@ -40,13 +39,12 @@ def compile_daemon() -> subprocess.CompletedProcess[str]:
             'Try to compile it yourself:\n',
             '# '+' '.join(str(a) for a in COMPILER_ARGS)+'\n'
         ])
-        print(err_msg, file=sys.stderr)
-        sys.exit(254)
+        die(254, err_msg)
     return result
 
 if not Path(PATH_TO_DAEMON_SRC).exists():
-    print(f"Sources file {PATH_TO_DAEMON_SRC} is missing. Exiting...", file=sys.stderr)
-    sys.exit(255)
+    err_msg = f"Sources file {PATH_TO_DAEMON_SRC} is missing. Exiting..."
+    die(255, err_msg)
 
 SOURCE_MD5_CURRENT = hashlib.md5(open(PATH_TO_DAEMON_SRC, 'rb').read()).hexdigest()
 
@@ -102,11 +100,10 @@ def main():
                 # convert `float seconds` to `int microseconds`
                 interval = float(args.interval*(10**6))
             else:
-                print(f"Interval must be a number more than zero", file=sys.stderr)
-                sys.exit(254)
+                err_msg = f"Interval must be a number more than zero"
+                die(254, err_msg)
         except Exception as e:
-            print(e, file=sys.stderr)
-            exit(253)
+            die(253, e)
     else: interval = DEFAULT_INTERVAL
 
     if args.pipe_path:

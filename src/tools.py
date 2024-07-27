@@ -18,7 +18,11 @@ def cast_value(value: Any, target_type:
 ) -> Union[int, float, str, datetime, IPv4Address, IPv6Address, IPv4Network, IPv6Network]:
     if   target_type == int:
         if isinstance(value, int): return value
-        else: return int(value.replace(',', ''))
+        else:
+            if ',' in value:
+                return int(value.replace(',', ''))
+            else:
+                return int(value)
     elif target_type == float: return float(value)
     elif target_type == str:   return str(value)
     elif target_type == datetime:

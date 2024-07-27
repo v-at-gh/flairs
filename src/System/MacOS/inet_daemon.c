@@ -10,37 +10,6 @@
 
 #include "config.h"
 
-
-/*  Seems like this structure is what we are looking for.
-    Tt can be found at
-https://github.com/apple-oss-distributions/xnu/blob/94d3b452840153a99b38a3a9659680b2a006908e/bsd/sys/socketvar.h#L499 
-    but for some reason it cannot be found in the current versions of SDK
-    TODO: check if this assumption is correct */
-
-// struct  xsocket_n {
-// 	u_int32_t               xso_len;        /* length of this structure */
-// 	u_int32_t               xso_kind;       /* XSO_SOCKET */
-// 	u_int64_t               xso_so;         /* makes a convenient handle */
-// 	short                   so_type;
-// 	u_int32_t               so_options;
-// 	short                   so_linger;
-// 	short                   so_state;
-// 	u_int64_t               so_pcb;         /* another convenient handle */
-// 	int                     xso_protocol;
-// 	int                     xso_family;
-// 	short                   so_qlen;
-// 	short                   so_incqlen;
-// 	short                   so_qlimit;
-// 	short                   so_timeo;
-// 	u_short                 so_error;
-// 	pid_t                   so_pgid;
-// 	u_int32_t               so_oobmark;
-// 	uid_t                   so_uid;         /* XXX */
-// 	pid_t                   so_last_pid;
-// 	pid_t                   so_e_pid;
-// };
-
-
 const char *tcpstates[] = {
     "CLOSED", "LISTEN", "SYN_SENT", "SYN_RECEIVED",
     "ESTABLISHED", "CLOSE_WAIT", "FIN_WAIT_1", "CLOSING",
@@ -89,6 +58,15 @@ void convert_addresses(struct inpcb *inp, char *local_addr, char *remote_addr) {
     }
 }
 
+void print_udp_socket(int fd, struct inpcb *inp) {
+    char local_addr[INET6_ADDRSTRLEN], remote_addr[INET6_ADDRSTRLEN];
+    convert_addresses(inp, local_addr, remote_addr);
+    dprintf(fd, "UDP,%s:%d,%s:%d\t",
+           local_addr,  ntohs(inp->inp_lport),
+           remote_addr, ntohs(inp->inp_fport)
+    );
+}
+
 void print_tcp_socket(int fd, struct inpcb *inp, int state) {
     char local_addr[INET6_ADDRSTRLEN], remote_addr[INET6_ADDRSTRLEN];
     convert_addresses(inp, local_addr, remote_addr);
@@ -99,15 +77,6 @@ void print_tcp_socket(int fd, struct inpcb *inp, int state) {
            local_addr,  ntohs(inp->inp_lport),
            remote_addr, ntohs(inp->inp_fport),
            state_string
-    );
-}
-
-void print_udp_socket(int fd, struct inpcb *inp) {
-    char local_addr[INET6_ADDRSTRLEN], remote_addr[INET6_ADDRSTRLEN];
-    convert_addresses(inp, local_addr, remote_addr);
-    dprintf(fd, "UDP,%s:%d,%s:%d\t",
-           local_addr,  ntohs(inp->inp_lport),
-           remote_addr, ntohs(inp->inp_fport)
     );
 }
 
