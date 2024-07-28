@@ -5,8 +5,8 @@ from datetime import datetime
 from ipaddress import ip_address
 
 from .common import TSHARK_BINARY, PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS
-from .Classes import Endpoint_Report, Conversation_Report
-from ...tools import get_file_size
+from .Tshark.Classes import Endpoint_Report, Conversation_Report
+from ..tools import get_file_size
 
 class Tshark:
 

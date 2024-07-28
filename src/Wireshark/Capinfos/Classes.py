@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict
 
-CAPINFOS_BINARY = "capinfos"
+from ..common import CAPINFOS_BINARY
 
 class _Capinfos_field_types:
     int_keys = {'Number of packets', 'File size (bytes)', 'Data size (bytes)'}

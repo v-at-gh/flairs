@@ -223,6 +223,7 @@ class Report_Processor:
 
     def as_pretty_table(
             self, separator: str = ' ',
+            print_report_header: bool = False,
             merge_unit_columns: bool = False, #TODO join columns
             align: Union[None,
                 Literal['left'],
@@ -253,7 +254,11 @@ class Report_Processor:
             entry_rows.append(separator.join(
                 _get_alignment_func(k)(str(v), column_widths[k])
                 for k, v in entry.as_dict.items()))
-        return '\n'.join([header_row, *entry_rows])
+        if print_report_header:
+            table_list = [self.header, self.filter, header_row, *entry_rows]
+        else:
+            table_list = [header_row, *entry_rows]
+        return '\n'.join(table_list)
 
     @classmethod
     def from_csv(cls, csv_str: str) -> Union[Conversation_Report, Endpoint_Report]:

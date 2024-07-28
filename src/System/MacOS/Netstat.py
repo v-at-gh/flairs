@@ -12,7 +12,7 @@ SUPPORTED_FAMILIES = ('inet', 'inet6', 'unix', 'vsock')
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
-from tools import cast_value
+from tools import cast_value, die
 
 class TCP_Connection: ...
 class UDP_Connection: ...
@@ -52,17 +52,18 @@ class Inet_Connection_Processor:
         return init_class(*cv)
 
     @property
-    def lsock(self) -> str:
-        return f"{str(self.laddr)}:{str(self.lport)}"
+    def lsock(self) -> str: return f"{str(self.laddr)}:{str(self.lport)}"
 
     @property
-    def rsock(self) -> str:
-        return f"{str(self.raddr)}:{str(self.rport)}"
+    def rsock(self) -> str: return f"{str(self.raddr)}:{str(self.rport)}"
+
+    @property
+    def sock_pair(self) -> str: return f"{self.lsock} <> {self.rsock}"
 
 @dataclass
 class Base_Connection(Inet_Connection_Processor):
     family: str
-    proto: str
+    proto:  str
     recv_q: int
     send_q: int
     laddr: Union[IPv4Address, IPv6Address]
@@ -74,42 +75,53 @@ class Base_Connection(Inet_Connection_Processor):
     txbytes: int
     rhiwat: int
     shiwat: int
-    pid: int
+    pid:  int
     epid: int
     state_bits: str
     options: str
-    gencnt: str
-    flags: str
+    gencnt:  str
+    flags:  str
     flags1: str
     usscnt: int
     rtncnt: int
-    fltrs: str
+    fltrs:  str
 class TCP_Connection(Base_Connection): __annotations__ = Base_Connection.__annotations__
 class UDP_Connection(Base_Connection): __annotations__ = Base_Connection.__annotations__
 
-class Report:
+class Netstat_Inet_Report:
+
     @staticmethod
-    def process_report(report: str):
+    def get_inet_snapshot(command_options: Optional[list] = None):
+        timestamp = now()
+        result = run_netstat(command_options)
+        if result.returncode != 0:
+            #TODO: implement more delicate error-handling someday
+            die(result.returncode, result.stderr)
+        conns = Netstat_Inet_Report.process_inet_report(run_netstat().stdout)
+        return (timestamp, conns)
+
+    @staticmethod
+    def process_inet_report(report: str) -> list[Union[TCP_Connection, UDP_Connection]]:
+        connections = []
         for line in report.strip().splitlines():
             if line.startswith(('tcp', 'udp')):
-                conn = Base_Connection.parse_str(line)
-                print(f"{conn.pid} {conn.proto} {conn.state} {conn.state_bits} {conn.lsock} <> {conn.rsock}")
+                connections.append(Base_Connection.parse_str(line))
+        return connections
 
 def run_netstat(
         command_options: Optional[list] = None,
 ) -> CompletedProcess[str]:
-
     command = [NETSTAT_BINARY, '-n', '-l', '-v', '-a', '-b', '-W']
-    # options validation and pre-processing is in the executable script now
+    # options (_validation_and_) pre-processing is in the executable script now
+    #TODO: implement validation.
     if command_options: command.extend(command_options)
-
-    # timestamp = now()
     result = run(
         command,
-        capture_output=True, text=True,
+        capture_output=True, text=True, encoding='utf-8'
     )
     return result
-    # return (timestamp, result)
 
 if __name__ == '__main__':
-    Report.process_report(run_netstat().stdout)
+    conns = Netstat_Inet_Report.process_inet_report(run_netstat().stdout)
+    for c in conns:
+        print(c.proto, c.sock_pair)
