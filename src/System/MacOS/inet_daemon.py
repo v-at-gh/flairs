@@ -42,28 +42,24 @@ def compile_daemon() -> subprocess.CompletedProcess[str]:
         die(254, err_msg)
     return result
 
-if not Path(PATH_TO_DAEMON_SRC).exists():
-    err_msg = f"Sources file {PATH_TO_DAEMON_SRC} is missing. Exiting..."
-    die(255, err_msg)
+if not Path(PATH_TO_DAEMON_SRC).exists(): die(255, f"Sources file {PATH_TO_DAEMON_SRC} is missing. Exiting...")
 
 SOURCE_MD5_CURRENT = hashlib.md5(open(PATH_TO_DAEMON_SRC, 'rb').read()).hexdigest()
 
 if not Path(PATH_TO_DAEMON_BIN).exists():
     print(f"Binary file {PATH_TO_DAEMON_BIN} is missing. Compiling...", file=sys.stdout)
-    result = compile_daemon()
+    result = compile_daemon() #TODO: handle this case (min priority)
+
 BINARY_MD5_CURRENT = hashlib.md5(open(PATH_TO_DAEMON_BIN, 'rb').read()).hexdigest()
 
 if not Path(PATH_TO_DAEMON_SRC_MD5).exists():
-    with open(PATH_TO_DAEMON_SRC_MD5, 'w') as file:
-        file.write(SOURCE_MD5_CURRENT)
+    with open(PATH_TO_DAEMON_SRC_MD5, 'w') as file: file.write(SOURCE_MD5_CURRENT)
 else:
-    with open(PATH_TO_DAEMON_SRC_MD5, 'r') as file:
-        SOURCE_MD5_PREVIOUS = str(file.read())
+    with open(PATH_TO_DAEMON_SRC_MD5, 'r') as file: SOURCE_MD5_PREVIOUS = str(file.read())
     if SOURCE_MD5_PREVIOUS != SOURCE_MD5_CURRENT:
         print(f"Sources file {PATH_TO_DAEMON_SRC} has changed. Recompiling...", file=sys.stdout)
         result = compile_daemon()
-        with open(PATH_TO_DAEMON_SRC_MD5, 'w') as file:
-            file.write(SOURCE_MD5_CURRENT)
+        with open(PATH_TO_DAEMON_SRC_MD5, 'w') as file: file.write(SOURCE_MD5_CURRENT)
 
 connections_big_list = []
 def process_data_and_print_to_stdout(data):
@@ -78,7 +74,7 @@ def process_data_and_print_to_stdout(data):
 
 class ArgHelp:
     interval  = "interval for fetching a snapshot of the system's network connections at the moment in seconds"
-    pipe_path = "path to the named pipe through which the daemon transmits a snapshot of network connections"
+    pipe_path = "path to the named pipe through which the daemon transmits snapshots of network connections"
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
@@ -96,26 +92,14 @@ def main():
     if args.interval:
         try:
             float(args.interval)
-            if args.interval > 0:
-                # convert `float seconds` to `int microseconds`
-                interval = float(args.interval*(10**6))
-            else:
-                err_msg = f"Interval must be a number more than zero"
-                die(254, err_msg)
-        except Exception as e:
-            die(253, e)
+            if args.interval > 0: interval = float(args.interval*(10**6))
+            else: die(254, f"Interval must be a number more than zero")
+        except Exception as e: die(253, e)
     else: interval = DEFAULT_INTERVAL
-
-    if args.pipe_path:
-        pipe_path = args.pipe_path
+    if args.pipe_path: pipe_path = args.pipe_path
     else: pipe_path = DEFAULT_PIPE_PATH
-
-    if not os.path.exists(pipe_path):
-        os.mkfifo(pipe_path)
-
-    daemon_pid = subprocess.Popen(
-        [PATH_TO_DAEMON_BIN, "-i", str(interval), "-p", pipe_path]
-    ).pid
+    if not os.path.exists(pipe_path): os.mkfifo(pipe_path)
+    daemon_pid = subprocess.Popen([PATH_TO_DAEMON_BIN, "-i", str(interval), "-p", pipe_path]).pid
 
     with open(pipe_path, 'r') as pipe_fd:
         try:
@@ -126,7 +110,6 @@ def main():
         except KeyboardInterrupt:
             os.kill(daemon_pid, 2)
             os.remove(pipe_path)
-
             print(file=sys.stdout)
             for i, s in enumerate(connections_big_list, 1):
                 print(f"{i}. {datetime.datetime.fromtimestamp(s[0])}", file=sys.stdout)

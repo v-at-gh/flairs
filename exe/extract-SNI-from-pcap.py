@@ -52,9 +52,7 @@ def main() -> NoReturn:
     )
 
     from json import dump
-
-    try:
-        dump(sni_dict, fp=sys.stdout, ensure_ascii=False, indent=args.indent)
+    try: dump(sni_dict, fp=sys.stdout, ensure_ascii=False, indent=args.indent)
     except Exception as e: die(3, e)
     # if args.stdout:
     #     try:

@@ -7,6 +7,7 @@ from ipaddress import ip_address
 from .common import TSHARK_BINARY, PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS
 from .Tshark.Classes import Endpoint_Report, Conversation_Report
 from ..tools import get_file_size
+from src.tools import die
 
 class Tshark:
 
@@ -50,16 +51,13 @@ class Tshark:
                    "-T", "fields", "-E", "separator=,",
                    "-e", "ip.dst", "-e", server_name_field]
         try:
-            result = subprocess.run(command,
-                capture_output=True, text=True, encoding='utf-8'
-            )
-            if result.returncode != 0:
-                from src.tools import die
-                die(result.returncode, f"Error: {result.stderr}")
+            result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8')
+            if result.returncode != 0: die(result.returncode, f"Error: {result.stderr}")
             else:
                 pairs = result.stdout.splitlines()
         except Exception as e:
             raise e
+
         pairs = set(p for p in [tuple(p.split(',')) for p in pairs if len(p.split(',')) == 2])
         if get_address_to_server_names:  address_to_server_names = defaultdict(list)
         if get_server_name_to_addresses: server_name_to_addresses = defaultdict(list)
@@ -68,9 +66,7 @@ class Tshark:
             if get_server_name_to_addresses: server_name_to_addresses[server_name].append(address)
         if get_address_to_server_names:
             for address in address_to_server_names: address_to_server_names[address].sort()
-            sorted_address_to_server_names = dict(
-                sorted(address_to_server_names.items(), key=lambda item: ip_address(item[0]))
-            )
+            sorted_address_to_server_names = dict(sorted(address_to_server_names.items(), key=lambda item: ip_address(item[0])))
         if get_server_name_to_addresses:
             for server_name in server_name_to_addresses:
                 server_name_to_addresses[server_name].sort(key=lambda ip: ip_address(ip))
@@ -85,10 +81,8 @@ class Tshark:
                 'address_to_server_names': sorted_address_to_server_names,
                 'server_name_to_addresses': sorted_server_name_to_addresses
             }
-        elif get_address_to_server_names:
-            resulting_dict = {'address_to_server_names': sorted_address_to_server_names}
-        elif get_server_name_to_addresses:
-            resulting_dict = {'server_name_to_addresses': sorted_server_name_to_addresses}
+        elif get_address_to_server_names:  resulting_dict = {'address_to_server_names':  sorted_address_to_server_names}
+        elif get_server_name_to_addresses: resulting_dict = {'server_name_to_addresses': sorted_server_name_to_addresses}
         return resulting_dict
 
     @staticmethod
@@ -98,27 +92,22 @@ class Tshark:
             = PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
             preview_filter: Optional[str] = None
     ) -> Optional[List[str]]:
+
         def _parse_proto_arg(proto):
             if isinstance(proto, (str, list, set, tuple)):
                 if   isinstance(proto, str): protos = [p.strip() for p in proto.split(',')]
                 elif isinstance(proto, (list,set,tuple)): protos = proto
-            else:
-                raise ValueError(
-                    "The 'proto' argument must be a string or a list, set, or tuple.")
-            unsupported_protos = [p for p in protos if p not in 
-                PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS]
-            if unsupported_protos:
-                raise ValueError(
-                    f"Unsupported protocols specified: {', '.join(unsupported_protos)}")
-            else:
-                return protos
+            else: raise ValueError("The 'proto' argument must be a string or a list, set, or tuple.")
+            unsupported_protos = [p for p in protos if p not in PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS]
+            if unsupported_protos: raise ValueError(f"Unsupported protocols specified: {', '.join(unsupported_protos)}")
+            else: return protos
+
         protos = _parse_proto_arg(proto)
+
         def create_expression(prefix, protos, preview_filter=None) -> str:
-            if preview_filter is None:
-                return " ".join(f"-z {prefix},{proto}" for proto in protos)
-            else:
-                return " ".join(f"-z {prefix},{proto},'{preview_filter}'"
-                                for proto in protos)
+            if preview_filter is None: return " ".join(f"-z {prefix},{proto}" for proto in protos)
+            else: return " ".join(f"-z {prefix},{proto},'{preview_filter}'" for proto in protos)
+
         endpoints_expression = create_expression("endpoints", protos, preview_filter)
         conversations_expression = create_expression("conv", protos, preview_filter)
         command = (
@@ -127,14 +116,8 @@ class Tshark:
             f" {conversations_expression}"
         )
         dump_stats = subprocess.run(command, shell=True, text=True, capture_output=True)
-        if dump_stats.returncode != 0:
-            print(dump_stats.stderr)
-            return None
-        else:
-            conversation_reports = [
-                stat for stat in dump_stats.stdout.split('='*80+'\n')
-                if stat != '']
-            return conversation_reports
+        if dump_stats.returncode != 0: print(dump_stats.stderr); return None
+        else: conversation_reports = [stat for stat in dump_stats.stdout.split('='*80+'\n') if stat != '']; return conversation_reports
 
     @staticmethod
     def parse_conversations_reports(conversation_reports) -> list:

@@ -17,7 +17,7 @@ def get_open_pcap_files(
     # If none of options are set, then return both.
     if capturing is False and finished is False:
         capturing = True
-        finished = True
+        finished =  True
 
     if lsof_stdout is None:
         open_files_lines_stdout = run_lsof().splitlines()
@@ -46,7 +46,5 @@ def get_open_pcap_files(
     if capturing is True and finished is True:
         return {'finished': list(open_pcap_files_finished),
                 'capturing': list(open_pcap_files_captuing)}
-    elif capturing is True:
-        return {'capturing': list(open_pcap_files_captuing)}
-    elif finished is True:
-        return {'finished': list(open_pcap_files_finished)}
+    elif capturing is True: return {'capturing': list(open_pcap_files_captuing)}
+    elif finished is True:  return {'finished': list(open_pcap_files_finished)}

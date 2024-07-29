@@ -2,6 +2,23 @@
 
 Some network-related stuff.
 
+## usage
+
+```sh
+./flairs one-of-the-scripts
+```
+
+## scripts
+
+- exclude-addresses
+- get-open-pcaps
+- get-pcap-stats
+- merge-SNI-jsons
+- netstat
+- extract-SNI-from-pcap
+- filter-SNI-json
+- whois-this
+
 ## requirements
 
 - MacOS

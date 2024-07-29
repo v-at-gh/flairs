@@ -11,8 +11,7 @@ def is_string_a_valid_ip_network(item: str, strict: bool = False) -> bool:
         try: ip_network(item); return True
         except: return False
     else:
-        if is_string_a_valid_ip_network(item) and not is_string_a_valid_ip_address(item):
-            return True
+        if is_string_a_valid_ip_network(item) and not is_string_a_valid_ip_address(item): return True
         else: return False
 
 def exclude_addresses(

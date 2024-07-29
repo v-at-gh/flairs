@@ -8,7 +8,8 @@ from typing import NoReturn
 from argparse import ArgumentParser, Namespace
 
 from src.tools import die
-from src.System.MacOS.Netstat import SUPPORTED_FAMILIES, SUPPORTED_PROTOS, run_netstat
+from src.System.MacOS.Netstat import SUPPORTED_FAMILIES, SUPPORTED_PROTOS
+from src.System.MacOS.Netstat import print_conns_dicts
 
 class ArgHelp:
     # all       = "display all sockets"
@@ -69,13 +70,15 @@ def main() -> NoReturn:
             f"Family {family} is not supported. "
             f"Supported families are: {' '.join(SUPPORTED_FAMILIES)}")
 
-    try:
-        result = run_netstat(command_options=command_options)
-        if not result.stderr:
-              die(result.returncode, result.stdout.strip())
-        else: die(result.returncode, result.stderr.strip())
-    except Exception as e:
-        die(result.returncode, f"An error occurred: {e}")
+    try: print_conns_dicts()
+    except Exception as e: die(1, f"An error occurred: {e}")
+    # try:
+    #     result = Netstat_Inet_Report.run_netstat(command_options=command_options)
+    #     if not result.stderr:
+    #           die(result.returncode, result.stdout.strip())
+    #     else: die(result.returncode, result.stderr.strip())
+    # except Exception as e:
+    #     die(result.returncode, f"An error occurred: {e}")
 
 if __name__ == '__main__':
     main()

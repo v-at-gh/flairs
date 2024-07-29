@@ -3,6 +3,7 @@ from typing import Any, Optional, Union
 from ipaddress import IPv4Address, IPv6Address
 from dataclasses import dataclass, asdict
 from subprocess import CompletedProcess, run
+from copy import copy
 from time import time as now
 
 NETSTAT_BINARY = '/usr/sbin/netstat'
@@ -41,11 +42,9 @@ class Inet_Connection_Processor:
             elif family == 'IPv6': raddr = '::'
         if lport == '*': lport = '0'
         if rport == '*': rport = '0'
-        cv = [family, proto, cl[1], cl[2],
-              laddr, lport, raddr, rport, state]
+        cv = [family, proto, cl[1], cl[2], laddr, lport, raddr, rport, state]
         # remove already processed items from initial list
-        for _ in range(pop_count):
-            cl.pop(0)
+        for _ in range(pop_count): cl.pop(0)
         cv.extend(cl)
         for i, (type, value) in enumerate(zip(init_class.__annotations__.values(), cv)):
             cv[i] = cast_value(value, type)
@@ -53,12 +52,31 @@ class Inet_Connection_Processor:
 
     @property
     def lsock(self) -> str: return f"{str(self.laddr)}:{str(self.lport)}"
-
     @property
     def rsock(self) -> str: return f"{str(self.raddr)}:{str(self.rport)}"
-
     @property
     def sock_pair(self) -> str: return f"{self.lsock} <> {self.rsock}"
+    @property
+    def as_dict(self) -> dict[str, Union[int, str, IPv4Address, IPv6Address]]:
+        return asdict(self)
+
+    def to_stringified_dict(self) -> dict[str, Union[int, str]]:
+        obj = copy(self.as_dict)
+        for k, v in obj.items():
+            if isinstance(v, (IPv4Address, IPv6Address)):
+                obj[k] = str(v)
+        return obj
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_stringified_dict())
+    @classmethod
+    def from_json(self): pass
+
+    def to_csv(self): pass
+    @classmethod
+    def from_csv(self): pass
+
+import json
 
 @dataclass
 class Base_Connection(Inet_Connection_Processor):
@@ -88,40 +106,45 @@ class Base_Connection(Inet_Connection_Processor):
 class TCP_Connection(Base_Connection): __annotations__ = Base_Connection.__annotations__
 class UDP_Connection(Base_Connection): __annotations__ = Base_Connection.__annotations__
 
+#TODO: implement as `dataclass`
 class Netstat_Inet_Report:
+
+    def __init__(self):
+        timestamp, conns = self.get_inet_snapshot()
+        self.timestamp = timestamp
+        self.connections = conns
+        self.pids = set(c.pid for c in self.connections)
+
+    @property
+    def pids_of_connections(self):
+        return sorted(self.pids)
 
     @staticmethod
     def get_inet_snapshot(command_options: Optional[list] = None):
-        timestamp = now()
-        result = run_netstat(command_options)
-        if result.returncode != 0:
-            #TODO: implement more delicate error-handling someday
-            die(result.returncode, result.stderr)
-        conns = Netstat_Inet_Report.process_inet_report(run_netstat().stdout)
+        timestamp = now(); result = Netstat_Inet_Report.run_netstat(command_options)
+        #TODO: implement more delicate error-handling someday
+        if result.returncode != 0: die(result.returncode, result.stderr)
+        conns = Netstat_Inet_Report.process_inet_report(result.stdout)
         return (timestamp, conns)
 
     @staticmethod
     def process_inet_report(report: str) -> list[Union[TCP_Connection, UDP_Connection]]:
-        connections = []
-        for line in report.strip().splitlines():
-            if line.startswith(('tcp', 'udp')):
-                connections.append(Base_Connection.parse_str(line))
-        return connections
+        return [Base_Connection.parse_str(line) for line in report.strip().splitlines() if line.startswith(('tcp', 'udp'))]
 
-def run_netstat(
-        command_options: Optional[list] = None,
-) -> CompletedProcess[str]:
-    command = [NETSTAT_BINARY, '-n', '-l', '-v', '-a', '-b', '-W']
-    # options (_validation_and_) pre-processing is in the executable script now
-    #TODO: implement validation.
-    if command_options: command.extend(command_options)
-    result = run(
-        command,
-        capture_output=True, text=True, encoding='utf-8'
-    )
-    return result
+    @staticmethod
+    def run_netstat(command_options: Optional[list] = None) -> CompletedProcess[str]:
+        command = [NETSTAT_BINARY, '-n', '-l', '-v', '-a', '-b', '-W']
+        if command_options: command.extend(command_options)
+        result = run(command, capture_output=True, text=True, encoding='utf-8')
+        return result
+
+#TODO: define `Process` class as an object of process with network connections
+
+def print_conns_dicts():
+    conns = Netstat_Inet_Report.process_inet_report(Netstat_Inet_Report.run_netstat().stdout)
+    # for c in conns: print(c.as_dict)
+    # for c in conns: print(c.to_stringified_dict)
+    for c in conns: print(c.to_json())
 
 if __name__ == '__main__':
-    conns = Netstat_Inet_Report.process_inet_report(run_netstat().stdout)
-    for c in conns:
-        print(c.proto, c.sock_pair)
+    print_conns_dicts()
