@@ -10,6 +10,7 @@ from src.tools import die
 
 class ArgHelp:
     pcap   = "path to the packet capture file"
+    test   = "test to run (conversion, gathering)"
     # filter = "filter expression for packet capture file processing (wireshark `preview` syntax)"
     # json   = "return stats as json (default)"
     # csv    = "return stats as csv"
@@ -17,6 +18,7 @@ class ArgHelp:
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument('pcap', type=str, help=ArgHelp.pcap)
+    parser.add_argument('-t', '--test', type=str, help=ArgHelp.test)
     #TODO: implement corresponding selectors:
     # parser.add_argument('-f', '--filter', type=str, help=ArgHelp.filter)
     # parser.add_argument('-j', '--json', action='store_true', help=ArgHelp.json)
@@ -37,7 +39,10 @@ def test_data_gathering(pcap_file_path):
 
 def main():
     args = parse_arguments()
-    test_data_gathering(args.pcap)
+    if args.test == 'gathering':
+        test_data_gathering(args.pcap)
+    elif args.test == 'conversion':
+        test_reports_module(args.pcap)
 
 if __name__ == '__main__':
     main()

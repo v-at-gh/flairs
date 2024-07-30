@@ -13,7 +13,7 @@ SUPPORTED_FAMILIES = ('inet', 'inet6', 'unix', 'vsock')
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
-from tools import cast_value, die
+from tools import cast_value, die, to_stringified_dict
 
 class TCP_Connection: ...
 class UDP_Connection: ...
@@ -56,25 +56,24 @@ class Inet_Connection_Processor:
     def rsock(self) -> str: return f"{str(self.raddr)}:{str(self.rport)}"
     @property
     def sock_pair(self) -> str: return f"{self.lsock} <> {self.rsock}"
+
     @property
     def as_dict(self) -> dict[str, Union[int, str, IPv4Address, IPv6Address]]:
         return asdict(self)
 
     def to_stringified_dict(self) -> dict[str, Union[int, str]]:
-        obj = copy(self.as_dict)
-        for k, v in obj.items():
-            if isinstance(v, (IPv4Address, IPv6Address)):
-                obj[k] = str(v)
-        return obj
+        return to_stringified_dict(self)
 
     def to_json(self) -> str:
         return json.dumps(self.to_stringified_dict())
-    @classmethod
-    def from_json(self): pass
 
-    def to_csv(self): pass
     @classmethod
-    def from_csv(self): pass
+    def from_json(self): raise NotImplementedError
+
+    def to_csv(self): raise NotImplementedError
+
+    @classmethod
+    def from_csv(self): raise NotImplementedError
 
 import json
 
@@ -143,8 +142,9 @@ class Netstat_Inet_Report:
 def print_conns_dicts():
     conns = Netstat_Inet_Report.process_inet_report(Netstat_Inet_Report.run_netstat().stdout)
     # for c in conns: print(c.as_dict)
-    # for c in conns: print(c.to_stringified_dict)
-    for c in conns: print(c.to_json())
+    for c in conns: print(c.to_stringified_dict())
+    # for c in conns: print(to_stringified_dict(c))
+    # for c in conns: print(c.to_json())
 
 if __name__ == '__main__':
     print_conns_dicts()

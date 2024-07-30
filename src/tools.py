@@ -5,6 +5,7 @@ from datetime import datetime
 from ipaddress import IPv4Address, IPv6Address
 from ipaddress import IPv4Network, IPv6Network
 from ipaddress import ip_address, ip_network
+from copy import copy
 
 def die(code: int, message: Optional[str] = None) -> NoReturn:
     if message:
@@ -34,6 +35,15 @@ def cast_value(value: Any, target_type:
     elif target_type == Union[IPv4Address, IPv6Address]: return ip_address(value)
     elif target_type == Union[IPv4Network, IPv6Network]: return ip_network(value)
     else: return str(value)
+
+def to_stringified_dict(obj) -> dict[str, Union[int, str]]:
+    if not hasattr(obj, 'as_dict'):
+        raise NotImplementedError
+    obj = copy(obj.as_dict)
+    for k, v in obj.items():
+        if isinstance(v, (IPv4Address, IPv6Address)):
+            obj[k] = str(v)
+    return obj
 
 def get_file_size(file_path):
     try:

@@ -4,8 +4,8 @@ from pathlib import Path
 
 # from src.Wireshark.common import PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS
 from ..common import PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS
-from .Classes import Report_Processor, Endpoint_Report, Conversation_Report
 from ..Main import Tshark
+from .Classes import Report_Processor, Endpoint_Report, Conversation_Report
 
 FILE_BINARY = '/usr/bin/file'
 

@@ -8,7 +8,7 @@ from collections import defaultdict
 from ipaddress import IPv4Address, IPv6Address, ip_address
 from copy import copy
 
-from ...tools import cast_value
+from ...tools import cast_value, to_stringified_dict
 
 class Item_Processor:
 
@@ -37,16 +37,14 @@ class Item_Processor:
         return resulting_obj
 
     @property
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> dict[str, Union[int, float, str, IPv4Address, IPv6Address]]:
         return asdict(self)
 
-    def to_json(self) -> str:
-        obj = copy(self.as_dict)
-        for k, v in self.as_dict.items():
-            if isinstance(v, (IPv4Address, IPv6Address)):
-                obj[k] = str(v)
-        return json.dumps(obj)
+    def to_stringified_dict(self) -> dict[str, Union[int, float, str]]:
+        return to_stringified_dict(self)
 
+    def to_json(self) -> str:
+        return json.dumps(self.to_stringified_dict())
 
 @dataclass
 class _Base_Endpoint(Item_Processor):
@@ -209,6 +207,9 @@ class Report_Processor:
     def as_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
+    def to_stringified_dict(self):
+        return to_stringified_dict(self)
+
     #TODO: make this method universal for every package
     def calculate_column_widths(self):
         column_widths = defaultdict(list)
@@ -307,10 +308,10 @@ class Report_Processor:
         data = json.loads(json_str)
         if isinstance(data, dict) and 'endpoints' in data:
             list_key = 'endpoints'
-            resulting_class = Endpoint_Report
+            init_class = Endpoint_Report
         elif isinstance(data, dict) and 'conversations' in data:
             list_key = 'conversations'
-            resulting_class = Conversation_Report
+            init_class = Conversation_Report
         else: raise ValueError("Invalid JSON structure")
         items = []
         for item_data in data[list_key]:
@@ -320,13 +321,15 @@ class Report_Processor:
                 for k, v in item_data.items()
             })
             items.append(item)
-        return resulting_class(header=data['header'] , filter=data['filter'], **{list_key: items})
+        return init_class(header=data['header'] , filter=data['filter'], **{list_key: items})
 
     def to_json(self, indent: Optional[int] = None) -> str:
-        obj = copy(self.as_dict)
         if   isinstance(self, Endpoint_Report):     list_key = 'endpoints'
         elif isinstance(self, Conversation_Report): list_key = 'conversations'
         else: raise ValueError("Unknown report type")
+
+        #TODO: make use of common `to_stringified_dict` function
+        obj = copy(self.as_dict)
         for entry in obj[list_key]:
             for k, v in entry.items():
                 if isinstance(v, (IPv4Address, IPv6Address)):
