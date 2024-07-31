@@ -35,15 +35,6 @@ def cast_value(value: Any, target_type:
     elif target_type == Union[IPv4Network, IPv6Network]: return ip_network(value)
     else: return str(value)
 
-# def obj_to_stringified_dict(obj) -> dict[str, Union[int, str]]:
-#     if not hasattr(obj, 'as_dict'):
-#         raise NotImplementedError
-#     obj = obj.as_dict
-#     for k, v in obj.items():
-#         if isinstance(v, (IPv4Address, IPv6Address)):
-#             obj[k] = str(v)
-#     return obj
-
 # absolute devilry...
 def obj_to_stringified_dict(obj) -> dict[str, Union[int, str]]:
     '''Use to prepare object to be represented as json'''
@@ -51,15 +42,11 @@ def obj_to_stringified_dict(obj) -> dict[str, Union[int, str]]:
         raise NotImplementedError("Object does not have an 'as_dict' method.")
     def recursive_conversion(obj):
         if isinstance(obj, (IPv4Address, IPv6Address)): return str(obj)
-        elif isinstance(obj, dict):
-            return {k: recursive_conversion(v) for k, v in obj.items()}
-        elif hasattr(obj, 'as_dict'):
-            return recursive_conversion(obj.as_dict())
-        elif isinstance(obj, list):
-            return [recursive_conversion(item) for item in obj]
+        elif isinstance(obj, dict): return {k: recursive_conversion(v) for k, v in obj.items()}
+        elif hasattr(obj, 'as_dict'): return recursive_conversion(obj.as_dict())
+        elif isinstance(obj, list): return [recursive_conversion(item) for item in obj]
         else: return obj
     return recursive_conversion(obj.as_dict)
-
 
 def get_file_size(file_path):
     try:

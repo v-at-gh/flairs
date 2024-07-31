@@ -39,9 +39,7 @@ def validate_args(
 def process_args(target_net: Union[str, IPv4Network, IPv6Network], addrs_str: str
                         ) -> Union[tuple[set, set, set, set], NoReturn]:
     addr_objs = set()
-    inv_addrs = set()
-    mis_addrs = set()
-    irr_addrs = set()
+    inv_addrs = set(); mis_addrs = set(); irr_addrs = set()
     if is_string_a_valid_ip_network(addrs_str):
         net_a = ip_network(addrs_str)
         if not isinstance(net_a, type(target_net)): mis_addrs.add(net_a)
@@ -54,8 +52,7 @@ def process_args(target_net: Union[str, IPv4Network, IPv6Network], addrs_str: st
         if ',' in addrs_str:
             addrs = set(a.strip() for a in addrs_str.split(',') if a.strip() != '')
         else:
-            if not ' ' in addrs_str:
-                die(2, f"{addrs_str} is not a valid ip network.")
+            if not ' ' in addrs_str: die(2, f"{addrs_str} is not a valid ip network.")
             addrs = set(a.strip() for a in addrs_str.split() if a.strip() != '')
         for a in addrs:
             if not is_string_a_valid_ip_network(a, strict=False):
@@ -71,8 +68,9 @@ def print_errors_and_exit(inv_addrs, mis_addrs, irr_addrs) -> NoReturn:
     for wrong_stuff in zip(
             ('invalid address', 'misfitting address', 'irrelevant address'),
             (inv_addrs, mis_addrs, irr_addrs)):
-        if len(wrong_stuff[1]) > 0:
-            plural = 'es' if len(wrong_stuff[1]) > 1 else ''
+        wrong_stuff_len = len(wrong_stuff[1])
+        if wrong_stuff_len > 0:
+            plural = 'es' if wrong_stuff_len > 1 else ''
             wrong_stuff_message_list.append(
                 f"{wrong_stuff[0]+plural+': '+' '.join(str(item) for item in wrong_stuff[1])}"
             )
@@ -86,8 +84,7 @@ def main() -> NoReturn:
     if not args.separator: separator = "\n"
     else:  separator = str(args.separator)
     target_net, addrs_str = validate_args(args.network, args.addresses)
-    addr_objs, inv_addrs, mis_addrs, irr_addrs \
-        = process_args(target_net, addrs_str)
+    addr_objs, inv_addrs, mis_addrs, irr_addrs = process_args(target_net, addrs_str)
     if not args.ignore and (inv_addrs or mis_addrs or irr_addrs):
         print_errors_and_exit(inv_addrs, mis_addrs, irr_addrs)
     else:

@@ -49,12 +49,9 @@ class Item_Processor:
 @dataclass
 class _Base_Endpoint(Item_Processor):
     address: str
-    packets: int
-    bytes: int
-    tx_packets: int
-    tx_bytes: int
-    rx_packets: int
-    rx_bytes: int
+    packets:    int;    bytes: int
+    tx_packets: int; tx_bytes: int
+    rx_packets: int; rx_bytes: int
 class Ethernet_Endpoint(_Base_Endpoint):    __annotations__ = _Base_Endpoint.__annotations__
 class IEEE_802_11_Endpoint(_Base_Endpoint): __annotations__ = _Base_Endpoint.__annotations__
 class ZigBee_Endpoint(_Base_Endpoint):      __annotations__ = _Base_Endpoint.__annotations__
@@ -62,44 +59,29 @@ class ZigBee_Endpoint(_Base_Endpoint):      __annotations__ = _Base_Endpoint.__a
 @dataclass
 class Network_Endpoint(Item_Processor):
     address: Union[IPv4Address, IPv6Address]
-    packets: int
-    bytes: int
-    tx_packets: int
-    tx_bytes: int
-    rx_packets: int
-    rx_bytes: int
+    packets:    int;    bytes: int
+    tx_packets: int; tx_bytes: int
+    rx_packets: int; rx_bytes: int
 class IPv4_Endpoint(Network_Endpoint): __annotations__ = Network_Endpoint.__annotations__
 class IPv6_Endpoint(Network_Endpoint): __annotations__ = Network_Endpoint.__annotations__
 
 @dataclass
 class Transport_Endpoint(Item_Processor):
-    address: Union[IPv4Address, IPv6Address]
-    port: int
-    packets: int
-    bytes: int
-    tx_packets: int
-    tx_bytes: int
-    rx_packets: int
-    rx_bytes: int
+    address: Union[IPv4Address, IPv6Address]; port: int
+    packets:    int;    bytes: int
+    tx_packets: int; tx_bytes: int
+    rx_packets: int; rx_bytes: int
 class TCP_Endpoint(Transport_Endpoint):  __annotations__ = Transport_Endpoint.__annotations__
 class UDP_Endpoint(Transport_Endpoint):  __annotations__ = Transport_Endpoint.__annotations__
 class SCTP_Endpoint(Transport_Endpoint): __annotations__ = Transport_Endpoint.__annotations__
 
 @dataclass
 class _Base_Conversation(Item_Processor):
-    address_A: str
-    address_B: str
-    frames_to_A: int
-    bytes_to_A: int
-    units_to_A: str
-    frames_to_B: int
-    bytes_to_B: int
-    units_to_B: str
-    total_frames: int
-    total_bytes: int
-    total_units: str
-    relative_start: float
-    duration: float
+    address_A:   str;  address_B: str
+    frames_to_A: int; bytes_to_A: int; units_to_A: str
+    frames_to_B: int; bytes_to_B: int; units_to_B: str
+    total_frames: int; total_bytes: int; total_units: str
+    relative_start: float; duration: float
 class Ethernet_Conversation(_Base_Conversation):    __annotations__ = _Base_Conversation.__annotations__
 class IEEE_802_11_Conversation(_Base_Conversation): __annotations__ = _Base_Conversation.__annotations__
 class ZigBee_Conversation(_Base_Conversation):      __annotations__ = _Base_Conversation.__annotations__
@@ -108,37 +90,21 @@ class ZigBee_Conversation(_Base_Conversation):      __annotations__ = _Base_Conv
 class Network_Conversation(Item_Processor):
     address_A: Union[IPv4Address, IPv6Address]
     address_B: Union[IPv4Address, IPv6Address]
-    frames_to_A: int
-    bytes_to_A: int
-    units_to_A: str
-    frames_to_B: int
-    bytes_to_B: int
-    units_to_B: str
-    total_frames: int
-    total_bytes: int
-    total_units: str
-    relative_start: float
-    duration: float
+    frames_to_A: int; bytes_to_A: int; units_to_A: str
+    frames_to_B: int; bytes_to_B: int; units_to_B: str
+    total_frames: int; total_bytes: int; total_units: str
+    relative_start: float; duration: float
 class IPv4_Conversation(Network_Conversation): __annotations__ = Network_Conversation.__annotations__
 class IPv6_Conversation(Network_Conversation): __annotations__ = Network_Conversation.__annotations__
 
 @dataclass
 class Transport_Conversation(Item_Processor):
-    address_A: Union[IPv4Address, IPv6Address]
-    port_A: int
-    address_B: Union[IPv4Address, IPv6Address]
-    port_B: int
-    frames_to_A: int
-    bytes_to_A: int
-    units_to_A: str
-    frames_to_B: int
-    bytes_to_B: int
-    units_to_B: str
-    total_frames: int
-    total_bytes: int
-    total_units: str
-    relative_start: float
-    duration: float
+    address_A: Union[IPv4Address, IPv6Address]; port_A: int
+    address_B: Union[IPv4Address, IPv6Address]; port_B: int
+    frames_to_A: int; bytes_to_A: int; units_to_A: str
+    frames_to_B: int; bytes_to_B: int; units_to_B: str
+    total_frames: int; total_bytes: int; total_units: str
+    relative_start: float; duration: float
 class TCP_Conversation(Transport_Conversation):  __annotations__ = Transport_Conversation.__annotations__
 class UDP_Conversation(Transport_Conversation):  __annotations__ = Transport_Conversation.__annotations__
 class SCTP_Conversation(Transport_Conversation): __annotations__ = Transport_Conversation.__annotations__
@@ -168,7 +134,7 @@ class Report_Processor:
         'UDP Conversations': UDP_Conversation,
         'SCTP Conversations': SCTP_Conversation,
         'IEEE 802.11 Conversations': IEEE_802_11_Conversation,
-        'ZigBee Conversations': ZigBee_Conversation,
+        'ZigBee Conversations': ZigBee_Conversation
     }
 
     @classmethod
@@ -178,16 +144,14 @@ class Report_Processor:
                 report_lines = report_str.splitlines()
                 report_header = report_lines.pop(0).strip()
                 if '<No Filter>' in report_lines[0]:
-                    report_filter = ''
-                    report_lines.pop(0)
+                    report_filter = ''; report_lines.pop(0)
                 else:
                     report_filter = report_lines.pop(0).split(':', 1)[-1]
                 # remove column headers--conversation headers span two rows
                 if cls.__name__.startswith('Endpoint'):
                     report_lines.pop(0)
                 elif cls.__name__.startswith('Conversation'):
-                    report_lines.pop(0)
-                    report_lines.pop(0)
+                    report_lines.pop(0); report_lines.pop(0)
                 report_content = report_lines
                 objs_list = [Report_class.parse_str(c) for c in report_content]
                 init_args = [report_header, report_filter, objs_list]
@@ -261,11 +225,9 @@ class Report_Processor:
         reader = csv.reader(input_stream)
         header = next(reader)[0]
         if header.lower().endswith('endpoints'):
-            resulting_class = Endpoint_Report
-            list_key = 'endpoints'
+            resulting_class = Endpoint_Report; list_key = 'endpoints'
         elif header.lower().endswith('conversations'):
-            resulting_class = Conversation_Report
-            list_key = 'conversations'
+            resulting_class = Conversation_Report; list_key = 'conversations'
         else: raise ValueError("Unknown report type")
         filter_line = next(reader)[0]
         filter_value = '' if filter_line.startswith('Filter:<No Filter>') else filter_line.split(':', 1)[1]
@@ -330,31 +292,25 @@ class Report_Processor:
 
 @dataclass
 class Endpoint_Report(Report_Processor):
-    header: str
-    filter: str = ''
+    header: str; filter: str = ''
     endpoints: list = field(default_factory=list)
     Classes_dict = {
         Name: Class for Name, Class
         in Report_Processor.Classes_dict.items()
         if Name.endswith('Endpoints')
     }
-
     @property
-    def entries(self):
-        return self.endpoints
+    def entries(self): return self.endpoints
 
 
 @dataclass
 class Conversation_Report(Report_Processor):
-    header: str
-    filter: str = ''
+    header: str; filter: str = ''
     conversations: list = field(default_factory=list)
     Classes_dict = {
         Name: Class for Name, Class
         in Report_Processor.Classes_dict.items()
         if Name.endswith('Conversations')
     }
-
     @property
-    def entries(self):
-        return self.conversations
+    def entries(self): return self.conversations

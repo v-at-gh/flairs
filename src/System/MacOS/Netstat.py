@@ -61,46 +61,33 @@ class Inet_Connection_Processor:
     def as_dict(self) -> dict[str, Union[int, str, IPv4Address, IPv6Address]]:
         return asdict(self)
 
-    def to_stringified_dict(self) -> dict[str, Union[int, str]]:
-        return obj_to_stringified_dict(self)
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_stringified_dict())
-
     @classmethod
     def from_json(self): raise NotImplementedError
-
-    def to_csv(self): raise NotImplementedError
+    def to_stringified_dict(self) -> dict[str, Union[int, str]]:
+        return obj_to_stringified_dict(self)
+    def to_json(self) -> str: return json.dumps(self.to_stringified_dict())
 
     @classmethod
     def from_csv(self): raise NotImplementedError
+    def to_csv(self): raise NotImplementedError
 
 
 @dataclass
 class Base_Connection(Inet_Connection_Processor):
-    family: str
-    proto:  str
-    recv_q: int
-    send_q: int
-    laddr: Union[IPv4Address, IPv6Address]
-    lport: int
-    raddr: Union[IPv4Address, IPv6Address]
-    rport: int
+    family: str; proto:  str
+    recv_q: int; send_q: int
+    laddr: Union[IPv4Address, IPv6Address]; lport: int
+    raddr: Union[IPv4Address, IPv6Address]; rport: int
     state: str
-    rxbytes: int
-    txbytes: int
-    rhiwat: int
-    shiwat: int
-    pid:  int
-    epid: int
+    rxbytes:    int; txbytes: int
+    rhiwat:     int;  shiwat: int
+    pid:        int;    epid: int
     state_bits: str
     options: str
     gencnt:  str
-    flags:  str
-    flags1: str
-    usscnt: int
-    rtncnt: int
-    fltrs:  str
+    flags:   str; flags1: str
+    usscnt:  int; rtncnt: int
+    fltrs:   str
 class TCP_Connection(Base_Connection): __annotations__ = Base_Connection.__annotations__
 class UDP_Connection(Base_Connection): __annotations__ = Base_Connection.__annotations__
 
@@ -114,8 +101,7 @@ class Netstat_Inet_Report:
         self.pids = set(c.pid for c in self.connections)
 
     @property
-    def pids_of_connections(self) -> list[int]:
-        return sorted(self.pids)
+    def pids_of_connections(self) -> list[int]: return sorted(self.pids)
 
     @staticmethod
     def get_inet_snapshot(command_options: Optional[list] = None):
