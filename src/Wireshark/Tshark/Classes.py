@@ -8,7 +8,7 @@ from collections import defaultdict
 from ipaddress import IPv4Address, IPv6Address, ip_address
 from copy import copy
 
-from ...tools import cast_value, to_stringified_dict
+from ...tools import cast_value, obj_to_stringified_dict
 
 class Item_Processor:
 
@@ -41,7 +41,7 @@ class Item_Processor:
         return asdict(self)
 
     def to_stringified_dict(self) -> dict[str, Union[int, float, str]]:
-        return to_stringified_dict(self)
+        return obj_to_stringified_dict(self)
 
     def to_json(self) -> str:
         return json.dumps(self.to_stringified_dict())
@@ -203,14 +203,7 @@ class Report_Processor:
         # else:
         #     raise Exception(f"Sort key must be one of: {', '.join(self.entries[0].as_dict.keys())}")
 
-    @property
-    def as_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-    def to_stringified_dict(self):
-        return to_stringified_dict(self)
-
-    #TODO: make this method universal for every package
+    #TODO 0: make these methods universal for every instance
     def calculate_column_widths(self):
         column_widths = defaultdict(list)
         for k in self.entries[0].__annotations__.keys():
@@ -222,6 +215,7 @@ class Report_Processor:
             column_widths[k] = max(column_widths[k])
         return column_widths
 
+    #TODO 0: make these methods universal for every instance
     def as_pretty_table(
             self, separator: str = ' ',
             print_report_header: bool = False,
@@ -303,6 +297,16 @@ class Report_Processor:
             ])
         return output.getvalue()
 
+    @property
+    def as_dict(self) -> Dict[str, Any]: return asdict(self)
+    def to_stringified_dict(self): return obj_to_stringified_dict(self)
+    def to_json(self, indent: Optional[int] = None) -> str:
+        # if   isinstance(self, Endpoint_Report):     list_key = 'endpoints'
+        # elif isinstance(self, Conversation_Report): list_key = 'conversations'
+        # else: raise ValueError("Unknown report type")
+        obj = self.to_stringified_dict()
+        return json.dumps(obj, indent=indent, ensure_ascii=False)
+
     @classmethod
     def from_json(cls, json_str: str) -> Union[Conversation_Report, Endpoint_Report]:
         data = json.loads(json_str)
@@ -321,20 +325,7 @@ class Report_Processor:
                 for k, v in item_data.items()
             })
             items.append(item)
-        return init_class(header=data['header'] , filter=data['filter'], **{list_key: items})
-
-    def to_json(self, indent: Optional[int] = None) -> str:
-        if   isinstance(self, Endpoint_Report):     list_key = 'endpoints'
-        elif isinstance(self, Conversation_Report): list_key = 'conversations'
-        else: raise ValueError("Unknown report type")
-
-        #TODO: make use of common `to_stringified_dict` function
-        obj = copy(self.as_dict)
-        for entry in obj[list_key]:
-            for k, v in entry.items():
-                if isinstance(v, (IPv4Address, IPv6Address)):
-                    entry[k] = str(v)
-        return json.dumps(obj, indent=indent, ensure_ascii=False)
+        return init_class(header=data['header'], filter=data['filter'], **{list_key: items})
 
 
 @dataclass

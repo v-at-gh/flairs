@@ -43,6 +43,8 @@ def main():
         test_data_gathering(args.pcap)
     elif args.test == 'conversion':
         test_reports_module(args.pcap)
+    else:
+        die(2, 'choose one of -t args: gathering or conversion')
 
 if __name__ == '__main__':
     main()

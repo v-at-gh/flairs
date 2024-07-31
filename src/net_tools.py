@@ -36,6 +36,7 @@ def exclude_addresses(
         res = set(a) - set(b) - set(c)
 
     and see how long it takes. (:
+    ... (the author does not bear any responsibility for the OOM killer of your operating system)
     '''
     addresses_to_exclude = sorted(collapse_addresses(addresses_to_exclude))
     # Process addresses.

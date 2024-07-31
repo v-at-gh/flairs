@@ -3,7 +3,7 @@ from typing import Any, Optional, Union
 from ipaddress import IPv4Address, IPv6Address
 from dataclasses import dataclass, asdict
 from subprocess import CompletedProcess, run
-from copy import copy
+import json
 from time import time as now
 
 NETSTAT_BINARY = '/usr/sbin/netstat'
@@ -13,7 +13,7 @@ SUPPORTED_FAMILIES = ('inet', 'inet6', 'unix', 'vsock')
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
-from tools import cast_value, die, to_stringified_dict
+from tools import cast_value, die, obj_to_stringified_dict
 
 class TCP_Connection: ...
 class UDP_Connection: ...
@@ -62,7 +62,7 @@ class Inet_Connection_Processor:
         return asdict(self)
 
     def to_stringified_dict(self) -> dict[str, Union[int, str]]:
-        return to_stringified_dict(self)
+        return obj_to_stringified_dict(self)
 
     def to_json(self) -> str:
         return json.dumps(self.to_stringified_dict())
@@ -75,7 +75,6 @@ class Inet_Connection_Processor:
     @classmethod
     def from_csv(self): raise NotImplementedError
 
-import json
 
 @dataclass
 class Base_Connection(Inet_Connection_Processor):
@@ -115,7 +114,7 @@ class Netstat_Inet_Report:
         self.pids = set(c.pid for c in self.connections)
 
     @property
-    def pids_of_connections(self):
+    def pids_of_connections(self) -> list[int]:
         return sorted(self.pids)
 
     @staticmethod
@@ -142,9 +141,9 @@ class Netstat_Inet_Report:
 def print_conns_dicts():
     conns = Netstat_Inet_Report.process_inet_report(Netstat_Inet_Report.run_netstat().stdout)
     # for c in conns: print(c.as_dict)
-    for c in conns: print(c.to_stringified_dict())
-    # for c in conns: print(to_stringified_dict(c))
-    # for c in conns: print(c.to_json())
+    # for c in conns: print(c.to_stringified_dict())
+    # for c in conns: print(obj_to_stringified_dict(c))
+    for c in conns: print(c.to_json())
 
 if __name__ == '__main__':
     print_conns_dicts()
