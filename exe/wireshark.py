@@ -13,7 +13,7 @@ CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 import subprocess
 from argparse import ArgumentParser, Namespace
-from typing import NoReturn
+from typing import LiteralString, NoReturn
 
 from src.net_tools import construct_capture_filter_for_endpoint
 from src.Wireshark.common import WIRESHARK_BINARY
@@ -37,7 +37,7 @@ def spawn_wireshark(interface=None, capture_filter=None):
     command.append('-k')
     subprocess.Popen(command)
 
-def construct_default_capture_filter():
+def construct_default_capture_filter() -> LiteralString:
     default_endpoints_filter_path = prj_path / CONF_DIR / 'default_endpoints_filter.en0.csv'
     if default_endpoints_filter_path.exists():
         endpoints_list = []

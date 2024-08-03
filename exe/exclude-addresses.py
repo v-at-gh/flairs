@@ -43,8 +43,8 @@ def validate_args(
     addrs_str = str(addrs_str).strip()
     return target_net, addrs_str
 
-def process_args(target_net: Union[str, IPv4Network, IPv6Network], addrs_str: str
-                        ) -> Union[tuple[set, set, set, set], NoReturn]:
+def process_args(target_net: Union[str, IPv4Network, IPv6Network],
+          addrs_str: str) -> Union[tuple[set, set, set, set], NoReturn]:
     addr_objs = set()
     inv_addrs = set(); mis_addrs = set(); irr_addrs = set()
     if is_string_a_valid_ip_network(addrs_str):
