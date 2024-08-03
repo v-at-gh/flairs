@@ -5,12 +5,10 @@ from pathlib import Path
 prj_path = Path(__file__).resolve().parents[1]
 sys.path.append(str(prj_path))
 
-def get_conf_dir() -> Path: return prj_path / 'data/config'
-CONF_DIR = get_conf_dir()
+CONF_DIR = prj_path / 'data/config'
 CONF_DIR.mkdir(parents=True, exist_ok=True)
 
-def get_cache_dir() -> Path: return prj_path / 'data/cache'
-CACHE_DIR = get_cache_dir()
+CACHE_DIR = prj_path / 'data/cache'
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 from argparse import ArgumentParser, Namespace

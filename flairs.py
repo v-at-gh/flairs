@@ -4,7 +4,7 @@ import sys
 
 from argparse import ArgumentParser, Namespace, REMAINDER
 from typing import NoReturn
-from subprocess import run
+from subprocess import run, Popen
 from pathlib import Path
 
 from src.tools import die
@@ -44,17 +44,23 @@ def main() -> NoReturn:
     script_name = args.script
     script_path = select_script(script_name)
     if script_path.exists():
-        try:
-            result = run(
-                [sys.executable, script_path] + args.script_args,
-                capture_output=True, text=True
-            )
-            if not result.stderr:
-                die(result.returncode, result.stdout.strip())
-            else:
-                die(result.returncode, result.stderr.strip())
-        except Exception as e:
-            die(result.returncode, f"An error occurred: {e}")
+        if script_path.stem == 'wireshark':
+            try:
+                Popen([sys.executable, script_path] + args.script_args)
+            except Exception as e:
+                die(255, f"An error occurred: {e}")
+        else:
+            try:
+                result = run(
+                    [sys.executable, script_path] + args.script_args,
+                    capture_output=True, text=True
+                )
+                if not result.stderr:
+                    die(result.returncode, result.stdout.strip())
+                else:
+                    die(result.returncode, result.stderr.strip())
+            except Exception as e:
+                die(result.returncode, f"An error occurred: {e}")
     else:
         available_scripts = list_available_scripts()
         print(f"Script '{script_name}' not found.", file=sys.stderr)
