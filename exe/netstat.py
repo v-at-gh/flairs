@@ -2,14 +2,23 @@
 
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+prj_path = Path(__file__).resolve().parents[1]
+sys.path.append(str(prj_path))
+
+def get_conf_dir() -> Path: return prj_path / 'data/config'
+CONF_DIR = get_conf_dir()
+CONF_DIR.mkdir(parents=True, exist_ok=True)
+
+def get_cache_dir() -> Path: return prj_path / 'data/cache'
+CACHE_DIR = get_cache_dir()
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 from typing import NoReturn
 from argparse import ArgumentParser, Namespace
 
 from src.tools import die
 from src.System.MacOS.Netstat import SUPPORTED_FAMILIES, SUPPORTED_PROTOS
-from src.System.MacOS.Netstat import print_conns_dicts
+from src.System.MacOS.Netstat import print_conns_dicts, print_conns_csvs, write_conns_csvs, write_conns_dicts, get_conns
 
 class ArgHelp:
     # all       = "display all sockets"
@@ -19,6 +28,8 @@ class ArgHelp:
     tcp       = "display only TCP transport sockets"
     udp       = "display only UDP transport sockets"
     unix      = "display only unix sockets"
+    csv       = 'return connections as csv'
+    json       = 'return connections as json'
     # processes = "show process using socket (Default)"
     # numeric   = "don't resolve service names (Default)"
     # resolve   = "resolve host names"
@@ -32,6 +43,8 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-t', '--tcp',  action='store_true', help=ArgHelp.tcp)
     parser.add_argument('-u', '--udp',  action='store_true', help=ArgHelp.udp)
     parser.add_argument('-x', '--unix', action='store_true', help=ArgHelp.unix)
+    parser.add_argument('-C', '--csv', action='store_true', help=ArgHelp.csv)
+    parser.add_argument('-J', '--json', action='store_true', help=ArgHelp.json)
     # parser.add_argument('-p', '--processes', action='store_true', help=ArgHelp.processes)
     # parser.add_argument('-n', '--numeric',   action='store_true', help=ArgHelp.numeric)
     # parser.add_argument('-r', '--resolve', action='store_true', help=ArgHelp.resolve)
@@ -70,15 +83,12 @@ def main() -> NoReturn:
             f"Family {family} is not supported. "
             f"Supported families are: {' '.join(SUPPORTED_FAMILIES)}")
 
-    try: print_conns_dicts()
-    except Exception as e: die(1, f"An error occurred: {e}")
-    # try:
-    #     result = Netstat_Inet_Report.run_netstat(command_options=command_options)
-    #     if not result.stderr:
-    #           die(result.returncode, result.stdout.strip())
-    #     else: die(result.returncode, result.stderr.strip())
-    # except Exception as e:
-    #     die(result.returncode, f"An error occurred: {e}")
+    if args.csv:
+        try: print_conns_csvs(get_conns())
+        except Exception as e: die(1, f"An error occurred: {e}")
+    elif args.json:
+        try: print_conns_dicts(get_conns())
+        except Exception as e: die(1, f"An error occurred: {e}")
 
 if __name__ == '__main__':
     main()

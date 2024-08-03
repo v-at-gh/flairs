@@ -1,3 +1,4 @@
+WIRESHARK_BINARY = '/Applications/Wireshark.app/Contents/MacOS/Wireshark'
 TSHARK_BINARY = '/opt/homebrew/bin/tshark'
 CAPINFOS_BINARY = '/opt/homebrew/bin/capinfos'
 PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS = (

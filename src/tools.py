@@ -5,6 +5,7 @@ from datetime import datetime
 from ipaddress import IPv4Address, IPv6Address
 from ipaddress import IPv4Network, IPv6Network
 from ipaddress import ip_address, ip_network
+from socket import AddressFamily, SocketKind
 
 def die(code: int, message: Optional[str] = None) -> NoReturn:
     if message:
@@ -14,9 +15,9 @@ def die(code: int, message: Optional[str] = None) -> NoReturn:
     sys.exit(code)
 
 def cast_value(value: Any, target_type:
-     Union[int, float, str, datetime, IPv4Address, IPv6Address, IPv4Network, IPv6Network]
-) -> Union[int, float, str, datetime, IPv4Address, IPv6Address, IPv4Network, IPv6Network]:
-    if   target_type == int:
+     Union[int, float, str, datetime, AddressFamily, SocketKind, IPv4Address, IPv6Address, IPv4Network, IPv6Network]
+) -> Union[int, float, str, datetime, AddressFamily, SocketKind, IPv4Address, IPv6Address, IPv4Network, IPv6Network]:
+    if   target_type == int or target_type in (AddressFamily, SocketKind):
         if isinstance(value, int): return value
         else:
             if ',' in value: return int(value.replace(',', ''))
@@ -33,7 +34,8 @@ def cast_value(value: Any, target_type:
         #     except: pass
     elif target_type == Union[IPv4Address, IPv6Address]: return ip_address(value)
     elif target_type == Union[IPv4Network, IPv6Network]: return ip_network(value)
-    else: return str(value)
+    else:
+        return str(value)
 
 # absolute devilry...
 def obj_to_stringified_dict(obj) -> dict[str, Union[int, str]]:

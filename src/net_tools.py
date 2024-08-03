@@ -14,6 +14,18 @@ def is_string_a_valid_ip_network(item: str, strict: bool = False) -> bool:
         if is_string_a_valid_ip_network(item) and not is_string_a_valid_ip_address(item): return True
         else: return False
 
+def construct_capture_filter_for_endpoint(address, protocol, port) -> str:
+    try: address = ip_address(address)
+    except ValueError: address = ip_network(address)
+    parts = [
+        f"""({direction} {
+                'net' if isinstance(address, (IPv4Network, IPv6Network)) else 'host'
+            } {address} and {protocol} {direction} port {port})"""
+        for direction in ('dst', 'src')
+    ]
+    expression = "not (" + " or ".join(parts) + ")"
+    return expression
+
 def exclude_addresses(
         target_network:       Union[IPv4Network, IPv6Network],
         addresses_to_exclude: Union[List[IPv4Network], List[IPv6Network]]

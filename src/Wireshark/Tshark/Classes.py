@@ -37,7 +37,7 @@ class Item_Processor:
         return resulting_obj
 
     @property
-    def as_dict(self) -> dict[str, Union[int, float, str, IPv4Address, IPv6Address]]:
+    def as_dict(self)-> dict[str, Union[int, float, str, IPv4Address, IPv6Address]]:
         return asdict(self)
 
     def to_stringified_dict(self) -> dict[str, Union[int, float, str]]:
@@ -78,8 +78,8 @@ class SCTP_Endpoint(Transport_Endpoint): __annotations__ = Transport_Endpoint.__
 @dataclass
 class _Base_Conversation(Item_Processor):
     address_A:   str;  address_B: str
-    frames_to_A: int; bytes_to_A: int; units_to_A: str
-    frames_to_B: int; bytes_to_B: int; units_to_B: str
+    frames_to_A:  int;  bytes_to_A: int;  units_to_A: str
+    frames_to_B:  int;  bytes_to_B: int;  units_to_B: str
     total_frames: int; total_bytes: int; total_units: str
     relative_start: float; duration: float
 class Ethernet_Conversation(_Base_Conversation):    __annotations__ = _Base_Conversation.__annotations__
@@ -90,8 +90,8 @@ class ZigBee_Conversation(_Base_Conversation):      __annotations__ = _Base_Conv
 class Network_Conversation(Item_Processor):
     address_A: Union[IPv4Address, IPv6Address]
     address_B: Union[IPv4Address, IPv6Address]
-    frames_to_A: int; bytes_to_A: int; units_to_A: str
-    frames_to_B: int; bytes_to_B: int; units_to_B: str
+    frames_to_A:  int;  bytes_to_A: int;  units_to_A: str
+    frames_to_B:  int;  bytes_to_B: int;  units_to_B: str
     total_frames: int; total_bytes: int; total_units: str
     relative_start: float; duration: float
 class IPv4_Conversation(Network_Conversation): __annotations__ = Network_Conversation.__annotations__
@@ -199,7 +199,7 @@ class Report_Processor:
                 if "port" in key.lower() or "units" in key.lower(): return str.ljust
                 else: return str.rjust
             else:
-                if   align == 'right': return str.rjust
+                if   align == 'right':  return str.rjust
                 elif align == 'center': return str.center
                 else: return str.ljust
 
@@ -273,11 +273,9 @@ class Report_Processor:
     def from_json(cls, json_str: str) -> Union[Conversation_Report, Endpoint_Report]:
         data = json.loads(json_str)
         if isinstance(data, dict) and 'endpoints' in data:
-            list_key = 'endpoints'
-            init_class = Endpoint_Report
+            list_key = 'endpoints'; init_class = Endpoint_Report
         elif isinstance(data, dict) and 'conversations' in data:
-            list_key = 'conversations'
-            init_class = Conversation_Report
+            list_key = 'conversations'; init_class = Conversation_Report
         else: raise ValueError("Invalid JSON structure")
         items = []
         for item_data in data[list_key]:
