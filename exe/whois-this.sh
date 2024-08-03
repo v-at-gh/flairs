@@ -7,6 +7,10 @@ fi
 
 DIR="$(realpath ${0%/*/*})/data/cache/whois/ipv4"
 
+if [ ! -d "$DIR" ]; then
+	mkdir -p "$DIR"
+fi
+
 validate_ipv4() {
 	local address="$1"
 	local IFS='.'
