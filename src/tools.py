@@ -44,6 +44,7 @@ def obj_to_stringified_dict(obj) -> dict[str, Union[int, str]]:
         raise NotImplementedError("Object does not have an 'as_dict' method.")
     def recursive_conversion(obj):
         if isinstance(obj, (IPv4Address, IPv6Address)): return str(obj)
+        if isinstance(obj, (IPv4Network, IPv6Network)): return str(obj)
         elif isinstance(obj, dict): return {k: recursive_conversion(v) for k, v in obj.items()}
         elif hasattr(obj, 'as_dict'): return recursive_conversion(obj.as_dict())
         elif isinstance(obj, list): return [recursive_conversion(item) for item in obj]

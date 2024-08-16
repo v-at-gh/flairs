@@ -6,9 +6,9 @@ prj_path = Path(__file__).resolve().parents[1]
 sys.path.append(str(prj_path))
 
 
-import subprocess, random
+import subprocess, random, json
 from typing import Optional, Union
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from ipaddress import (
     IPv4Address, IPv4Interface, IPv4Network,
     IPv6Address, IPv6Interface, IPv6Network,
@@ -16,12 +16,16 @@ from ipaddress import (
     collapse_addresses
 )
 
+from src.tools import die, obj_to_stringified_dict
+from src.net_tools import is_string_a_valid_ip_address, is_string_a_valid_ip_network
+
 #TODO: for this (and other constants for paths to binary executables)
 # implement an algorithm to find a realpath to binary to make this project portable
-WG_BIN_PATH = '/opt/homebrew/bin/wg'
 
 IPv4_Internet = IPv4Network('0.0.0.0/0')
 IPv6_Internet = IPv6Network('::/0')
+WG_BIN_PATH = '/opt/homebrew/bin/wg'
+OPENSSL_BIN_PATH = '/opt/homebrew/bin/openssl'
 
 # some mock names
 names = 'Alice Bob Charlie Dan Eva Fiona Gary Hank Ian Jane Kate Lance Mike Nino Oscar Paul Quinn Rita Steve Tom Uri Vik William Xena Yulia Zack'.split()
@@ -54,18 +58,11 @@ class Peer:
     virtual_network: Union[IPv4Network, IPv6Network]
     address: Union[IPv4Address, IPv6Address]
     endpoint_socket: Optional[str] = None
-    #TODO: move credentials to separate class
-    private_key: str = ''
-    public_key:  str = ''
-    preshared_key: Optional[str] = None
 
-    def __post_init__(self):
-        self.private_key = X25519.gen_private_key()
-        self.public_key  = X25519.gen_public_key(self.private_key)
-        if self.preshared_key:
-            self.preshared_key = X25519.gen_preshared_key()
-        else:
-            self.__delattr__('preshared_key')
+    @property
+    def as_dict(self): return asdict(self)
+    def to_stringified_dict(self): return obj_to_stringified_dict(self)
+    def to_json(self) -> str: return json.dumps(self.to_stringified_dict())
 
     @property
     def private_address(self) -> Union[IPv4Interface, IPv6Interface]:
@@ -75,13 +72,71 @@ class Peer:
     def client_address(self) -> Union[IPv4Network, IPv6Network]:
         return ip_network(self.address)
 
-# # Not implemented yet
-# class Peer_WG(Peer): pass
-# class Peer_IPsec(Peer): pass
+@dataclass
+class Peer_WG(Peer):
+    __annotations__ = Peer.__annotations__
+    private_key: str = ''
+    public_key:  str = ''
+    preshared_key: Optional[str] = None
+
+    def __post_init__(self):
+        self.private_key = X25519.gen_private_key()
+        self.public_key  = X25519.gen_public_key(self.private_key)
+        if self.preshared_key:
+            self.preshared_key = X25519.gen_preshared_key()
+
+#TODO: implement the following:
 # class Peer_OpenVPN(Peer): pass
+# class Peer_IPsec(Peer): pass
+
+class VPN_Processor:
+
+    def add_peer(self, name=None, address=None, endpoint=None, gen_psk: bool = True):
+        #TODO: move `name` logic to `User` layer
+        if not name: name = random.choice(names)+'_'+random.choice(devices)
+        address = self.allocate_address(address)
+        if not address: raise Exception("VPN address pool exhausted")
+
+        if self.__class__.__name__ == 'VPN_WG':
+            peer = Peer_WG(
+                name=name,
+                virtual_network=self.virtual_network,
+                address=address,
+                endpoint_socket=endpoint,
+                preshared_key=gen_psk
+            )
+        else:
+            peer = Peer(
+                name=name,
+                virtual_network=self.virtual_network,
+                address=address,
+                endpoint_socket=endpoint,
+            )
+
+
+        if endpoint: self.server_peers.append(peer)
+        else:        self.client_peers.append(peer)
+
+    def add_peers(self, amount: int):
+        free_addrs = self.max_clients - len(self.peers)
+        if amount > free_addrs:
+            raise Exception("No free addresses left for allocation to new peers.")
+        else:
+            for _ in range(amount): self.add_peer()
+
+    def allocate_address(self, address=None) -> Union[IPv4Address, IPv6Address, None]:
+        if address:
+            address = ip_address(address)
+            if address in self.allocated_addresses: print(f"Address {address} is already allocated"); return
+            else: self.allocated_addresses.add(address); return address
+        else:
+            for address in self.virtual_network.hosts():
+                if address not in self.allocated_addresses:
+                    self.allocated_addresses.add(address); return address
+
 
 @dataclass
-class VPN:
+class VPN(VPN_Processor):
     name: str
     endpoint_socket: str
     virtual_network: Union[IPv4Network, IPv6Network]
@@ -94,9 +149,22 @@ class VPN:
 
     @property
     def clients_count(self) -> int: return len(self.client_peers)
-
     @property
     def peers(self) -> list[Peer]: return self.server_peers + self.client_peers
+    @property
+    def enpoint_port(self) -> int: return int(self.endpoint_socket.rsplit(':', 1)[-1])
+    @property
+    def main_endpoint_peer(self) -> Peer:return self.server_peers[0]
+    @property
+    def as_dict(self): return asdict(self)
+    def to_stringified_dict(self): return obj_to_stringified_dict(self)
+    def to_json(self) -> str: return json.dumps(self.to_stringified_dict())
+
+    # @property
+    # def clients_count(self) -> int: return len(self.client_peers)
+
+    # @property
+    # def peers(self) -> list[Peer]: return self.server_peers + self.client_peers
 
     def __post_init__(self) -> None:
         self.endpoint_ip_address = ip_address(self.endpoint_socket.rsplit(':', 1)[0])
@@ -128,38 +196,71 @@ class VPN:
                     f"Total available {self.max_clients}."
                 )
 
-    def add_peer(self, name=None, address=None, endpoint=None, gen_psk: bool = True):
-        #TODO: move `name` logic to `User` layer
-        if not name: name = random.choice(names)+'_'+random.choice(devices)
-        address = self.allocate_address(address)
-        if not address: raise Exception("VPN address pool exhausted")
-        peer = Peer(name=name, virtual_network=self.virtual_network, address=address, endpoint_socket=endpoint, preshared_key=gen_psk)
-        if endpoint: self.server_peers.append(peer)
-        else:        self.client_peers.append(peer)
+    # def add_peer(self, name=None, address=None, endpoint=None, gen_psk: bool = True):
+    #     #TODO: move `name` logic to `User` layer
+    #     if not name: name = random.choice(names)+'_'+random.choice(devices)
+    #     address = self.allocate_address(address)
+    #     if not address: raise Exception("VPN address pool exhausted")
 
-    def add_peers(self, amount: int):
-        free_addrs = self.max_clients - len(self.peers)
-        if amount > free_addrs:
-            raise Exception("No free addresses left for allocation to new peers.")
-        else:
-            for _ in range(amount): self.add_peer()
+    #     if self.__class__.__name__ == 'VPN_WG':
+    #         peer = Peer_WG(
+    #             name=name,
+    #             virtual_network=self.virtual_network,
+    #             address=address,
+    #             endpoint_socket=endpoint,
+    #             preshared_key=gen_psk
+    #         )
+    #     else:
+    #         peer = Peer(
+    #             name=name,
+    #             virtual_network=self.virtual_network,
+    #             address=address,
+    #             endpoint_socket=endpoint,
+    #         )
 
-    def allocate_address(self, address=None) -> Union[IPv4Address, IPv6Address, None]:
-        if address:
-            address = ip_address(address)
-            if address in self.allocated_addresses: print(f"Address {address} is already allocated"); return
-            else: self.allocated_addresses.add(address); return address
-        else:
-            for address in self.virtual_network.hosts():
-                if address not in self.allocated_addresses: self.allocated_addresses.add(address); return address
 
-    @property
-    def enpoint_port(self) -> int:
-        return int(self.endpoint_socket.rsplit(':', 1)[-1])
+    #     if endpoint: self.server_peers.append(peer)
+    #     else:        self.client_peers.append(peer)
 
-    @property
-    def main_endpoint_peer(self) -> Peer:
-        return self.server_peers[0]
+    # def add_peers(self, amount: int):
+    #     free_addrs = self.max_clients - len(self.peers)
+    #     if amount > free_addrs:
+    #         raise Exception("No free addresses left for allocation to new peers.")
+    #     else:
+    #         for _ in range(amount): self.add_peer()
+
+    # def allocate_address(self, address=None) -> Union[IPv4Address, IPv6Address, None]:
+    #     if address:
+    #         address = ip_address(address)
+    #         if address in self.allocated_addresses: print(f"Address {address} is already allocated"); return
+    #         else: self.allocated_addresses.add(address); return address
+    #     else:
+    #         for address in self.virtual_network.hosts():
+    #             if address not in self.allocated_addresses:
+    #                 self.allocated_addresses.add(address); return address
+
+    # @property
+    # def enpoint_port(self) -> int:
+    #     return int(self.endpoint_socket.rsplit(':', 1)[-1])
+
+    # @property
+    # def main_endpoint_peer(self) -> Peer:
+    #     return self.server_peers[0]
+
+@dataclass
+class VPN_WG(VPN):
+    name: str
+    endpoint_socket: str
+    virtual_network: Union[IPv4Network, IPv6Network]
+    initial_clients_count: int = 0
+    server_peers: list[Peer] = field(default_factory=list)
+    client_peers: list[Peer] = field(default_factory=list)
+    routes: list[Union[IPv4Network, IPv6Network]] = field(default_factory=list)
+    #TODO: implement proxification flag
+    proxify: bool = True
+
+    def __post_init__(self):
+        return super().__post_init__()
 
     def render_server_config_for_wg(self):
         interface_section = []
@@ -203,6 +304,9 @@ class VPN:
         client_config = '\n\n'.join([interface_section] + endpoints_sections)
         return client_config
 
+# class VPN_IPsec(VPN): pass
+# class VPN_OpenVPN(VPN): pass
+
 def print_vpn_configs(vpn):
     many_sharps = '#'*64
     print(f"{many_sharps} {vpn.name}.wg.server.conf {many_sharps}")
@@ -221,6 +325,7 @@ class ArgHelp:
 
     # server-related args
     endpoint       = "endpoint's ip address and port"
+    port           = "endpoint's port (default is )"
     Name           = "name for VPN"
     network        = "virtual private network for private addresses allocation"
     routes         = "comma separated routes for clients via endpoint"
@@ -237,10 +342,11 @@ def parse_arguments() -> Namespace:
 
     # server-related args
     parser.add_argument('endpoint', type=str, help=ArgHelp.endpoint)
+    parser.add_argument('-p', '--port',           type=int, help=ArgHelp.port)
     parser.add_argument('-N', '--Name',           type=str, help=ArgHelp.Name)
     parser.add_argument('-n', '--network',        type=str, help=ArgHelp.network)
     parser.add_argument('-r', '--routes',         type=str, help=ArgHelp.routes)
-    parser.add_argument('-p', '--peers',          type=str, help=ArgHelp.peers)
+    parser.add_argument('-P', '--peers',          type=str, help=ArgHelp.peers)
     parser.add_argument('-c', '--peers-count',    type=int, help=ArgHelp.peers_count)
 
     # client-related args
@@ -248,25 +354,42 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-U', '--peers-per-user', type=int, help=ArgHelp.peers_per_user)
     parser.add_argument('-d', '--dns',            type=str, help=ArgHelp.dns)
 
+    # test
+    parser.add_argument('-j', '--json', action='store_true')
+    parser.add_argument('-W', '--WG', action='store_true')
+
     return parser.parse_args()
 
-from src.tools import die
+def validate_args(args: Namespace):
+    if not args.endpoint:
+        die(1, "You must specify vpn endpoint.")
+
+    esocket = str(args.endpoint)
+    #TODO: validate IPv6 addresses
+    if ':' in esocket:
+        host, port = esocket.rsplit(':', 1)
+        if port:
+            try:
+                port = int(port)
+                if port < 1 or port > 65535:
+                    die(1, "Port must be a number from 1 to 65535.")
+            except Exception as e:
+                die(1, e)
+        else:
+            if not is_string_a_valid_ip_address(host):
+                die(1, f"{host} is not a valid ip address.")
+
+
+    return args
+
+def process_args(args: Namespace) -> Namespace:
+    args = args
+    return args
 
 def main():
     args = parse_arguments()
 
-    if not args.endpoint:
-        die(1, "You must specify vpn endpoint.")
-
-    #TODO: implement endpoint validation
-    endpoint_socket = str(args.endpoint)
-    try:
-        endpoint_port = int(endpoint_socket.rsplit(':', 1)[-1])
-        if endpoint_port > 65535 or endpoint_port < 1:
-            die(1, "Port must be a value between 1 and 65535")
-    except ValueError:
-        endpoint_port = 51820
-        endpoint_socket = endpoint_socket + ':' + str(endpoint_port)
+    validate_args(args)
 
     if not args.Name:
         vpn_name = 'wg0'
@@ -296,14 +419,27 @@ def main():
     else:
         initial_clients_count = 1
 
-    v = VPN(
-        name = vpn_name,
-        endpoint_socket = endpoint_socket,
-        virtual_network = virtual_network,
-        initial_clients_count = initial_clients_count,
-        routes = routes
-    )
-    print_vpn_configs(v)
+    if args.WG:
+        v = VPN_WG(
+            name = vpn_name,
+            endpoint_socket = args.endpoint,
+            virtual_network = virtual_network,
+            initial_clients_count = initial_clients_count,
+            routes = routes
+        )
+    else:
+        v = VPN(
+            name = vpn_name,
+            endpoint_socket = args.endpoint,
+            virtual_network = virtual_network,
+            initial_clients_count = initial_clients_count,
+            routes = routes
+        )
+
+    if args.json:
+        print(v.to_json())
+    else:
+        print_vpn_configs(v)
 
 if __name__ == '__main__':
     main()
