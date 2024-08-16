@@ -11,15 +11,15 @@ CONF_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_DIR = prj_path / 'data/cache'
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-from argparse import ArgumentParser, Namespace
+WHOIS_DIR = CACHE_DIR / 'whois/ipv4'
+WHOIS_DIR.mkdir(parents=True, exist_ok=True)
 
-#TODO: implement configuration file processing logic for, say `$HOME/.config/flairs/stuff.{conf|ini|yml|json}`
-#TODO: and maybe even caching for, say `$HOME/.cache/flairs/{data,reports,statistics,etc}'
-whois_data_dir = '/Users/v/data/net/ipv4'
+from argparse import ArgumentParser, Namespace
+from src.net_tools import is_string_a_valid_ip_address
 
 class ArgHelp:
     address =  "address to get info about"
-    outfile = f"path to save a report (default is {whois_data_dir}/IPv*.whois.txt)"
+    outfile = f"path to save a report (default is {WHOIS_DIR}/IPv4Address.whois.txt)"
     force   =  "overwrite whois report if it exists"
 
 def parse_arguments() -> Namespace:
@@ -33,9 +33,7 @@ def parse_arguments() -> Namespace:
 def main() -> None:
     args = parse_arguments()
 
-    from src.Whois import is_valid_ip_address
-
-    print(is_valid_ip_address(args.address))
+    print(is_string_a_valid_ip_address(args.address))
 
 if __name__ == '__main__':
     main()

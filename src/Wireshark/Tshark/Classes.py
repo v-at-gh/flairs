@@ -180,9 +180,9 @@ class Report_Processor:
         return column_widths
 
     #TODO 0: make these methods universal for every instance
-    def as_pretty_table(
+    def to_pretty_table(
             self, separator: str = ' ',
-            print_report_header: bool = False,
+            print_report_header: bool = True,
             merge_unit_columns: bool = False, #TODO join columns
             align: Union[None,
                 Literal['left'],

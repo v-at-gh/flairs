@@ -32,8 +32,8 @@ def exclude_addresses(
 )    -> Union[Iterator[IPv4Network], Iterator[IPv6Network]]:
     '''This function solves the following problem:
 
-    https://stackoverflow.com/questions/66204457/how-can-i-remove-two-or-more-subnet-from-a-network
-    https://codereview.stackexchange.com/questions/245922/ip-address-exclusion-algorithm
+    - https://stackoverflow.com/questions/66204457/how-can-i-remove-two-or-more-subnet-from-a-network
+    - https://codereview.stackexchange.com/questions/245922/ip-address-exclusion-algorithm
 
     Since the last answer is technically correct:
         - Use sets!

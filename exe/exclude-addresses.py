@@ -51,6 +51,8 @@ def process_args(target_net: Union[str, IPv4Network, IPv6Network],
         net_a = ip_network(addrs_str)
         if not isinstance(net_a, type(target_net)): mis_addrs.add(net_a)
         elif not net_a.subnet_of(target_net):
+            # Mistake maybe (?).
+            #TODO: add comments to clarify
             if net_a.supernet_of(target_net): irr_addrs.add(net_a)
             else: irr_addrs.add(net_a)
         else: addr_objs.add(net_a)

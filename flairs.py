@@ -9,17 +9,14 @@ from pathlib import Path
 
 from src.tools import die
 
-def get_script_directory() -> Path:
-    return Path(__file__).resolve().parent / 'exe'
+SCRIPT_DIR = Path(__file__).resolve().parent / 'exe'
 
 def list_available_scripts() -> list:
-    script_dir = get_script_directory()
-    scripts = [f.stem for f in script_dir.glob('*.py')]
+    scripts = [f.stem for f in SCRIPT_DIR.glob('*.py')]
     return scripts
 
 def select_script(script_name: str) -> Path:
-    script_dir = get_script_directory()
-    script_path = script_dir / f"{script_name}.py"
+    script_path = SCRIPT_DIR / f"{script_name}.py"
     return script_path
 
 class ArgHelp:
@@ -30,7 +27,6 @@ class ArgHelp:
 def parse_arguments() -> Namespace:
     available_scripts = list_available_scripts()
     script_list_str = ', '.join(script for script in available_scripts)
-
     parser = ArgumentParser(
         description=ArgHelp.description,
         epilog=f"Available scripts: {script_list_str}"
@@ -53,12 +49,10 @@ def main() -> NoReturn:
             try:
                 result = run(
                     [sys.executable, script_path] + args.script_args,
-                    capture_output=True, text=True
+                    capture_output=True, text=True, encoding='utf-8'
                 )
-                if not result.stderr:
-                    die(result.returncode, result.stdout.strip())
-                else:
-                    die(result.returncode, result.stderr.strip())
+                if not result.stderr: die(result.returncode, result.stdout.strip())
+                else: die(result.returncode, result.stderr.strip())
             except Exception as e:
                 die(result.returncode, f"An error occurred: {e}")
     else:

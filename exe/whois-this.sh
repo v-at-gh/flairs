@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 
-if [[ $# -ne 1 ]]; then
-	>&2 echo "Error: Invalid number of arguments. Please provide an IP address."
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+	>&2 echo "Error: Invalid number of arguments. Please provide an IP address, and optionally, the --rewrite flag."
 	exit 1
 fi
 
-DIR="$(realpath ${0%/*/*})/data/cache/whois/ipv4"
-
-if [ ! -d "$DIR" ]; then
-	mkdir -p "$DIR"
+REWRITE=false
+if [[ $# -eq 2 ]]; then
+	if [[ "$2" == "--rewrite" ]]; then
+		REWRITE=true
+	else
+		>&2 echo "Error: Invalid argument. The only accepted second argument is --rewrite."
+		exit 1
+	fi
 fi
 
 validate_ipv4() {
@@ -33,8 +37,10 @@ validate_ipv4() {
 whoisthis() {
 	local address="$1"
 	validate_ipv4 "$address"
+	DIR="$(realpath ${0%/*/*})/data/cache/whois/ipv4"
 	local file_path="${DIR}/${address}.whois.txt"
-	if [[ -e "$file_path" ]]; then
+
+	if [[ -e "$file_path" && "$REWRITE" == false ]]; then
 		local DATE
 		DATE="$(date -r "$file_path" '+%Y-%m-%d %H:%M:%S')"
 		echo "-------- Report Start --------"
@@ -44,6 +50,9 @@ whoisthis() {
 		echo "Report requested on: $DATE"
 	else
 		if output=$(whois "$address" 2>&1); then
+			if [ ! -d "$DIR" ]; then
+				mkdir -p "$DIR"
+			fi
 			echo "$output" | tee "$file_path"
 		else
 			>&2 echo "Error: Failed to perform whois lookup for $address."

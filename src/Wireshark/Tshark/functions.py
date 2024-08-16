@@ -52,9 +52,9 @@ def print_reports_as_table(pcap_file_path, print_report_header: bool = False):
     reports = collect_reports(pcap_file_path)
     reports.sort(key=lambda r: len(r.entries))
     for report in reports:
-        print(report.as_pretty_table(print_report_header=print_report_header))
+        print(report.to_pretty_table(print_report_header=print_report_header))
 
-def gather_all_pcap_data(pcap_file_path):
+def gather_all_pcap_data_and_print_as_json(pcap_file_path):
     #TODO 0: Append data gathering with `capinfos`
     #TODO 1: Check if `pcap file` exists.
     #TODO 1: If we're saving statistics data to a file,
@@ -69,6 +69,11 @@ def gather_all_pcap_data(pcap_file_path):
     endpoint_reports_json     = '"Endpoint reports": ['+', '.join(report.to_json() for report in reports if 'endpoint' in report.header.lower())+']'
     obj_json_str = '{'+ ', '.join([conversation_reports_json, endpoint_reports_json]) +'}'
     print(obj_json_str)
+
+def gather_all_pcap_data_and_print_as_table(pcap_file_path):
+    reports = collect_reports(pcap_file_path)
+    for report in reports:
+        print(report.to_pretty_table())
 
 def test_reports_export_import(pcap_file_path) -> None:
     reports = collect_reports(pcap_file_path)
