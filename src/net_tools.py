@@ -1,6 +1,11 @@
 from typing import Iterator, List, Union
-from ipaddress import IPv4Network, IPv6Network
-from ipaddress import ip_address, ip_network, collapse_addresses
+from ipaddress import (
+    IPv4Network, IPv6Network,
+    ip_address, ip_network, collapse_addresses
+)
+
+IPv4_Internet = IPv4Network('0.0.0.0/0')
+IPv6_Internet = IPv6Network('::/0')
 
 def is_string_a_valid_ip_address(item: str) -> bool:
     try: ip_address(item); return True

@@ -5,7 +5,7 @@ Some network-related stuff.
 ## usage
 
 ```sh
-./flairs one-of-the-scripts
+./flairs one-of-the-scripts [script_args]
 ```
 
 ## scripts
@@ -18,11 +18,12 @@ Some network-related stuff.
 - extract-SNI-from-pcap
 - filter-SNI-json
 - whois-this
+- gen-vpn
 
 ## requirements
 
 - MacOS
-- python3 >= 3.9.6
+- python >= 3.9.6
 - netstat
 - whois
 - Wireshark (tshark and capinfos) >= 4.2.5
