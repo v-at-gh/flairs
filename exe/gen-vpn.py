@@ -60,7 +60,7 @@ def process_args(args: Namespace) -> Namespace:
         except: die(3, "Amount of initial VPN users must be a natural number.")
 
     if args.user_names:
-        #TODO: sanitize names
+        #TODO: handle duplicates and sanitize names
         if ',' in args.user_names:
             args.user_names = [name.strip() for name in args.user_names.strip().split(',')]
         else:
@@ -82,6 +82,21 @@ def main():
         network  = args.network
     )
 
+    if args.user_names:
+        users_amount = len(args.user_names)
+    if args.user_names and (
+        (users_amount > vpn.addrs_left) or (
+            args.peers_per_user and (
+                users_amount * args.peers_per_user > vpn.addrs_left
+            )
+        )
+    ):
+        die(4, (
+            f"VPN's address pool does not have enough addresses"
+            f" to allocate for {len(args.user_names)} users."
+            f" Network {vpn.network} has {vpn.addrs_left} addresses available for client peers."
+        ))
+
     #TODO: implement multiple peer creation
     if args.user_names and not args.peers_per_user:
         for name in args.user_names:
@@ -91,8 +106,8 @@ def main():
             for i in range(args.peers_per_user):
                 vpn.add_peer(name=f"{name}_{i+1}")
 
-    print(vpn.to_json())
-    # pprint(vpn)
+    # print(vpn.to_json())
+    pprint(vpn)
 
 if __name__ == '__main__':
     main()

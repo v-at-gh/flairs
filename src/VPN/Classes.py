@@ -55,7 +55,8 @@ class VPN:
         network: str
     ):
         vpn = cls(name=name, network=network)
-        vpn.add_peer(endpoint=endpoint)
+        #TODO: handle server creation a better way
+        vpn.add_peer(name='server_1', endpoint=endpoint)
         return vpn
 
     @property
@@ -70,8 +71,11 @@ class VPN:
     def to_stringified_dict(self) -> dict[str, Union[int, str]]: return obj_to_stringified_dict(self)
     def to_json(self, **kwargs) -> str: return json.dumps(self.to_stringified_dict(), **kwargs)
 
-    def _allocate_address(self,
-                          address: Optional[IPv4Address] = None
+    @classmethod
+    def from_json(cls, json_str: str):
+        raise NotImplementedError()
+
+    def _allocate_address(self, address: Optional[IPv4Address] = None
     ) -> IPv4Address:
         #TODO: implement multiple addresses allocation
         if self.addrs_left:
@@ -91,8 +95,7 @@ class VPN:
         else:
             raise ValueError("Network pool exhausted.")
 
-    def _unallocate_address(self,
-                            address: IPv4Address
+    def _unallocate_address(self, address: IPv4Address
     ) -> None:
         #TODO: implement multiple addresses unallocation
         self.allocated_addresses.remove(address)
