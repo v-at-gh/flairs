@@ -5,8 +5,7 @@ from pathlib import Path
 prj_path = Path(__file__).resolve().parents[1]
 sys.path.append(str(prj_path))
 
-
-import subprocess, random, json
+import subprocess, random, json, base64
 from typing import Optional, Union
 from dataclasses import dataclass, field, asdict
 from ipaddress import (
@@ -17,13 +16,11 @@ from ipaddress import (
 )
 
 from src.tools import die, obj_to_stringified_dict
-from src.net_tools import is_string_a_valid_ip_address, is_string_a_valid_ip_network
+from src.net_tools import IPv4_Internet, IPv6_Internet, is_string_a_valid_ip_address, is_string_a_valid_ip_network
 
 #TODO: for this (and other constants for paths to binary executables)
 # implement an algorithm to find a realpath to binary to make this project portable
 
-IPv4_Internet = IPv4Network('0.0.0.0/0')
-IPv6_Internet = IPv6Network('::/0')
 WG_BIN_PATH = '/opt/homebrew/bin/wg'
 OPENSSL_BIN_PATH = '/opt/homebrew/bin/openssl'
 
@@ -56,12 +53,11 @@ class X25519:
 class OpenVPN:
     @staticmethod
     def gen_certificate():
-        return random.randbytes(32).decode()
+        return base64.b64encode(random.randbytes(128)).decode()
 
     @staticmethod
     def gen_private_key():
-        return random.randbytes(32).decode()
-
+        return base64.b64encode(random.randbytes(128)).decode()
 
 @dataclass
 class Peer:
@@ -85,7 +81,12 @@ class Peer:
 
 @dataclass
 class Peer_WG(Peer):
-    __annotations__ = Peer.__annotations__
+    # __annotations__ = Peer.__annotations__
+    name: str
+    virtual_network: Union[IPv4Network, IPv6Network]
+    address: Union[IPv4Address, IPv6Address]
+    endpoint_socket: Optional[str] = None
+
     private_key: str = ''
     public_key:  str = ''
     preshared_key: Optional[str] = None
@@ -98,7 +99,12 @@ class Peer_WG(Peer):
 
 @dataclass
 class Peer_OpenVPN(Peer):
-    __annotations__ = Peer.__annotations__
+    # __annotations__ = Peer.__annotations__
+    name: str
+    virtual_network: Union[IPv4Network, IPv6Network]
+    address: Union[IPv4Address, IPv6Address]
+    endpoint_socket: Optional[str] = None
+
     certificate: str = ''
     private_key: str = ''
 
@@ -109,36 +115,17 @@ class Peer_OpenVPN(Peer):
 # class Peer_IPsec(Peer): pass
 
 class VPN_Processor:
-
     def add_peer(self, name=None, address=None, endpoint=None, gen_psk: bool = True):
         #TODO: move `name` logic to `User` layer
         if not name: name = random.choice(names)+'_'+random.choice(devices)
         address = self.allocate_address(address)
         if not address: raise Exception("VPN address pool exhausted")
-
-        if self.__class__.__name__ == 'VPN_WG':
-            peer = Peer_WG(
-                name=name,
-                virtual_network=self.virtual_network,
-                address=address,
-                endpoint_socket=endpoint,
-                preshared_key=gen_psk
-            )
-        elif self.__class__.__name__ == 'VPN_OpenVPN':
-            peer = Peer_OpenVPN(
-                name=name,
-                virtual_network=self.virtual_network,
-                address=address,
-                endpoint_socket=endpoint,
-            )
+        if self.__class__.__name__ == 'VPN_OpenVPN':
+            peer = Peer_OpenVPN(name = name, virtual_network = self.virtual_network, address = address, endpoint_socket = endpoint)
+        elif self.__class__.__name__ == 'VPN_WG':
+            peer = Peer_WG(name = name, virtual_network = self.virtual_network, address = address, endpoint_socket = endpoint, preshared_key = gen_psk)
         else:
-            peer = Peer(
-                name=name,
-                virtual_network=self.virtual_network,
-                address=address,
-                endpoint_socket=endpoint,
-            )
-
+            peer = Peer(name = name, virtual_network = self.virtual_network, address = address, endpoint_socket = endpoint)
         if endpoint: self.server_peers.append(peer)
         else:        self.client_peers.append(peer)
 
@@ -149,6 +136,20 @@ class VPN_Processor:
         else:
             for _ in range(amount): self.add_peer()
 
+    def del_client_peer(self: 'VPN', peer: Peer):
+        try:
+            self.client_peers.remove(peer)
+            self.unallocate_address(peer.address)
+        except ValueError as e:
+            raise e
+
+    def del_server_peer(self: 'VPN', peer: Peer):
+        try:
+            self.server_peers.remove(peer)
+            self.unallocate_address(peer.address)
+        except ValueError as e:
+            raise e
+
     def allocate_address(self, address=None) -> Union[IPv4Address, IPv6Address, None]:
         if address:
             address = ip_address(address)
@@ -158,6 +159,13 @@ class VPN_Processor:
             for address in self.virtual_network.hosts():
                 if address not in self.allocated_addresses:
                     self.allocated_addresses.add(address); return address
+
+    def unallocate_address(self: 'VPN', address) -> Union[IPv4Address, IPv6Address, None]:
+        address = ip_address(address)
+        if address in self.allocated_addresses:
+            self.allocated_addresses.remove(address)
+        else:
+            print(f"Address {address} is not allocated"); return
 
 @dataclass
 class VPN(VPN_Processor):
@@ -217,6 +225,18 @@ class VPN(VPN_Processor):
 @dataclass
 class VPN_WG(VPN):
     __annotations__ == VPN.__annotations__
+    # name: str
+    # endpoint_socket: str
+    # virtual_network: Union[IPv4Network, IPv6Network]
+    # initial_clients_count: int = 0
+    # server_peers: list[Peer] = field(default_factory=list)
+    # client_peers: list[Peer] = field(default_factory=list)
+    # routes: list[Union[IPv4Network, IPv6Network]] = field(default_factory=list)
+    # #TODO: implement proxification flag
+    # proxify: bool = True
+
+    def __post_init__(self):
+        return super().__post_init__()
 
     def render_server_config_for_wg(self):
         interface_section = []

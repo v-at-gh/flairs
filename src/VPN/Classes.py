@@ -7,7 +7,6 @@ from ipaddress import (
     IPv6Address, IPv6Network,
     ip_address, ip_network
 )
-from random import choice as random_choice
 
 from ..tools import obj_to_stringified_dict
 

@@ -10,9 +10,9 @@ except ImportError:
 
 if X25519_Provider == 'python':
 
-    class WireGuard:
+    class X25519:
         @staticmethod
-        def genkey() -> str:
+        def gen_private_key() -> str:
             return base64.b64encode(
                 X25519PrivateKey.generate().private_bytes(
                     encoding=serialization.Encoding.Raw,
@@ -22,7 +22,7 @@ if X25519_Provider == 'python':
             ).decode()
 
         @staticmethod
-        def pubkey(privkey: str) -> str:
+        def gen_public_key(privkey: str) -> str:
             return base64.b64encode(
                 X25519PrivateKey.from_private_bytes(base64.b64decode(privkey.encode()))
                 .public_key()
@@ -33,8 +33,8 @@ if X25519_Provider == 'python':
             ).decode()
 
         @staticmethod
-        def genpsk() -> str:
-            return WireGuard.genkey()
+        def gen_preshared_key() -> str:
+            return X25519.gen_private_key()
 
 elif X25519_Provider == 'system':
 
