@@ -23,8 +23,8 @@ class Peer:
 @dataclass
 class Server(Peer):
     name:     str
-    address:  IPv4Address
     endpoint: IPv4Address
+    address:  IPv4Address
 
 @dataclass
 class Client(Peer):
@@ -76,7 +76,7 @@ class VPN:
 
     def _allocate_address(self, address: Optional[IPv4Address] = None
     ) -> IPv4Address:
-        #TODO: implement multiple addresses allocation
+        #TODO: implement multiple addresses allocation by intervals within address pool
         if self.addrs_left:
             if address:
                 if address in self.network and address not in self.allocated_addresses:

@@ -53,13 +53,13 @@ class Firewalld:
             f" --zone=trusted {action}={network}"
         )
         return execute_command(command_str, dry_run)
-    add_source_to_trusted_zone             = partial(toggle_source_in_trusted_zone,   switch='on')
-    remove_source_from_trusted_zone        = partial(toggle_source_in_trusted_zone,   switch='off')
-    add_source_to_trusted_zone_as_str      = partial(add_source_to_trusted_zone,      dry_run=True)
-    remove_source_from_trusted_zone_as_str = partial(remove_source_from_trusted_zone, dry_run=True)
+    add_source_to_trusted_zone             = partial(toggle_source_in_trusted_zone, switch='on')
+    remove_source_from_trusted_zone        = partial(toggle_source_in_trusted_zone, switch='off')
+    add_source_to_trusted_zone_as_str      = partial(toggle_source_in_trusted_zone, switch='on', dry_run=True)
+    remove_source_from_trusted_zone_as_str = partial(toggle_source_in_trusted_zone, switch='off', dry_run=True)
 
     @staticmethod
-    def toggle_nat_rule(switch: MODE,
+    def toggle_nat_masquerade_rule(switch: MODE,
             network:   Union[IPv4Network, IPv6Network],
             permanent: bool = False,
             quiet:     bool = True,
@@ -79,10 +79,10 @@ class Firewalld:
             f" -s {network} ! -d {network} -j MASQUERADE"
         )
         return execute_command(command_str, dry_run)
-    add_nat_rule           = partial(toggle_nat_rule, switch='on')
-    remove_nat_rule        = partial(toggle_nat_rule, switch='off')
-    add_nat_rule_as_str    = partial(add_nat_rule,    dry_run=True)
-    remove_nat_rule_as_str = partial(remove_nat_rule, dry_run=True)
+    add_nat_masquerade_rule           = partial(toggle_nat_masquerade_rule, switch='on')
+    remove_nat_masquerade_rule        = partial(toggle_nat_masquerade_rule, switch='off')
+    add_nat_masquerade_rule_as_str    = partial(toggle_nat_masquerade_rule, switch='on', dry_run=True)
+    remove_nat_masquerade_rule_as_str = partial(toggle_nat_masquerade_rule, switch='off', dry_run=True)
 
     @staticmethod
     def construct_commands_to_add_rules(
@@ -97,22 +97,22 @@ class Firewalld:
             )
         commands_list_ipv4 = [
             Firewalld.add_source_to_trusted_zone_as_str(network=network_v4),
-            Firewalld.add_nat_rule_as_str(network=network_v4),
+            Firewalld.add_nat_masquerade_rule_as_str(network=network_v4),
         ]
         if permanent:
             commands_list_ipv4.extend([
                 Firewalld.add_source_to_trusted_zone_as_str(network=network_v4, permanent=True),
-                Firewalld.add_nat_rule_as_str(network=network_v4, permanent=True)
+                Firewalld.add_nat_masquerade_rule_as_str(network=network_v4, permanent=True)
             ])
         if network_v6:
             commands_list_ipv6 = [
                 Firewalld.add_source_to_trusted_zone_as_str(network=network_v6),
-                Firewalld.add_nat_rule_as_str(network=network_v6),
+                Firewalld.add_nat_masquerade_rule_as_str(network=network_v6),
             ]
             if permanent:
                 commands_list_ipv6.extend([
                     Firewalld.add_source_to_trusted_zone_as_str(network=network_v6, permanent=True),
-                    Firewalld.add_nat_rule_as_str(network=network_v6, permanent=True)
+                    Firewalld.add_nat_masquerade_rule_as_str(network=network_v6, permanent=True)
                 ])
             commands_list.extend(commands_list_ipv4 + commands_list_ipv6)
         else:
@@ -130,14 +130,14 @@ class Firewalld:
         commands_list_ipv4 = [
             Firewalld.remove_source_from_trusted_zone_as_str(network=network_v4),
             Firewalld.remove_source_from_trusted_zone_as_str(network=network_v4, permanent=True),
-            Firewalld.remove_nat_rule_as_str(network=network_v4),
-            Firewalld.remove_nat_rule_as_str(network=network_v4, permanent=True)
+            Firewalld.remove_nat_masquerade_rule_as_str(network=network_v4),
+            Firewalld.remove_nat_masquerade_rule_as_str(network=network_v4, permanent=True)
         ]
         commands_list_ipv6 = [
             Firewalld.remove_source_from_trusted_zone_as_str(network=network_v6),
             Firewalld.remove_source_from_trusted_zone_as_str(network=network_v6, permanent=True),
-            Firewalld.remove_nat_rule_as_str(network=network_v6),
-            Firewalld.remove_nat_rule_as_str(network=network_v6, permanent=True)
+            Firewalld.remove_nat_masquerade_rule_as_str(network=network_v6),
+            Firewalld.remove_nat_masquerade_rule_as_str(network=network_v6, permanent=True)
         ]
         commands_list.extend(commands_list_ipv4 + commands_list_ipv6)
         return '\n'.join(command for command in commands_list)
@@ -145,6 +145,8 @@ class Firewalld:
 
 class IPTables:
 
+    #TODO: implement a setter for constants,
+    # and a function to find executables if run on VPN server
     V4_EXE_PATH = '/usr/sbin/iptables'
     V6_EXE_PATH = '/usr/sbin/ip6tables'
 
@@ -161,8 +163,8 @@ class IPTables:
         return execute_command(command_str, dry_run)
     insert_port        = partial(toggle_port, switch='on')
     delete_port        = partial(toggle_port, switch='off')
-    insert_port_as_str = partial(insert_port, dry_run=True)
-    delete_port_as_str = partial(delete_port, dry_run=True)
+    insert_port_as_str = partial(toggle_port, switch='on', dry_run=True)
+    delete_port_as_str = partial(toggle_port, switch='off', dry_run=True)
 
     @staticmethod
     def toggle_nat_rule(switch: MODE,
@@ -205,8 +207,8 @@ class IPTables:
         return execute_command(command_str, dry_run)
     insert_match_state_rule        = partial(toggle_match_state_rule, switch='on')
     delete_match_state_rule        = partial(toggle_match_state_rule, switch='off')
-    insert_match_state_rule_as_str = partial(insert_match_state_rule, dry_run=True)
-    delete_match_state_rule_as_str = partial(delete_match_state_rule, dry_run=True)
+    insert_match_state_rule_as_str = partial(toggle_match_state_rule, switch='on', dry_run=True)
+    delete_match_state_rule_as_str = partial(toggle_match_state_rule, switch='off', dry_run=True)
 
     @staticmethod
     def toggle_fwd_src_rule(switch: MODE,
@@ -226,8 +228,8 @@ class IPTables:
         return execute_command(command_str, dry_run)
     insert_fwd_src_rule        = partial(toggle_fwd_src_rule, switch='on')
     delete_fwd_src_rule        = partial(toggle_fwd_src_rule, switch='off')
-    insert_fwd_src_rule_as_str = partial(insert_fwd_src_rule, dry_run=True)
-    delete_fwd_src_rule_as_str = partial(delete_fwd_src_rule, dry_run=True)
+    insert_fwd_src_rule_as_str = partial(toggle_fwd_src_rule, switch='on', dry_run=True)
+    delete_fwd_src_rule_as_str = partial(toggle_fwd_src_rule, switch='off', dry_run=True)
 
     @staticmethod
     def construct_commands_to_add_rules(
@@ -287,7 +289,7 @@ class IPTables:
     ):
         unit_header = "[Unit]\nBefore=network.target\n[Service]\nType=oneshot"
         start_commands = IPTables.construct_commands_to_add_rules(proto, port, network_v4, network_v6, permanent=True)
-        stop_commands = IPTables.construct_commands_to_del_rules(proto, port, network_v4, network_v6, permanent=True)
+        stop_commands  = IPTables.construct_commands_to_del_rules(proto, port, network_v4, network_v6, permanent=True)
         unit_footer = "RemainAfterExit=yes\n[Install]\nWantedBy=multi-user.target"
         unit = '\n'.join([unit_header, start_commands, stop_commands, unit_footer])
         return unit
@@ -313,12 +315,4 @@ default_parameters_ovpn_tcp = {
     'network_v6': 'fddd:1194:1194:1194::/64'
 }
 
-# IPTables.construct_commands_to_add_rules(**default_parameters_wg)
-# print(IPTables.construct_commands_to_add_rules(**default_parameters_ovpn))
-# print(IPTables.construct_commands_to_del_rules(**default_parameters_ovpn))
-# print(IPTables.construct_systemd_unit(**default_parameters_ovpn))
-# IPTables.construct_commands_to_add_rules(**default_parameters_ovpn_tcp)
-
 print(Firewalld.construct_commands_to_add_rules(**default_parameters_wg))
-# Firewalld.construct_commands_to_add_rules(**default_parameters_ovpn)
-# Firewalld.construct_commands_to_add_rules(**default_parameters_ovpn_tcp)
