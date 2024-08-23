@@ -23,4 +23,3 @@ bin/*
 *.out
 *.md5sum
 exe/test-something.py
-src/connectivity/

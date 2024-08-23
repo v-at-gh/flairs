@@ -8,7 +8,7 @@ from ipaddress import (
     ip_address, ip_network
 )
 
-from ..tools import obj_to_stringified_dict
+from ...tools import obj_to_stringified_dict
 
 names = 'Alpha Beta Gamma Delta Epsilon Zeta Eta Theta Iota Kappa Lambda Mu Nu Xi Omicron Pi Rho Sigma Tau Upsilon Phi Chi Psi Omega'.split()
 

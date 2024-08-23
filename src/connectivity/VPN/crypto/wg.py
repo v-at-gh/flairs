@@ -60,14 +60,3 @@ elif X25519_Provider == 'system':
         @staticmethod
         def gen_preshared_key() -> str:
             return X25519.gen_private_key()
-
-# class OpenVPN:
-#     @staticmethod
-#     def gen_certificate():
-#         return base64.b64encode(random.randbytes(128)).decode()
-
-#     @staticmethod
-#     def gen_private_key():
-#         return base64.b64encode(random.randbytes(128)).decode()
-
-# class IPsec(OpenVPN): pass
