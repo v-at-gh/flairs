@@ -19,7 +19,12 @@ def is_string_a_valid_ip_network(item: str, strict: bool = False) -> bool:
         if is_string_a_valid_ip_network(item) and not is_string_a_valid_ip_address(item): return True
         else: return False
 
-def construct_capture_filter_for_endpoint(address, protocol, port) -> str:
+def construct_capture_filter_for_endpoint(
+        address,
+        protocol,
+        port
+) -> str:
+    #TODO: reduce resulting filter expression by combining same values of endpoints
     try: address = ip_address(address)
     except ValueError: address = ip_network(address)
     parts = [

@@ -14,6 +14,7 @@ __pycache__
 # Testing stuff
 test/
 *.json
+*.csv
 *.db
 .backup.d
 data/

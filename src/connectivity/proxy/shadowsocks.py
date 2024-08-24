@@ -118,10 +118,12 @@ def gen_client_url_from_config(
         client_config,
         tag: Optional[str] = None
 ) -> str:
+
     server      = client_config['servers'][0]['server']
     server_port = client_config['servers'][0]['server_port']
     method      = client_config['servers'][0]['method']
     password    = client_config['servers'][0]['password']
+
     credentials = f"{method}:{password}"
     encoded_credentials = base64.urlsafe_b64encode(credentials.encode()).decode().rstrip("=")
     uri = f"ss://{encoded_credentials}@{server}:{server_port}"
@@ -147,14 +149,15 @@ def save_server_config(server_config: dict, dir_path: Optional[str] = None):
     print(json_content)
 
 def save_client_config(client_config: dict, dir_path: Optional[str] = None):
-    server_fields = {'server', 'server_port', 'method', 'mode'}
+    #TODO: move server config validation to a separate function
+    server_fields = {'server', 'server_port', 'method', 'password'}
     if 'servers' not in client_config.keys():
         missing_keys = server_fields.difference(set(client_config.keys()))
         if not missing_keys:
             server      = client_config['server']
             server_port = client_config['server_port']
             method      = client_config['method']
-            mode        = client_config['mode']
+            password    = client_config['password']
             server_endpoint = f"_{server}-{server_port}_"
         else:
             raise KeyError(
@@ -169,7 +172,7 @@ def save_client_config(client_config: dict, dir_path: Optional[str] = None):
                 server      = client_config['servers'][0]['server']
                 server_port = client_config['servers'][0]['server_port']
                 method      = client_config['servers'][0]['method']
-                mode        = client_config['servers'][0]['mode']
+                password    = client_config['servers'][0]['password']
                 server_endpoint = f"_{server}-{server_port}_"
             else:
                 raise KeyError(
@@ -177,12 +180,21 @@ def save_client_config(client_config: dict, dir_path: Optional[str] = None):
                     f" {'are' if len(missing_keys) > 1 else 'is'} missing."
                 )
         #TODO: implement else-case (see the previous)
+    if 'mode' in client_config.keys():
+        mode = client_config['mode']
+    elif 'mode' in client_config['servers'][0].keys():
+        mode = client_config['servers'][0]['mode']
+    else:
+        mode = ''
     if dir_path:
         #TODO: utilize Path
         dir_path = f"{dir_path}/"
     else:
         dir_path = '' # save in pwd
-    file_name = f"{dir_path}ss_client.{server_endpoint}.{mode}.{method}.test.json"
+    file_name = f"{dir_path}ss_client.{server_endpoint}."
+    if mode:
+        file_name += mode
+    file_name += f".{method}.test.json"
     with open(file_name, 'w', encoding='utf-8') as file:
         json_content = json.dumps(client_config, indent=4)
         file.write(json_content)

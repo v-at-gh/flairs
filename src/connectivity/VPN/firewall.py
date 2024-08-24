@@ -17,6 +17,8 @@ FAMILY = Literal[4, 6]
 
 class Firewalld:
 
+    EXE_PATH = 'firewall-cmd'
+
     @staticmethod
     def toggle_port(switch: MODE,
             protocol: PROTO, port: int,
@@ -26,7 +28,7 @@ class Firewalld:
     ) -> Union[LiteralString, CompletedProcess[bytes]]:
         action = '--add-port' if switch == 'on' else '--remove-port'
         command_str = (
-            f"firewall-cmd {'-q' if quiet else ''}"
+            f"{Firewalld.EXE_PATH} {'-q' if quiet else ''}"
             f" {'--permanent' if permanent else ''}"
             f" {action}={port}/{protocol}"
         )
@@ -48,7 +50,7 @@ class Firewalld:
         if   switch == 'on':  action = '--add-source'
         elif switch == 'off': action = '--remove-source'
         command_str = (
-            f"firewall-cmd {'-q' if quiet else ''}"
+            f"{Firewalld.EXE_PATH} {'-q' if quiet else ''}"
             f" {'--permanent' if permanent else ''}"
             f" --zone=trusted {action}={network}"
         )
@@ -73,7 +75,7 @@ class Firewalld:
         if   switch == 'on':  action = '--add-rule'
         elif switch == 'off': action = '--remove-rule'
         command_str = (
-            f"firewall-cmd {'-q' if quiet else ''}"
+            f"{Firewalld.EXE_PATH} {'-q' if quiet else ''}"
             f" {'--permanent' if permanent else ''}"
             f" --direct {action} {family} nat POSTROUTING 0"
             f" -s {network} ! -d {network} -j MASQUERADE"
@@ -107,7 +109,7 @@ class Firewalld:
         if network_v6:
             commands_list_ipv6 = [
                 Firewalld.add_source_to_trusted_zone_as_str(network=network_v6),
-                Firewalld.add_nat_masquerade_rule_as_str(network=network_v6),
+                Firewalld.add_nat_masquerade_rule_as_str(network=network_v6)
             ]
             if permanent:
                 commands_list_ipv6.extend([
@@ -125,7 +127,7 @@ class Firewalld:
     ):
         commands_list = [
             Firewalld.remove_port_as_str(protocol=proto, port=port),
-            Firewalld.remove_port_as_str(protocol=proto, port=port, permanent=True),
+            Firewalld.remove_port_as_str(protocol=proto, port=port, permanent=True)
         ]
         commands_list_ipv4 = [
             Firewalld.remove_source_from_trusted_zone_as_str(network=network_v4),

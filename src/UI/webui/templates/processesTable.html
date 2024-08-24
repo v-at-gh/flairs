@@ -2,42 +2,26 @@
 <table class="processesTable">
 
 <thead>
-<tr>
-<th
-class="PID"
-onclick="sortTable(this, 0)"
->PID</th>
-<th
-class="Executable"
-onclick="sortTable(this, 1)"
->Executable</th>
-<th
-class="Connections"
-onclick="sortTable(this, 2)"
->Connections</th>
-</tr>
+	<tr>
+		<th class="PID" onclick="sortTable(this, 0)">PID</th>
+		<th class="Executable" onclick="sortTable(this, 1)">Executable</th>
+		<th class="Connections" onclick="sortTable(this, 2)">Connections</th>
+	</tr>
 </thead>
 
 <tbody>
-{% for entry in process_list %}
-<tr>
-<td
-class="PID"
->{{ entry.process.pid }}</td>
-<td
-class="Executable"
->{{ entry.process.executable }}</td>
-<td
-class="Connections"
->
-{% if entry.connections %}
-{% include "connectionsTable.html" %}
-{% else %}
-<p>No connections available.</p>
-{% endif %}
-</td>
-</tr>
-{% endfor %}
+	{% for entry in process_list %}
+	<tr>
+		<td class="PID">{{ entry.process.pid }}</td>
+		<td class="Executable">{{ entry.process.executable }}</td>
+		<td class="Connections">
+			{% if entry.connections %}
+			{% include "connectionsTable.html" %}
+			{% else %}
+			<p>No connections available.</p>
+			{% endif %}
+		</td>
+	</tr>
+	{% endfor %}
 </tbody>
-
 </table>
