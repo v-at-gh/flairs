@@ -1,5 +1,5 @@
 // PcapFilter.js
-const purposes = ['capture', 'preview'];
+const purposes = ['capture', 'display'];
 const directions = ['src', 'dst'];
 const filterGoals = ['exclude', 'include'];
 
@@ -25,7 +25,7 @@ class PcapFilter {
                 const portPart = port ? `and ${proto} ${direction} port ${port}` : '';
                 return `(${direction} ${addrPart} ${portPart})`;
             });
-        } else if (purpose === 'preview') {
+        } else if (purpose === 'display') {
             packetEnvelope = directions.map(direction => {
                 const addrPart = addr ? `ip.${direction} == ${addr}` : 'ip.any == any';
                 const portPart = port ? `and ${proto}.${direction}port == ${port}` : '';
@@ -42,7 +42,7 @@ class PcapFilter {
     }
 
     static wiresharkEndpointFilter(kwargs) {
-        return PcapFilter.constructEndpointFilter({purpose: 'preview', ...kwargs});
+        return PcapFilter.constructEndpointFilter({purpose: 'display', ...kwargs});
     }
 }
 
@@ -72,7 +72,7 @@ class PcapFilter {
 // console.log(wiresharkFilter);
 
 // const commonTestFilter = PcapFilter.constructEndpointFilter({
-//     purpose: 'preview',
+//     purpose: 'display',
 //     proto: 'udp',
 //     addr: '10.255.255.0/24',
 //     port: 8080,

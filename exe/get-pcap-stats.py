@@ -21,7 +21,7 @@ class ArgHelp:
     json   = "return stats as json (default)"
     csv    = "return stats as csv"
     table  = "return stats as a pretty table"
-    # filter = "filter expression for packet capture file processing (wireshark `preview` syntax)"
+    # filter = "filter expression for packet capture file processing (wireshark `display` syntax)"
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()

@@ -42,12 +42,12 @@ class Tshark:
             get_address_to_server_names = True
             get_server_name_to_addresses = True
         server_name_field = 'tls.handshake.extensions_server_name'
-        if filter is None: preview_filter = server_name_field
+        if filter is None: display_filter = server_name_field
         #TODO: implement filter expression validation
         # (Why? tshark will not run if filter is not valid!)
         # And here we are...
-        else: preview_filter = f"{server_name_field} and {filter}"
-        command = [TSHARK_BINARY, "-n", "-r", pcap_file_path_str, "-Y", preview_filter,
+        else: display_filter = f"{server_name_field} and {filter}"
+        command = [TSHARK_BINARY, "-n", "-r", pcap_file_path_str, "-Y", display_filter,
                    "-T", "fields", "-E", "separator=,",
                    "-e", "ip.dst", "-e", server_name_field]
         try:
@@ -90,7 +90,7 @@ class Tshark:
             pcap_file_path,
             proto: Union[str, List[str], Set[str], Tuple[str]]
             = PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
-            preview_filter: Optional[str] = None
+            display_filter: Optional[str] = None
     ) -> Optional[List[str]]:
 
         def _parse_proto_arg(proto):
@@ -104,12 +104,12 @@ class Tshark:
 
         protos = _parse_proto_arg(proto)
 
-        def create_expression(prefix, protos, preview_filter=None) -> str:
-            if preview_filter is None: return " ".join(f"-z {prefix},{proto}" for proto in protos)
-            else: return " ".join(f"-z {prefix},{proto},'{preview_filter}'" for proto in protos)
+        def create_expression(prefix, protos, display_filter=None) -> str:
+            if display_filter is None: return " ".join(f"-z {prefix},{proto}" for proto in protos)
+            else: return " ".join(f"-z {prefix},{proto},'{display_filter}'" for proto in protos)
 
-        endpoints_expression = create_expression("endpoints", protos, preview_filter)
-        conversations_expression = create_expression("conv", protos, preview_filter)
+        endpoints_expression = create_expression("endpoints", protos, display_filter)
+        conversations_expression = create_expression("conv", protos, display_filter)
         command = (
             f"{TSHARK_BINARY} -n -r {pcap_file_path} -q"
             f" {endpoints_expression}"

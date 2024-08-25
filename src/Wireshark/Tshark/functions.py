@@ -12,13 +12,13 @@ FILE_BINARY = '/usr/bin/file'
 def collect_reports(
         pcap_file_path,
         proto=PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
-        preview_filter=None
+        display_filter=None
 ) -> List[Union[Conversation_Report, Endpoint_Report]]:
     reports = Tshark.parse_conversations_reports(
         Tshark.get_endpoints_statistics_strings(
             pcap_file_path,
             proto,
-            preview_filter
+            display_filter
         ))
     return reports
 
