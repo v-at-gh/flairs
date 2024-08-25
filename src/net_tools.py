@@ -100,10 +100,14 @@ def construct_filters(
             filters_display[ip]['src'].append(f"{protocol}.srcport == {port}")
             filters_display[ip]['dst'].append(f"{protocol}.dstport == {port}")
 
-    if capture: combined_capture_filters = []
-    if display: combined_display_filters = []
+    if capture:
+        combined_capture_filters = []
+        filters_list = filters_capture
+    if display:
+        combined_display_filters = []
+        filters_list = filters_display
 
-    for ip in filters_capture:
+    for ip in filters_list:
         # the following assignment does not matter for display filter but wgaf
         if is_string_a_valid_ip_network(ip, strict=True): ip_type = 'net'
         elif is_string_a_valid_ip_address(ip): ip_type = 'host'
@@ -146,7 +150,7 @@ def construct_capture_filter(
         goal: GOAL = 'include'
 ) -> LiteralString:
     return construct_filters(
-        csv_content=csv_content,
+        csv_content = csv_content,
         capture = True,
         display = False,
         goal = goal
@@ -157,7 +161,7 @@ def construct_display_filter(
         goal: GOAL = 'include'
 ) -> LiteralString:
     return construct_filters(
-        csv_content=csv_content,
+        csv_content = csv_content,
         capture = False,
         display = True,
         goal = goal
