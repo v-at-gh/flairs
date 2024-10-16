@@ -11,11 +11,13 @@ verbose=false
 : "${IP_ADDRESS:=127.0.0.1}"
 
 usage() {
-    echo "Usage: $0 [-i IP_ADDRESS] [-f FILTER] [-F ADDITIONAL_FILTER] [-v]"
-    echo "  -i IP_ADDRESS        Specify the IP address to search for (default: ${IP_ADDRESS})"
-    echo "  -f FILTER            Specify the capture filter expression"
-    echo "  -F ADDITIONAL_FILTER Append an additional filter expression to the default filter:"
-    echo "  -v                   Enable verbose output"
+    cat <<EOF
+Usage: $0 [-i IP_ADDRESS] [-f FILTER] [-F ADDITIONAL_FILTER] [-v]
+  -i IP_ADDRESS        Specify the IP address to search for (default: ${IP_ADDRESS})
+  -f FILTER            Specify the capture filter expression
+  -F ADDITIONAL_FILTER Append an additional filter expression to the default filter
+  -v                   Enable verbose output
+EOF
     exit 1
 }
 
@@ -93,7 +95,7 @@ while true; do
     sleep 0.05
 done
 
-$WIRESHARK_BINARY -f "${FILTER}" -i "${IFACE}" -k &
+$WIRESHARK_BINARY --no-promiscuous-mode -f "${FILTER}" -i "${IFACE}" -k &
 echo "Wireshark launched on interface ${IFACE}. You can now close this terminal."
 
 exit 0

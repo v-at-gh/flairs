@@ -12,7 +12,7 @@ from src.tools import die
 SCRIPT_DIR = Path(__file__).resolve().parent / 'exe'
 
 def list_available_scripts() -> list:
-    scripts = [f.stem for f in SCRIPT_DIR.glob('*.py')]
+    scripts = sorted([f.stem for f in SCRIPT_DIR.glob('*.py')])
     return scripts
 
 def select_script(script_name: str) -> Path:

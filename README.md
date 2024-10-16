@@ -1,3 +1,5 @@
+### Under development. Use at your own risk.
+
 # flairs
 
 Some network-related stuff.
@@ -11,22 +13,22 @@ Some network-related stuff.
 ## scripts
 
 - exclude-addresses
+- extract-SNI-from-pcap
+- filter-SNI-json
+- gen-vpn
 - get-open-pcaps
 - get-pcap-stats
 - merge-SNI-jsons
 - netstat
-- extract-SNI-from-pcap
-- filter-SNI-json
 - whois-this
-- gen-vpn
 
 ## requirements
 
-- MacOS
+- macOS
 - python >= 3.9.6
+- Wireshark (tshark and capinfos) >= 4.2.5
 - netstat
 - whois
-- Wireshark (tshark and capinfos) >= 4.2.5
 
 ## optional requirements
 

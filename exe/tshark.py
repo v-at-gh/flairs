@@ -16,12 +16,12 @@ from argparse import ArgumentParser, Namespace
 from typing import NoReturn, Optional
 
 from src.net_tools import construct_capture_filter_for_endpoint
-from src.Wireshark.common import WIRESHARK_BINARY
+from src.Wireshark.common import TSHARK_BINARY
 
 endpoints_list_path = prj_path / CONF_DIR / 'default_endpoints_filter.en0.csv'
 
 class ArgHelp:
-    interface      = "Network interface to run Wireshark"
+    interface      = "Network interface to run tshark"
     outfile        = "set the output filename"
     filter         = "packet filter in libpcap filter syntax"
     custom_filter  = "path to csv file with endpoints (`address,proto,port`) list to construct exclusion filter."
@@ -31,22 +31,21 @@ def parse_arguments() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument('-i', '--interface',      type=str, help=ArgHelp.interface)
     parser.add_argument('-w', '--outfile',        type=str, help=ArgHelp.outfile)
-    #TODO: add option to append filter expression to constructed from csv-file
-    filter_group = parser.add_mutually_exclusive_group()
-    filter_group.add_argument('-f', '--filter',         type=str, help=ArgHelp.filter)
-    filter_group.add_argument('-c', '--custom-filter',  type=str, help=ArgHelp.custom_filter)
-    filter_group.add_argument('-d', '--default-filter', action='store_true', help=ArgHelp.default_filter)
+    parser.add_argument('-f', '--filter',         type=str, help=ArgHelp.filter)
+    parser.add_argument('-c', '--custom-filter',  type=str, help=ArgHelp.custom_filter)
+    parser.add_argument('-d', '--default-filter', action='store_true',
+                        help=ArgHelp.default_filter)
     return parser.parse_args()
 
-def spawn_wireshark(
+def spawn_tshark(
         interface:      Optional[str] = None,
         capture_filter: Optional[str] = None,
         outfile:        Optional[str] = None
 ):
-    command = [WIRESHARK_BINARY, '--no-promiscuous-mode']
+    command = [TSHARK_BINARY, '--no-promiscuous-mode']
     if interface:      command.extend(['-i', interface])
     if capture_filter: command.extend(['-f', capture_filter])
-    if outfile:        command.extend(['-w', outfile])
+    if outfile:        command.extend(['-f', outfile])
     command.append('-k')
     subprocess.Popen(command)
 
@@ -79,8 +78,6 @@ def main() -> NoReturn:
     else:
         outfile = None
 
-    #TODO: implement multiple csv files processing,
-    # eg: `-c 'telegram.csv,vpn_rkn.csv,vpn_work.csv'`
     if args.custom_filter:
         custom_filter_path = Path(args.custom_filter)
         capture_filter = construct_capture_filter(custom_filter_path)
@@ -94,7 +91,7 @@ def main() -> NoReturn:
         else:
             capture_filter = None
 
-    spawn_wireshark(
+    spawn_tshark(
         interface=iface,
         capture_filter=capture_filter,
         outfile=outfile

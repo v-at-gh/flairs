@@ -1,4 +1,4 @@
-from typing import Iterator, List, Literal, LiteralString, Union
+from typing import Iterator, List, Literal, Union
 from collections import defaultdict
 from ipaddress import (
     IPv4Network, IPv6Network,
@@ -86,7 +86,7 @@ def construct_filters(
         capture: bool = True,
         display: bool = True,
         goal: GOAL = 'include'
-) -> Union[LiteralString, tuple[LiteralString, LiteralString]]:
+) -> Union[str, tuple[str, str]]:
     '''New version to construct capture and display filters for multiple endpoints from csv data'''
     if capture: filters_capture = defaultdict(lambda: {'src': [], 'dst': []})
     if display: filters_display = defaultdict(lambda: {'src': [], 'dst': []})
@@ -148,7 +148,7 @@ def construct_filters(
 def construct_capture_filter(
         csv_content,
         goal: GOAL = 'include'
-) -> LiteralString:
+) -> str:
     return construct_filters(
         csv_content = csv_content,
         capture = True,
@@ -159,7 +159,7 @@ def construct_capture_filter(
 def construct_display_filter(
         csv_content,
         goal: GOAL = 'include'
-) -> LiteralString:
+) -> str:
     return construct_filters(
         csv_content = csv_content,
         capture = False,

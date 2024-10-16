@@ -11,15 +11,17 @@ FILE_BINARY = '/usr/bin/file'
 
 def collect_reports(
         pcap_file_path,
-        proto=PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
-        display_filter=None
+        proto = PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
+        display_filter = None
 ) -> List[Union[Conversation_Report, Endpoint_Report]]:
+
     reports = Tshark.parse_conversations_reports(
         Tshark.get_endpoints_statistics_strings(
             pcap_file_path,
             proto,
             display_filter
         ))
+
     return reports
 
 def get_sni_dict(
@@ -28,7 +30,9 @@ def get_sni_dict(
         get_server_name_to_addresses: bool = False,
         get_address_to_server_names:  bool = False,
 ) -> Dict[str, Union[Dict[str, List[str]], Any]]:
+
     pcap_file_path_obj = Path(pcap_file_path_str)
+
     if not Path.exists(pcap_file_path_obj):
         print(f"File {pcap_file_path_str} does not exist.")
         return
@@ -37,24 +41,29 @@ def get_sni_dict(
             [FILE_BINARY, pcap_file_path_str], text=True, capture_output=True
         ).stdout.strip()
     except Exception as e: raise e
+
     if not 'pcap capture file' in pcap_file_type and \
        not 'pcapng capture file' in pcap_file_type:
         raise Exception(f"File {pcap_file_path_str} is not packet capture file.")
+
     data = Tshark.get_ipaddr_tls_server_name_pairs(
         pcap_file_path_str,
         filter = filter,
         get_address_to_server_names = get_address_to_server_names,
         get_server_name_to_addresses = get_server_name_to_addresses
     )
+
     return data
 
-def print_reports_as_table(pcap_file_path, print_report_header: bool = False):
+def print_reports_as_table(pcap_file_path, print_report_header: bool = False) -> None:
+
     reports = collect_reports(pcap_file_path)
     reports.sort(key=lambda r: len(r.entries))
+
     for report in reports:
         print(report.to_pretty_table(print_report_header=print_report_header))
 
-def gather_all_pcap_data_and_print_as_json(pcap_file_path):
+def gather_all_pcap_data_as_json(pcap_file_path) -> str:
     #TODO 0: Append data gathering with `capinfos`
     #TODO 1: Check if `pcap file` exists.
     #TODO 1: If we're saving statistics data to a file,
@@ -68,7 +77,8 @@ def gather_all_pcap_data_and_print_as_json(pcap_file_path):
     conversation_reports_json = '"Conversation reports": ['+', '.join(report.to_json() for report in reports if 'conversation' in report.header.lower())+']'
     endpoint_reports_json     = '"Endpoint reports": ['+', '.join(report.to_json() for report in reports if 'endpoint' in report.header.lower())+']'
     obj_json_str = '{'+ ', '.join([conversation_reports_json, endpoint_reports_json]) +'}'
-    print(obj_json_str)
+
+    return obj_json_str
 
 def gather_all_pcap_data_and_print_as_table(pcap_file_path):
     reports = collect_reports(pcap_file_path)

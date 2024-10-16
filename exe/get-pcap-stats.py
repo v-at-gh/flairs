@@ -45,8 +45,8 @@ def test_data_gathering(pcap_file_path):
         die(1, f"File {pcap_file_path} does not exist.")
     from src.Wireshark.Tshark.functions import gather_all_pcap_data_and_print_as_table
     gather_all_pcap_data_and_print_as_table(pcap_file_path)
-    # from src.Wireshark.Tshark.functions import gather_all_pcap_data_and_print_as_json
-    # gather_all_pcap_data_and_print_as_json(pcap_file_path)
+    # from src.Wireshark.Tshark.functions import gather_all_pcap_data_as_json
+    # gather_all_pcap_data_as_json(pcap_file_path)
 
 def return_conversations_report():
     raise NotImplementedError
@@ -54,12 +54,24 @@ def return_conversations_report():
 def return_endpoints_report():
     raise NotImplementedError
 
+from src.Wireshark.Tshark.functions import gather_all_pcap_data_as_json
+
+
 def main():
     args = parse_arguments()
-    if args.test:
-        if   args.test == 'gathering':  test_data_gathering(args.pcap)
-        elif args.test == 'conversion': test_reports_module(args.pcap)
-        else: die(2, 'choose one of -t args: gathering or conversion')
+    pcap = Path(args.pcap)
+    if pcap.exists() and pcap.is_file():
+        result = gather_all_pcap_data_as_json(pcap)
+        die(0, result)
+    elif not pcap.exists():
+        die(1, f"File {pcap} does not exist")
+    elif not pcap.is_file():
+        die(1, f"{pcap} is not a regular file")
+
+    # if args.test:
+    #     if   args.test == 'gathering':  test_data_gathering(args.pcap)
+    #     elif args.test == 'conversion': test_reports_module(args.pcap)
+    #     else: die(2, 'choose one of -t args: gathering or conversion')
     # else:
     #     if  args.json:
     #     elif args.csv:

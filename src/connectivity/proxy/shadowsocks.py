@@ -46,18 +46,20 @@ def gen_server_config(
         local_address: str = '127.0.0.1',
         local_port: int = 1080,
         mode: Optional[transport_mode] = None,
-        method: method_type = 'aes-256-gcm', password: Optional[str] = None,
+        method: Optional[method_type] = None,
+        password: Optional[str] = None,
         timeout: int = 300, fast_open: bool = False
 ) -> dict:
     if (server_port < 1 or server_port > 65535) or (local_port < 1 or local_port > 65535):
         raise ValueError("Port must be a number between 1 and 65535.")
+    if method is None: method = 'aes-256-gcm'
     server_config = {}
     server_config['server'] = server
     server_config['server_port'] = server_port
     server_config['local_address'] = local_address
     server_config['local_port'] = local_port
     server_config['method'] = method
-    if not password:
+    if password is None:
         server_config['password'] = gen_key(method)
     else:
         server_config['password'] = str(password) #TODO sanitize password
@@ -141,7 +143,6 @@ def save_server_config(server_config: dict, dir_path: Optional[str] = None):
     else:
         dir_path = ''
     file_name = f"{dir_path}ss_server.{server_endpoint}.{mode}.{method}.test.json"
-    # file_name = f"/Users/v/data/conf.d/ss_server.{server_config['method']}.test.json"
     with open(file_name, 'w', encoding='utf-8') as file:
         json_content = json.dumps(server_config, indent=4)
         file.write(json_content)

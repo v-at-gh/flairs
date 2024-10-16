@@ -34,17 +34,28 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-d', '--display', action='store_true', help=ArgHelp.display)
     return parser.parse_args()
 
-def process_args(args: Namespace):
-    #TODO: implement stdin processing
-    csv_path = Path(args.csv)
+def process_csv_path(csv_path: str) -> str:
+    csv_path = Path(csv_path)
     if not csv_path.exists(): die(1, f"File {csv_path} does not exist")
     if not csv_path.is_file(): die(1, f"File {csv_path} is not a file")
+    with open(csv_path, 'r', encoding='utf-8') as file:
+        csv_content = file.read()
+    return csv_content
+
+def process_args(args: Namespace):
+    #TODO: implement stdin processing
+    csv_paths = []
+    if ',' in args.csv:
+        for csv_path in [p.strip() for p in args.csv.split(',')]:
+            csv_content = process_csv_path(csv_path)
+            csv_paths.append(csv_content.strip())
+        csv_content = '\n'.join(p for p in csv_paths if p != '').strip()
+    else:
+        csv_path = args.csv
+        csv_content = process_csv_path(csv_path)
 
     if args.exclude: goal = 'exclude'
     else:            goal = 'include'
-
-    with open(csv_path, 'r') as file:
-        csv_content = file.read()
 
     if args.capture and not args.display:
         print(construct_capture_filter(csv_content, goal=goal))

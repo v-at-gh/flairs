@@ -37,36 +37,44 @@ class Tshark:
             get_address_to_server_names: bool = False,
             get_server_name_to_addresses: bool = False
     ) -> Dict[str, Union[Dict[str, List[str]], Any]]:
+
         # If none of these options are set--get both dictionaries.
         if get_address_to_server_names is False and get_server_name_to_addresses is False:
             get_address_to_server_names = True
             get_server_name_to_addresses = True
+
         server_name_field = 'tls.handshake.extensions_server_name'
-        if filter is None: display_filter = server_name_field
-        #TODO: implement filter expression validation
-        # (Why? tshark will not run if filter is not valid!)
-        # And here we are...
-        else: display_filter = f"{server_name_field} and {filter}"
+
+        if filter is None:
+            display_filter = server_name_field
+        else:
+            display_filter = f"{server_name_field} and {filter}"
+
         command = [TSHARK_BINARY, "-n", "-r", pcap_file_path_str, "-Y", display_filter,
                    "-T", "fields", "-E", "separator=,",
                    "-e", "ip.dst", "-e", server_name_field]
         try:
             result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8')
-            if result.returncode != 0: die(result.returncode, f"Error: {result.stderr}")
+            if result.returncode != 0:
+                die(result.returncode, f"Error: {result.stderr}")
             else:
                 pairs = result.stdout.splitlines()
         except Exception as e:
             raise e
 
         pairs = set(p for p in [tuple(p.split(',')) for p in pairs if len(p.split(',')) == 2])
+
         if get_address_to_server_names:  address_to_server_names = defaultdict(list)
         if get_server_name_to_addresses: server_name_to_addresses = defaultdict(list)
+
         for address, server_name in pairs:
             if get_address_to_server_names:  address_to_server_names[address].append(server_name)
             if get_server_name_to_addresses: server_name_to_addresses[server_name].append(address)
+
         if get_address_to_server_names:
             for address in address_to_server_names: address_to_server_names[address].sort()
             sorted_address_to_server_names = dict(sorted(address_to_server_names.items(), key=lambda item: ip_address(item[0])))
+
         if get_server_name_to_addresses:
             for server_name in server_name_to_addresses:
                 server_name_to_addresses[server_name].sort(key=lambda ip: ip_address(ip))
@@ -76,6 +84,7 @@ class Tshark:
                     server_name_to_addresses.items(),
                     key=lambda k: k[0].split('.')[::-1]
             ))
+
         if get_address_to_server_names and get_server_name_to_addresses:
             resulting_dict = {
                 'address_to_server_names': sorted_address_to_server_names,
@@ -83,6 +92,7 @@ class Tshark:
             }
         elif get_address_to_server_names:  resulting_dict = {'address_to_server_names':  sorted_address_to_server_names}
         elif get_server_name_to_addresses: resulting_dict = {'server_name_to_addresses': sorted_server_name_to_addresses}
+
         return resulting_dict
 
     @staticmethod
