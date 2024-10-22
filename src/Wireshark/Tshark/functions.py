@@ -25,7 +25,7 @@ def collect_reports(
     return reports
 
 def get_sni_dict(
-        pcap_file_path_str,
+        pcap_file_path_str: Union[str, Path],
         filter: Optional[str] = None,
         get_server_name_to_addresses: bool = False,
         get_address_to_server_names:  bool = False,
@@ -55,7 +55,9 @@ def get_sni_dict(
 
     return data
 
-def print_reports_as_table(pcap_file_path, print_report_header: bool = False) -> None:
+def print_reports_as_table(
+        pcap_file_path,
+        print_report_header: bool = False) -> None:
 
     reports = collect_reports(pcap_file_path)
     reports.sort(key=lambda r: len(r.entries))
