@@ -82,7 +82,7 @@ def construct_capture_filter_for_endpoint(
 GOAL = Literal['exclude', 'include']
 
 def construct_filters(
-        csv_content,
+        csv_content: str,
         capture: bool = True,
         display: bool = True,
         goal: GOAL = 'include'
@@ -91,7 +91,8 @@ def construct_filters(
     if capture: filters_capture = defaultdict(lambda: {'src': [], 'dst': []})
     if display: filters_display = defaultdict(lambda: {'src': [], 'dst': []})
 
-    for row in csv_content.splitlines():
+    for row in [line for line in csv_content.splitlines()
+                if not line.startswith('#') and not line == ""]:
         ip, protocol, port = row.split(',')
         if capture:
             filters_capture[ip]['src'].append(f"{protocol} src port {port}")
@@ -146,7 +147,7 @@ def construct_filters(
     elif display: return display_filter
 
 def construct_capture_filter(
-        csv_content,
+        csv_content: str,
         goal: GOAL = 'include'
 ) -> str:
     return construct_filters(
@@ -157,7 +158,7 @@ def construct_capture_filter(
     )
 
 def construct_display_filter(
-        csv_content,
+        csv_content: str,
         goal: GOAL = 'include'
 ) -> str:
     return construct_filters(

@@ -51,11 +51,12 @@ class Tshark:
             get_server_name_to_addresses = True
 
         server_name_field = 'tls.handshake.extensions_server_name'
+        private_addresses = 'not ip.dst in {127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16}'
 
         if filter is None:
-            display_filter = server_name_field
+            display_filter = f"{private_addresses} and {server_name_field}"
         else:
-            display_filter = f"{server_name_field} and {filter}"
+            display_filter = f"{private_addresses} and {server_name_field} and {filter}"
 
         command = [
             TSHARK_BINARY, "-n", "-r", pcap_file_path_str,
@@ -112,20 +113,18 @@ class Tshark:
             ))
 
         if get_address_to_server_names and get_server_name_to_addresses:
-            resulting_dict = {
+            return {
                 'address_to_server_names': sorted_address_to_server_names,
                 'server_name_to_addresses': sorted_server_name_to_addresses
             }
         elif get_address_to_server_names: 
-            resulting_dict = {
+            return {
                 'address_to_server_names':  sorted_address_to_server_names
             }
         elif get_server_name_to_addresses:
-            resulting_dict = {
+            return {
                 'server_name_to_addresses': sorted_server_name_to_addresses
             }
-
-        return resulting_dict
 
     @staticmethod
     def get_endpoints_statistics_strings(
