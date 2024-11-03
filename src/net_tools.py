@@ -1,4 +1,4 @@
-from typing import Iterator, List, Literal, Union
+from typing import Iterator, Literal, Union
 from collections import defaultdict
 from ipaddress import (
     IPv4Network, IPv6Network,
@@ -14,15 +14,21 @@ def is_string_a_valid_ip_address(item: str) -> bool:
 
 def is_string_a_valid_ip_network(item: str, strict: bool = False) -> bool:
     if not strict:
-        try: ip_network(item); return True
-        except: return False
+        try:
+            ip_network(item)
+            return True
+        except:
+            return False
     else:
-        if is_string_a_valid_ip_network(item) and not is_string_a_valid_ip_address(item): return True
-        else: return False
+        if is_string_a_valid_ip_network(item) and \
+      not  is_string_a_valid_ip_address(item):
+            return True
+        else:
+            return False
 
 def exclude_addresses(
         target_network:       Union[IPv4Network, IPv6Network],
-        addresses_to_exclude: Union[List[IPv4Network], List[IPv6Network]]
+        addresses_to_exclude: Union[list[IPv4Network], list[IPv6Network]]
 )    -> Union[Iterator[IPv4Network], Iterator[IPv6Network]]:
     '''This function solves the following problem:
 
@@ -108,32 +114,36 @@ def construct_filters(
         combined_display_filters = []
         filters_list = filters_display
 
+    exclusion_prefix: str = 'not ' if goal == 'exclude' else ''
+
     for ip in filters_list:
-        # the following assignment does not matter for display filter but wgaf
-        if is_string_a_valid_ip_network(ip, strict=True): ip_type = 'net'
-        elif is_string_a_valid_ip_address(ip): ip_type = 'host'
-        else: raise ValueError(f"{ip} is not valid ip address of host or network")
+        if capture:
+            if is_string_a_valid_ip_network(ip, strict=True):
+                ip_type = 'net'
+            elif is_string_a_valid_ip_address(ip):
+                ip_type = 'host'
+            else:
+                raise ValueError(
+                    f"{ip} is not valid ip address of host or network")
 
         if capture:
             src_filter_capture = ' or '.join(filters_capture[ip]['src'])
             dst_filter_capture = ' or '.join(filters_capture[ip]['dst'])
+            combined_capture_filters.append(
+                (f"{exclusion_prefix}" "("
+                    f"(src {ip_type} {ip} and ({src_filter_capture}))"
+                    " or "
+                    f"(dst {ip_type} {ip} and ({dst_filter_capture}))"
+                ")"))
         if display:
             src_filter_display = ' or '.join(filters_display[ip]['src'])
             dst_filter_display = ' or '.join(filters_display[ip]['dst'])
-        
-        if capture:
-            combined_capture_filters.append(
-            (f"{'not ' if goal == 'exclude' else ''}" "("
-                f"(src {ip_type} {ip} and ({src_filter_capture}))"
-                " or "
-                f"(dst {ip_type} {ip} and ({dst_filter_capture}))"
-            ")"))
-        if display: combined_display_filters.append(
-            (f"{'not ' if goal == 'exclude' else ''}" "("
-                f"(ip.src == {ip} and ({src_filter_display}))"
-                " or "
-                f"(ip.dst == {ip} and ({dst_filter_display}))"
-            ")"))
+            combined_display_filters.append(
+                (f"{exclusion_prefix}" "("
+                    f"(ip.src == {ip} and ({src_filter_display}))"
+                    " or "
+                    f"(ip.dst == {ip} and ({dst_filter_display}))"
+                ")"))
     
     if goal == 'include':
         if capture: capture_filter = " or ".join(combined_capture_filters)
