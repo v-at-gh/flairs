@@ -1,41 +1,54 @@
-#/usr/bin/env python3
+#!/usr/bin/env python3
 
 import sys
 from pathlib import Path
+from argparse import ArgumentParser, Namespace
+from ipaddress import (
+    IPv4Address, IPv6Address,
+    IPv4Network, IPv6Network,
+    ip_address, ip_network
+)
+from pprint import pprint
+
+
 prj_path = Path(__file__).resolve().parents[1]
 sys.path.append(str(prj_path))
-
-from argparse import ArgumentParser, Namespace
-
 from src.tools import die
 from src.net_tools import IPv4_Internet, IPv6_Internet
+from src.VPN.Classes import VPN
 
-class ArgHelp:
-    vpn_name       = "name for VPN"
-    endpoint       = "endpoint's ip address and port"
-    network        = "virtual private network for private addresses allocation"
-    peers          = "initial number of VPN peers"
-    users          = "initial number of VPN users. User can have multiple peers"
-    user_names     = "comma (or space but no both) separated names of VPN users"
-    peers_per_user = "initial number of peers per user"
+
+ArgHelp = Namespace(
+    vpn_name="name for VPN",
+    endpoint="endpoint's ip address and port",
+    network="virtual private network for private addresses allocation",
+    peers="initial number of VPN peers",
+    users="initial number of VPN users. User can have multiple peers",
+    user_names="comma (or space but no both) separated names of VPN users",
+    peers_per_user="initial number of peers per user"
+)
+
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument('endpoint',               type=str, help=ArgHelp.endpoint)
-    parser.add_argument('-N', '--vpn-name',       type=str, help=ArgHelp.vpn_name)
-    parser.add_argument('-n', '--network',        type=str, help=ArgHelp.network)
-    parser.add_argument('-p', '--peers',          type=str, help=ArgHelp.peers)
-    parser.add_argument('-u', '--users',          type=int, help=ArgHelp.users)
-    parser.add_argument('-U', '--user-names',     type=str, help=ArgHelp.user_names)
-    parser.add_argument('-P', '--peers-per-user', type=int, help=ArgHelp.peers_per_user)
+    parser.add_argument('endpoint',
+                        type=str, help=ArgHelp.endpoint)
+    parser.add_argument('-N', '--vpn-name',
+                        type=str, help=ArgHelp.vpn_name)
+    parser.add_argument('-n', '--network',
+                        type=str, help=ArgHelp.network)
+    parser.add_argument('-p', '--peers',
+                        type=str, help=ArgHelp.peers)
+    parser.add_argument('-u', '--users',
+                        type=int, help=ArgHelp.users)
+    parser.add_argument('-U', '--user-names',
+                        type=str, help=ArgHelp.user_names)
+    parser.add_argument('-P', '--peers-per-user',
+                        type=int, help=ArgHelp.peers_per_user)
     return parser.parse_args()
 
+
 def process_args(args: Namespace) -> Namespace:
-    from ipaddress import(
-        IPv4Address, IPv6Address,
-        IPv4Network, IPv6Network,
-        ip_address, ip_network
-    )
     if not args.vpn_name: args.vpn_name = 'vpn_0'
 
     if args.endpoint:
@@ -69,9 +82,6 @@ def process_args(args: Namespace) -> Namespace:
     return args
 
 def main():
-    from pprint import pprint
-
-    from src.VPN.Classes import VPN
 
     args: Namespace = parse_arguments()
     args: Namespace = process_args(args)
@@ -94,7 +104,8 @@ def main():
         die(4, (
             f"VPN's address pool does not have enough addresses"
             f" to allocate for {len(args.user_names)} users."
-            f" Network {vpn.network} has {vpn.addrs_left} addresses available for client peers."
+            f" Network {vpn.network} has {vpn.addrs_left}"
+            f" addresses available for client peers."
         ))
 
     #TODO: implement multiple peer creation

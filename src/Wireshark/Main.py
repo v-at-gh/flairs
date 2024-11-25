@@ -42,7 +42,8 @@ class Tshark:
             filter: Optional[str] = None,
             get_address_to_server_names: bool = False,
             get_server_name_to_addresses: bool = False
-    ) -> Dict[str, Union[Dict[str, List[str]], Any]]:
+    ):
+    # ) -> dict[str, Union[dict[str, list[str]], Any]]:
 
         # If none of these options are set--get both dictionaries.
         if get_address_to_server_names is False and \
@@ -68,6 +69,7 @@ class Tshark:
         try:
             result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8')
             if result.returncode != 0:
+                # TODO: implement an exception instead of exiting
                 die(result.returncode, f"Error: {result.stderr}")
             else:
                 pairs = result.stdout.splitlines()
@@ -99,7 +101,7 @@ class Tshark:
                 sorted(
                     address_to_server_names.items(),
                     key=lambda item: ip_address(item[0])
-            ))
+                ))
 
         if get_server_name_to_addresses:
             for server_name in server_name_to_addresses:
@@ -173,8 +175,10 @@ class Tshark:
                     for proto in protos
                 )
 
-        endpoints_expression = create_expression("endpoints", protos, display_filter)
-        conversations_expression = create_expression("conv", protos, display_filter)
+        endpoints_expression = create_expression("endpoints",
+                                                 protos, display_filter)
+        conversations_expression = create_expression("conv",
+                                                     protos, display_filter)
 
         command = (
             f"{TSHARK_BINARY} -n -r {pcap_file_path} -q"

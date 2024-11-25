@@ -1,9 +1,16 @@
 #!/usr/bin/python3
 
 import sys
+import subprocess
 from pathlib import Path
+from argparse import ArgumentParser, Namespace
+from typing import NoReturn, Optional
+
 prj_path = Path(__file__).resolve().parents[1]
 sys.path.append(str(prj_path))
+from src.net_tools import construct_capture_filter_for_endpoint
+from src.Wireshark.common import WIRESHARK_BINARY
+
 
 CONF_DIR = prj_path / 'data/config'
 CONF_DIR.mkdir(parents=True, exist_ok=True)
@@ -11,44 +18,56 @@ CONF_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_DIR = prj_path / 'data/cache'
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-import subprocess
-from argparse import ArgumentParser, Namespace
-from typing import NoReturn, Optional
-
-from src.net_tools import construct_capture_filter_for_endpoint
-from src.Wireshark.common import WIRESHARK_BINARY
-
 endpoints_list_path = prj_path / CONF_DIR / 'default_endpoints_filter.en0.csv'
 
-class ArgHelp:
-    interface      = "Network interface to run Wireshark"
-    outfile        = "set the output filename"
-    filter         = "packet filter in libpcap filter syntax"
-    custom_filter  = "path to csv file with endpoints (`address,proto,port`) list to construct exclusion filter."
-    default_filter = f"default capture filter constructed from file {endpoints_list_path}"
+ArgHelp = Namespace(
+    interface="Network interface to run Wireshark",
+    outfile="set the output filename",
+    filter="packet filter in libpcap filter syntax",
+    custom_filter=("path to csv file with endpoints (`address,proto,port`)"
+                   " list to construct exclusion filter."),
+    default_filter=(f"default capture filter constructed"
+                    f" from file {endpoints_list_path}")
+)
+
 
 def parse_arguments() -> Namespace:
+
     parser = ArgumentParser()
-    parser.add_argument('-i', '--interface',      type=str, help=ArgHelp.interface)
-    parser.add_argument('-w', '--outfile',        type=str, help=ArgHelp.outfile)
-    #TODO: add option to append filter expression to constructed from csv-file
+    parser.add_argument('-i', '--interface',
+                        type=str, help=ArgHelp.interface)
+    parser.add_argument('-w', '--outfile',
+                        type=str, help=ArgHelp.outfile)
+
     filter_group = parser.add_mutually_exclusive_group()
-    filter_group.add_argument('-f', '--filter',         type=str, help=ArgHelp.filter)
-    filter_group.add_argument('-c', '--custom-filter',  type=str, help=ArgHelp.custom_filter)
-    filter_group.add_argument('-d', '--default-filter', action='store_true', help=ArgHelp.default_filter)
+    filter_group.add_argument(
+        '-f', '--filter',
+        type=str, help=ArgHelp.filter)
+    filter_group.add_argument(
+        '-c', '--custom-filter',
+        type=str, help=ArgHelp.custom_filter)
+    filter_group.add_argument(
+        '-d', '--default-filter',
+        action='store_true', help=ArgHelp.default_filter)
+
     return parser.parse_args()
+
 
 def spawn_wireshark(
         interface:      Optional[str] = None,
         capture_filter: Optional[str] = None,
         outfile:        Optional[str] = None
-):
+) -> None:
     command = [WIRESHARK_BINARY, '--no-promiscuous-mode']
-    if interface:      command.extend(['-i', interface])
-    if capture_filter: command.extend(['-f', capture_filter])
-    if outfile:        command.extend(['-w', outfile])
+    if interface:
+        command.extend(['-i', interface])
+    if capture_filter:
+        command.extend(['-f', capture_filter])
+    if outfile:
+        command.extend(['-w', outfile])
     command.append('-k')
     subprocess.Popen(command)
+
 
 def construct_capture_filter(
         endpoints_list_path: Path = endpoints_list_path
@@ -65,7 +84,8 @@ def construct_capture_filter(
         endpoint_expressions.append(construct_capture_filter_for_endpoint(*enpoint_args))
     return ' and '.join(e for e in endpoint_expressions)
 
-def main() -> NoReturn:
+
+def main() -> None:
     args = parse_arguments()
     if args.interface:
         iface = args.interface

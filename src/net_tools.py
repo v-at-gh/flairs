@@ -8,23 +8,26 @@ from ipaddress import (
 IPv4_Internet = IPv4Network('0.0.0.0/0')
 IPv6_Internet = IPv6Network('::/0')
 
+
 def is_string_a_valid_ip_address(item: str) -> bool:
     try: ip_address(item); return True
     except: return False
+
 
 def is_string_a_valid_ip_network(item: str, strict: bool = False) -> bool:
     if not strict:
         try:
             ip_network(item)
             return True
-        except:
+        except Exception:
             return False
     else:
         if is_string_a_valid_ip_network(item) and \
-      not  is_string_a_valid_ip_address(item):
+                not is_string_a_valid_ip_address(item):
             return True
         else:
             return False
+
 
 def exclude_addresses(
         target_network:       Union[IPv4Network, IPv6Network],
@@ -68,6 +71,7 @@ def exclude_addresses(
             networks.remove(network)
     return collapse_addresses(networks)
 
+
 def construct_capture_filter_for_endpoint(
         address,
         protocol,
@@ -85,14 +89,17 @@ def construct_capture_filter_for_endpoint(
     expression = "not (" + " or ".join(parts) + ")"
     return expression
 
+
 GOAL = Literal['exclude', 'include']
+
 
 def construct_filters(
         csv_content: str,
         capture: bool = True,
         display: bool = True,
         goal: GOAL = 'include'
-) -> Union[str, tuple[str, str]]:
+):
+# ) -> Union[str, tuple[str, str]]:
     '''New version to construct capture and display filters for multiple endpoints from csv data'''
     if capture: filters_capture = defaultdict(lambda: {'src': [], 'dst': []})
     if display: filters_display = defaultdict(lambda: {'src': [], 'dst': []})
@@ -146,34 +153,43 @@ def construct_filters(
                 ")"))
     
     if goal == 'include':
-        if capture: capture_filter = " or ".join(combined_capture_filters)
-        if display: display_filter = " or ".join(combined_display_filters)
+        if capture:
+            capture_filter = " or ".join(combined_capture_filters)
+        if display:
+            display_filter = " or ".join(combined_display_filters)
     elif goal == 'exclude':
-        if capture: capture_filter = " and ".join(combined_capture_filters)
-        if display: display_filter = " and ".join(combined_display_filters)
+        if capture:
+            capture_filter = " and ".join(combined_capture_filters)
+        if display:
+            display_filter = " and ".join(combined_display_filters)
 
-    if capture and display: return capture_filter, display_filter
-    elif capture: return capture_filter
-    elif display: return display_filter
+    if capture and display:
+        return capture_filter, display_filter
+    elif capture:
+        return capture_filter
+    elif display:
+        return display_filter
+
 
 def construct_capture_filter(
         csv_content: str,
         goal: GOAL = 'include'
 ) -> str:
     return construct_filters(
-        csv_content = csv_content,
-        capture = True,
-        display = False,
-        goal = goal
+        csv_content=csv_content,
+        capture=True,
+        display=False,
+        goal=goal
     )
+
 
 def construct_display_filter(
         csv_content: str,
         goal: GOAL = 'include'
 ) -> str:
     return construct_filters(
-        csv_content = csv_content,
-        capture = False,
-        display = True,
-        goal = goal
+        csv_content=csv_content,
+        capture=False,
+        display=True,
+        goal=goal
     )

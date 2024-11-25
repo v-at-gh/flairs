@@ -20,27 +20,37 @@ from src.net_tools import (
     construct_filters
 )
 
-class ArgHelp:
-    csv     = 'path to csv file'
-    exclude = 'construct filter to exclude packets from capture'
-    capture = 'construct capture filter for tcpdump, tshark, or wireshark'
-    display = 'construct display filter for tshark or wireshark'
+
+ArgHelp = Namespace(
+    csv='path to csv file',
+    exclude='construct filter to exclude packets from capture',
+    capture='construct capture filter for tcpdump, tshark, or wireshark',
+    display='construct display filter for tshark or wireshark'
+)
+
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument('csv', type=str, help=ArgHelp.csv)
-    parser.add_argument('-e', '--exclude', action='store_true', help=ArgHelp.exclude)
-    parser.add_argument('-c', '--capture', action='store_true', help=ArgHelp.capture)
-    parser.add_argument('-d', '--display', action='store_true', help=ArgHelp.display)
+    parser.add_argument('-e', '--exclude',
+                        action='store_true', help=ArgHelp.exclude)
+    parser.add_argument('-c', '--capture',
+                        action='store_true', help=ArgHelp.capture)
+    parser.add_argument('-d', '--display',
+                        action='store_true', help=ArgHelp.display)
     return parser.parse_args()
 
-def process_csv_path(csv_path: str) -> str:
-    csv_path = Path(csv_path)
-    if not csv_path.exists(): die(1, f"File {csv_path} does not exist")
-    if not csv_path.is_file(): die(1, f"File {csv_path} is not a file")
+
+def process_csv_path(csv_path_str: str) -> str:
+    csv_path = Path(csv_path_str)
+    if not csv_path.exists():
+        die(1, f"File {csv_path} does not exist")
+    if not csv_path.is_file():
+        die(1, f"File {csv_path} is not a file")
     with open(csv_path, 'r', encoding='utf-8') as file:
         csv_content = file.read()
     return csv_content
+
 
 def process_args(args: Namespace):
     #TODO: implement stdin processing
@@ -54,8 +64,10 @@ def process_args(args: Namespace):
         csv_path = args.csv
         csv_content = process_csv_path(csv_path)
 
-    if args.exclude: goal = 'exclude'
-    else:            goal = 'include'
+    if args.exclude:
+        goal = 'exclude'
+    else:
+        goal = 'include'
 
     if args.capture and not args.display:
         print(construct_capture_filter(csv_content, goal=goal))
@@ -66,9 +78,11 @@ def process_args(args: Namespace):
         for filter in filters:
             print(filter)
 
+
 def main():
     args = parse_arguments()
     process_args(args)
+
 
 if __name__ == '__main__':
     main()
