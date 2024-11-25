@@ -2,17 +2,8 @@
 '''To be used with `extract-sni-from-pcap.py` script.'''
 
 import sys
-from pathlib import Path
-prj_path = Path(__file__).resolve().parents[1]
-sys.path.append(str(prj_path))
-
-CONF_DIR = prj_path / 'data/config'
-CONF_DIR.mkdir(parents=True, exist_ok=True)
-
-CACHE_DIR = prj_path / 'data/cache'
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
 import json
+from pathlib import Path
 from typing import Union
 from ipaddress import (
     IPv4Network, IPv6Network,
@@ -21,10 +12,24 @@ from ipaddress import (
 )
 from argparse import ArgumentParser, Namespace
 
-class ArgHelp:
-    services  = "comma-separated list of domain names or their parts"
-    data      = "data from which addresses are extracted"
-    separator = "separator for the list of resulting networks. Default is the new line"
+prj_path = Path(__file__).resolve().parents[1]
+sys.path.append(str(prj_path))
+
+
+CONF_DIR = prj_path / 'data/config'
+CONF_DIR.mkdir(parents=True, exist_ok=True)
+
+CACHE_DIR = prj_path / 'data/cache'
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+ArgHelp = Namespace(
+    services="comma-separated list of domain names or their parts",
+    data="data from which addresses are extracted",
+    separator=("separator for the list of resulting networks."
+               " Default is the new line")
+)
+
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
@@ -33,6 +38,7 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-s', '--separator', type=str, help=ArgHelp.separator,
                         default='\n')
     return parser.parse_args()
+
 
 def get_service_addresses_list(
         service_names: Union[str, list, set, tuple],
@@ -81,7 +87,8 @@ def get_service_addresses_list(
                        for name in service_names)
             }
         else:
-            raise ValueError("All elements of service_name iterable must be strings.")
+            raise ValueError(
+                "All elements of service_name iterable must be strings.")
     else:
         raise ValueError("service_name must be a string or a list of strings.")
 
@@ -93,9 +100,11 @@ def get_service_addresses_list(
 
     return service_addresses
 
+
 def print_result(result, separator):
     result = separator.join(str(a) for a in result)
     print(result)
+
 
 def main():
     args = parse_arguments()
@@ -105,6 +114,7 @@ def main():
         ),
         args.separator
     )
+
 
 if __name__ == '__main__':
     main()

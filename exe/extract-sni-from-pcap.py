@@ -2,8 +2,15 @@
 
 import sys
 from pathlib import Path
+from typing import NoReturn
+from json import dump
+from argparse import ArgumentParser, Namespace
+
 prj_path = Path(__file__).resolve().parents[1]
 sys.path.append(str(prj_path))
+
+from src.tools import die
+from src.Wireshark.Tshark.functions import get_sni_dict
 
 CONF_DIR = prj_path / 'data/config'
 CONF_DIR.mkdir(parents=True, exist_ok=True)
@@ -11,18 +18,15 @@ CONF_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_DIR = prj_path / 'data/cache'
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-from typing import NoReturn
-from argparse import ArgumentParser, Namespace
 
-from src.tools import die
-from src.Wireshark.Tshark.functions import get_sni_dict
+Arg_help = Namespace(
+    filter='Filter expression for pcapng file traffic.',
+    indent='Set indentation value for resulting json.',
+    ntoa='Returns a json of server names and their addresses.',
+    aton='Returns a json of addresses and their server names.',
+    stdout='Print the resulting json to stdout.'
+)
 
-class Arg_help:
-    filter    = 'Filter expression for pcapng file traffic.'
-    indent    = 'Set indentation value for resulting json.'
-    ntoa      = 'Returns a json of server names and their addresses.'
-    aton      = 'Returns a json of addresses and their server names.'
-    stdout    = 'Print the resulting json to stdout.'
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser(description='Process a pcap or pcapng file and save SNIs as a JSON file.')
@@ -33,6 +37,7 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-A', '--aton', action='store_true', help=Arg_help.aton)
     return parser.parse_args()
 
+
 def main() -> NoReturn:
     args = parse_arguments()
 
@@ -41,12 +46,11 @@ def main() -> NoReturn:
 
     sni_dict = get_sni_dict(
         args.pcap,
-        filter = args.filter,
-        get_server_name_to_addresses = args.ntoa,
-        get_address_to_server_names = args.aton,
+        filter=args.filter,
+        get_server_name_to_addresses=args.ntoa,
+        get_address_to_server_names=args.aton,
     )
 
-    from json import dump
     try:
         dump(
             sni_dict,
@@ -58,6 +62,7 @@ def main() -> NoReturn:
         die(3, e)
 
     die(0)
+
 
 if __name__ == '__main__':
     main()

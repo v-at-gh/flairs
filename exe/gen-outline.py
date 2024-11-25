@@ -1,18 +1,12 @@
 #/usr/bin/env python3
 
 import sys
+import json
 from pathlib import Path
+from argparse import ArgumentParser, Namespace
+
 prj_path = Path(__file__).resolve().parents[1]
 sys.path.append(str(prj_path))
-
-
-CONF_DIR = prj_path / 'data/config'
-CONF_DIR.mkdir(parents=True, exist_ok=True)
-
-CACHE_DIR = prj_path / 'data/cache'
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
-from argparse import ArgumentParser, Namespace
 
 from src.tools import die
 from src.connectivity.proxy.shadowsocks import (
@@ -21,26 +15,39 @@ from src.connectivity.proxy.shadowsocks import (
     gen_client_url_from_config
 )
 
+CONF_DIR = prj_path / 'data/config'
+CONF_DIR.mkdir(parents=True, exist_ok=True)
+
+CACHE_DIR = prj_path / 'data/cache'
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+
 encryption_methods = [
     m for m in supported_encryption_methods if not m.startswith('2022-blake3')
 ]
 
-class ArgHelp:
-    endpoint = "endpoints' host:port"
-    mode     = f"transport mode. One of: {', '.join(transport_modes)}"
-    method   = f"encryption method. One of: {', '.join(encryption_methods)} "
-    server_config = "path to server config"
+
+ArgHelp = Namespace(
+    endpoint="endpoints' host:port",
+    mode=f"transport mode. One of: {', '.join(transport_modes)}",
+    method=f"encryption method. One of: {', '.join(encryption_methods)} ",
+    server_config="path to server config"
+)
+
 
 def parse_args() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument('endpoint', type=str, help=ArgHelp.endpoint)
-    parser.add_argument('-m', '--mode', type=str, help=ArgHelp.mode)
-    parser.add_argument('-M', '--method', type=str, help=ArgHelp.method)
-    parser.add_argument('-S', '--server-config', type=str, help=ArgHelp.server_config)
+    parser.add_argument('endpoint',
+                        type=str, help=ArgHelp.endpoint)
+    parser.add_argument('-m', '--mode',
+                        type=str, help=ArgHelp.mode)
+    parser.add_argument('-M', '--method',
+                        type=str, help=ArgHelp.method)
+    parser.add_argument('-S', '--server-config',
+                        type=str, help=ArgHelp.server_config)
 
     return parser.parse_args()
 
-import json
 
 def main():
     args = parse_args()
@@ -48,14 +55,20 @@ def main():
     #TODO: implement port casting to `int`
     port = int(port)
     if args.mode:
-        if args.mode in transport_modes: mode = args.mode
-        else: die(1, f"Mode must be one of: {', '.join(transport_modes)}")
-    else: mode = None
+        if args.mode in transport_modes:
+            mode = args.mode
+        else:
+            die(1, f"Mode must be one of: {', '.join(transport_modes)}")
+    else:
+        mode = None
 
     if args.method:
-        if args.method in encryption_methods: method = args.method
-        else: die(1, f"method must be one of: {', '.join(encryption_methods)}")
-    else: method = None
+        if args.method in encryption_methods:
+            method = args.method
+        else:
+            die(1, f"method must be one of: {', '.join(encryption_methods)}")
+    else:
+        method = None
 
     if args.server_config:
         server_config = Path(args.server_config)
@@ -79,6 +92,7 @@ def main():
     # print()
     # print('client_config_json')
     # print(client_config_json)
+
 
 if __name__ == '__main__':
     main()

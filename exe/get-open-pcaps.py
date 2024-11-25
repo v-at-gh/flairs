@@ -2,6 +2,9 @@
 
 import sys
 from pathlib import Path
+from argparse import ArgumentParser, Namespace
+
+
 prj_path = Path(__file__).resolve().parents[1]
 sys.path.append(str(prj_path))
 
@@ -11,9 +14,10 @@ CONF_DIR.mkdir(parents=True, exist_ok=True)
 CACHE_DIR = prj_path / 'data/cache'
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-from argparse import ArgumentParser, Namespace
 
-class ArgHelp: ...
+# class ArgHelp:
+#     ...
+
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser()
@@ -23,6 +27,7 @@ def parse_arguments() -> Namespace:
     parser.add_argument('-q', '--no-headers', action='store_true')
 
     return parser.parse_args()
+
 
 def main() -> None:
     args = parse_arguments()
@@ -42,6 +47,7 @@ def main() -> None:
             if not args.no_headers: print(f"{k}:")
             for v in result[k]:
                 print(v)
+
 
 if __name__ == '__main__':
     main()
