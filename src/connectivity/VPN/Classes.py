@@ -12,6 +12,7 @@ from ...tools import obj_to_stringified_dict
 
 names = 'Alpha Beta Gamma Delta Epsilon Zeta Eta Theta Iota Kappa Lambda Mu Nu Xi Omicron Pi Rho Sigma Tau Upsilon Phi Chi Psi Omega'.split()
 
+
 @dataclass
 class Peer:
     name:    str
@@ -20,16 +21,19 @@ class Peer:
     @property
     def as_dict(self) -> dict[str, Any]: return asdict(self)
 
+
 @dataclass
 class Server(Peer):
     name:     str
     endpoint: IPv4Address
     address:  IPv4Address
 
+
 @dataclass
 class Client(Peer):
     name:    str
     address: IPv4Address
+
 
 @dataclass
 class VPN:
@@ -59,16 +63,26 @@ class VPN:
         return vpn
 
     @property
-    def peers(self) -> list[Peer]:    return self.server_peers + self.client_peers
-    @property
-    def addrs_left(self) -> int:      return self.max_peers - len(self.peers)
-    @property
-    def peer_names(self) -> set[str]: return set(peer.name for peer in self.peers)
+    def peers(self) -> list[Peer]:
+        return self.server_peers + self.client_peers
 
     @property
-    def as_dict(self) -> dict[str, Any]: return asdict(self)
-    def to_stringified_dict(self) -> dict[str, Union[int, str]]: return obj_to_stringified_dict(self)
-    def to_json(self, **kwargs) -> str: return json.dumps(self.to_stringified_dict(), **kwargs)
+    def addrs_left(self) -> int:
+        return self.max_peers - len(self.peers)
+
+    @property
+    def peer_names(self) -> set[str]:
+        return set(peer.name for peer in self.peers)
+
+    @property
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    def to_stringified_dict(self) -> dict[str, Union[int, str]]:
+        return obj_to_stringified_dict(self)
+
+    def to_json(self, **kwargs) -> str:
+        return json.dumps(self.to_stringified_dict(), **kwargs)
 
     @classmethod
     def from_json(cls, json_str: str):
@@ -105,13 +119,16 @@ class VPN:
                  endpoint: Optional[IPv4Address] = None
     ) -> None:
         #TODO: implement multiple peer creation
-        if endpoint in self.endpoints: raise ValueError(f"Endpoint {endpoint} is already registered in this VPN.")
+        if endpoint in self.endpoints:
+            raise ValueError(f"Endpoint {endpoint} is already registered in this VPN.")
         address = self._allocate_address(address)
         if endpoint:
-            peer = Server(name, address, endpoint); self.server_peers.append(peer)
+            peer = Server(name, address, endpoint)
+            self.server_peers.append(peer)
             self.endpoints.add(endpoint)
         else:
-            peer = Client(name, address); self.client_peers.append(peer)
+            peer = Client(name, address)
+            self.client_peers.append(peer)
 
     def del_server(self, peer: Server) -> None:
         self.server_peers.remove(peer)
@@ -138,13 +155,19 @@ class VPN:
                     endpoint: Optional[IPv4Address] = None
     ) -> Peer:
         if  endpoint and not (name and address):
-            try:   return list(filter(lambda p: p.endpoint == endpoint, self.server_peers))[0]
-            except IndexError: raise ValueError(f"No peer with {endpoint} endpoint")
+            try:
+                return list(filter(lambda p: p.endpoint == endpoint, self.server_peers))[0]
+            except IndexError:
+                raise ValueError(f"No peer with {endpoint} endpoint")
         elif address and not (name and endpoint):
-            try:   return list(filter(lambda p: p.address == address, self.peers))[0]
-            except IndexError: raise ValueError(f"No peer with {address} address")
+            try:
+                return list(filter(lambda p: p.address == address, self.peers))[0]
+            except IndexError:
+                raise ValueError(f"No peer with {address} address")
         elif name and not (address and endpoint):
-            try:   return list(filter(lambda p: p.name == name, self.peers))[0]
-            except IndexError: raise ValueError(f"No peer with {name} name")
+            try:
+                return list(filter(lambda p: p.name == name, self.peers))[0]
+            except IndexError:
+                raise ValueError(f"No peer with {name} name")
         else:
             raise ValueError("Choose one of peer's attributes: name, private address or endpoint.")

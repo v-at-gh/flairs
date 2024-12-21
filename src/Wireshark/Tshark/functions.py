@@ -9,10 +9,11 @@ from .Classes import Report_Processor, Endpoint_Report, Conversation_Report
 
 FILE_BINARY = '/usr/bin/file'
 
+
 def collect_reports(
         pcap_file_path,
-        proto = PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
-        display_filter = None
+        proto=PROTOS_SUPPORTED_BY_ENDPOINTS_AND_CONVERSATIONS,
+        display_filter=None
 ) -> List[Union[Conversation_Report, Endpoint_Report]]:
 
     reports = Tshark.parse_conversations_reports(
@@ -23,6 +24,7 @@ def collect_reports(
         ))
 
     return reports
+
 
 def get_sni_dict(
         pcap_file_path_str: Union[str, Path],
@@ -40,7 +42,8 @@ def get_sni_dict(
         pcap_file_type = subprocess.run(
             [FILE_BINARY, pcap_file_path_str], text=True, capture_output=True
         ).stdout.strip()
-    except Exception as e: raise e
+    except Exception as e:
+        raise e
 
     if not 'pcap capture file' in pcap_file_type and \
        not 'pcapng capture file' in pcap_file_type:
@@ -48,12 +51,13 @@ def get_sni_dict(
 
     data = Tshark.get_ipaddr_tls_server_name_pairs(
         pcap_file_path_str,
-        filter = filter,
-        get_address_to_server_names = get_address_to_server_names,
-        get_server_name_to_addresses = get_server_name_to_addresses
+        filter=filter,
+        get_address_to_server_names=get_address_to_server_names,
+        get_server_name_to_addresses=get_server_name_to_addresses
     )
 
     return data
+
 
 def print_reports_as_table(
         pcap_file_path,
@@ -64,6 +68,7 @@ def print_reports_as_table(
 
     for report in reports:
         print(report.to_pretty_table(print_report_header=print_report_header))
+
 
 def gather_all_pcap_data_as_json(pcap_file_path) -> str:
     #TODO 0: Append data gathering with `capinfos`
@@ -78,14 +83,16 @@ def gather_all_pcap_data_as_json(pcap_file_path) -> str:
     #TODO -1: It's a mess. Refactor the following into `Statistics_Processor` class:
     conversation_reports_json = '"Conversation reports": ['+', '.join(report.to_json() for report in reports if 'conversation' in report.header.lower())+']'
     endpoint_reports_json     = '"Endpoint reports": ['+', '.join(report.to_json() for report in reports if 'endpoint' in report.header.lower())+']'
-    obj_json_str = '{'+ ', '.join([conversation_reports_json, endpoint_reports_json]) +'}'
+    obj_json_str = '{' + ', '.join([conversation_reports_json, endpoint_reports_json]) + '}'
 
     return obj_json_str
+
 
 def gather_all_pcap_data_and_print_as_table(pcap_file_path):
     reports = collect_reports(pcap_file_path)
     for report in reports:
         print(report.to_pretty_table())
+
 
 def test_reports_export_import(pcap_file_path) -> None:
     reports = collect_reports(pcap_file_path)
@@ -99,10 +106,10 @@ def test_reports_export_import(pcap_file_path) -> None:
     f" {report == Report_Processor.from_csv(report.to_csv())}"
         )
 
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('pcap', type=str, help='Path to pcap or pcapng file to be processed.')
     args = parser.parse_args()
     test_reports_export_import(args.pcap)
-    # print_reports_as_table(args.pcap) 

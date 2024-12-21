@@ -78,8 +78,10 @@ def construct_capture_filter_for_endpoint(
         port
 ) -> str:
     '''Old version to construct filter expression to exclude endpoint traffic from capture'''
-    try: address = ip_address(address)
-    except ValueError: address = ip_network(address)
+    try:
+        address = ip_address(address)
+    except ValueError:
+        address = ip_network(address)
     parts = [
         f"""({direction} {
                 'net' if isinstance(address, (IPv4Network, IPv6Network)) else 'host'
@@ -99,20 +101,29 @@ def construct_filters(
         display: bool = True,
         goal: GOAL = 'include'
 ):
-# ) -> Union[str, tuple[str, str]]:
-    '''New version to construct capture and display filters for multiple endpoints from csv data'''
-    if capture: filters_capture = defaultdict(lambda: {'src': [], 'dst': []})
-    if display: filters_display = defaultdict(lambda: {'src': [], 'dst': []})
+    '''New version to construct capture and display filters
+    for multiple endpoints from csv data'''
+    if capture:
+        filters_capture = defaultdict(lambda: {'src': [], 'dst': []})
+    if display:
+        filters_display = defaultdict(lambda: {'src': [], 'dst': []})
 
     for row in [line for line in csv_content.splitlines()
                 if not line.startswith('#') and not line == ""]:
-        ip, protocol, port = row.split(',')
-        if capture:
-            filters_capture[ip]['src'].append(f"{protocol} src port {port}")
-            filters_capture[ip]['dst'].append(f"{protocol} dst port {port}")
-        if display:
-            filters_display[ip]['src'].append(f"{protocol}.srcport == {port}")
-            filters_display[ip]['dst'].append(f"{protocol}.dstport == {port}")
+        try:
+            ip, protocol, port = row.split(',')
+            if capture:
+                filters_capture[ip]['src'].append(
+                    f"{protocol} src port {port}")
+                filters_capture[ip]['dst'].append(
+                    f"{protocol} dst port {port}")
+            if display:
+                filters_display[ip]['src'].append(
+                    f"{protocol}.srcport == {port}")
+                filters_display[ip]['dst'].append(
+                    f"{protocol}.dstport == {port}")
+        except Exception:
+            pass
 
     if capture:
         combined_capture_filters = []
@@ -151,7 +162,7 @@ def construct_filters(
                     " or "
                     f"(ip.dst == {ip} and ({dst_filter_display}))"
                 ")"))
-    
+
     if goal == 'include':
         if capture:
             capture_filter = " or ".join(combined_capture_filters)

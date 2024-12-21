@@ -99,8 +99,8 @@ def parse_arguments() -> Namespace:
 
 
 def main():
-    DEFAULT_INTERVAL  = 1000000 # time to sleep in microseconds
-    DEFAULT_PIPE_PATH = "/tmp/inet_daemon.pipe"
+    default_interval = 1000000  # time to sleep in microseconds
+    default_pipe_path = "/tmp/inet_daemon.pipe"
 
     args = parse_arguments()
     if args.interval:
@@ -109,19 +109,21 @@ def main():
             if args.interval > 0:
                 interval = float(args.interval*(10**6))
             else:
-                die(254, f"Interval must be a number more than zero")
-        except Exception as e: die(253, e)
+                die(254, "Interval must be a number more than zero")
+        except Exception as e:
+            die(253, e)
     else:
-        interval = DEFAULT_INTERVAL
+        interval = default_interval
 
     if args.pipe_path:
         pipe_path = args.pipe_path
     else:
-        pipe_path = DEFAULT_PIPE_PATH
+        pipe_path = default_pipe_path
 
     if not os.path.exists(pipe_path):
         os.mkfifo(pipe_path)
-    daemon_pid = subprocess.Popen([PATH_TO_DAEMON_BIN, "-i", str(interval), "-p", pipe_path]).pid
+    daemon_pid = subprocess.Popen(
+        [PATH_TO_DAEMON_BIN, "-i", str(interval), "-p", pipe_path]).pid
 
     with open(pipe_path, mode='r', encoding='utf-8') as pipe_fd:
         try:
