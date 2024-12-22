@@ -67,7 +67,8 @@ class Tshark:
         ]
 
         try:
-            result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8')
+            result = subprocess.run(command, check=True, capture_output=True,
+                                    text=True, encoding='utf-8')
             if result.returncode != 0:
                 # TODO: implement an exception instead of exiting
                 die(result.returncode, f"Error: {result.stderr}")

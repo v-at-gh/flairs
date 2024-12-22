@@ -40,7 +40,8 @@ def get_sni_dict(
         return
     try:
         pcap_file_type = subprocess.run(
-            [FILE_BINARY, pcap_file_path_str], text=True, capture_output=True
+            [FILE_BINARY, pcap_file_path_str], text=True, capture_output=True,
+            check=True
         ).stdout.strip()
     except Exception as e:
         raise e
