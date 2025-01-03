@@ -7,6 +7,7 @@
 #include <netinet/udp_var.h> /* for UDPCTL_PCBLIST*/
 #include <getopt.h>
 #include <sys/socketvar.h>
+#include <signal.h>
 
 #include "config.h"
 
@@ -18,7 +19,10 @@ const char *tcpstates[] = {
 
 void parse_arguments(int argc, char **argv, int *interval, char **pipe_path);
 void daemonize();
+
+volatile sig_atomic_t interrupted = 0;
 void signal_handler(int sig);
+
 void process_mib(int *mib, int pipe_fd);
 void print_tcp_socket(int fd, struct inpcb *inp, int state);
 void print_udp_socket(int fd, struct inpcb *inp);
@@ -31,13 +35,18 @@ int main(int argc, char *argv[]) {
 	parse_arguments(argc, argv, &interval, &pipe_path);
 
 	daemonize();
-	signal(SIGTERM, signal_handler); signal(SIGINT, signal_handler);
+
+	struct sigaction sa;
+	sa.sa_handler = signal_handler;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sigaction(SIGINT, &sa, NULL);
 
 	int pipe_fd = open(pipe_path, O_WRONLY);
 	if (pipe_fd == -1) {
 		perror("open pipe"); exit(EXIT_FAILURE);
 	}
-	while (1) {
+	while (!interrupted) {
 		int udp_mib[] = { CTL_NET, PF_INET, IPPROTO_UDP, UDPCTL_PCBLIST };
 		process_mib(udp_mib, pipe_fd);
 		int tcp_mib[] = { CTL_NET, PF_INET, IPPROTO_TCP, TCPCTL_PCBLIST };
@@ -78,7 +87,10 @@ void daemonize() {
 	close(STDIN_FILENO); close(STDOUT_FILENO); close(STDERR_FILENO);
 }
 
-void signal_handler(int sig) { exit(0); }
+void signal_handler(int signum) {
+	(void)signum;
+	interrupted = 1;
+}
 
 void process_mib(int mib[], int pipe_fd){
 	size_t size_of_buf;
