@@ -15,8 +15,10 @@ from src.tools import die
 
 C_COMPILER = '/usr/bin/cc'
 
+
 def get_project_directory() -> Path:
     return Path(__file__).resolve().parent.parent.parent.parent
+
 
 SOURCES_SRCDIR_PATH = get_project_directory() / 'src/System/MacOS'
 SOURCES_BINDIR_PATH = get_project_directory() / 'bin/System/MacOS'
@@ -33,9 +35,9 @@ def compile_daemon() -> subprocess.CompletedProcess[str]:
     result = subprocess.run(COMPILER_ARGS, capture_output=True, text=True)
     if result.returncode:
         err_msg = '\n'.join([
-            'EXIT CODE: '+str(result.returncode),
-            'STDOUT:\n'+result.stdout,
-            'STDERR:\n'+result.stderr,
+            'EXIT CODE: ' + str(result.returncode),
+            'STDOUT:\n' + result.stdout,
+            'STDERR:\n' + result.stderr,
             'Try to compile it yourself:\n',
             '# ' + ' '.join(str(a) for a in COMPILER_ARGS)+'\n'
         ])
@@ -46,15 +48,16 @@ def compile_daemon() -> subprocess.CompletedProcess[str]:
 if not Path(PATH_TO_DAEMON_SRC).exists():
     die(255, f"Sources file {PATH_TO_DAEMON_SRC} is missing. Exiting...")
 
-SOURCE_MD5_CURRENT = hashlib.md5(open(PATH_TO_DAEMON_SRC, 'rb').read()).hexdigest()
+
+with open(PATH_TO_DAEMON_SRC, 'rb') as f:
+    SOURCE_MD5_CURRENT = hashlib.md5(f.read()).hexdigest()
 
 if not Path(PATH_TO_DAEMON_BIN).exists():
     print(f"Binary file {PATH_TO_DAEMON_BIN} is missing. Compiling...", file=sys.stdout)
     result = compile_daemon() #TODO: handle this case (min priority)
 
-BINARY_MD5_CURRENT = hashlib.md5(
-        open(PATH_TO_DAEMON_BIN, 'rb').read()
-    ).hexdigest()
+with open(PATH_TO_DAEMON_BIN, 'rb') as f:
+    BINARY_MD5_CURRENT = hashlib.md5(f.read()).hexdigest()
 
 if not Path(PATH_TO_DAEMON_SRC_MD5).exists():
     with open(PATH_TO_DAEMON_SRC_MD5, 'w') as file:
@@ -70,6 +73,8 @@ else:
             file.write(SOURCE_MD5_CURRENT)
 
 connections_big_list = []
+
+
 def process_data_and_print_to_stdout(data):
     now = time.time()
     connections_list = []
@@ -99,7 +104,7 @@ def parse_arguments() -> Namespace:
 
 
 def main():
-    default_interval = 1000000  # time to sleep in microseconds
+    default_interval = 100000  # time to sleep in microseconds
     default_pipe_path = "/tmp/inet_daemon.pipe"
 
     args = parse_arguments()
@@ -122,6 +127,7 @@ def main():
 
     if not os.path.exists(pipe_path):
         os.mkfifo(pipe_path)
+
     daemon_pid = subprocess.Popen(
         [PATH_TO_DAEMON_BIN, "-i", str(interval), "-p", pipe_path]).pid
 

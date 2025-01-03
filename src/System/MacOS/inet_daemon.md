@@ -1,3 +1,5 @@
+Explain the following code in detail:
+```c
 #include <libproc.h>         /* for umask() */
 #include <stdio.h>           /* for perror(), fprintf(), dprintf(), stderr */
 #include <stdlib.h>          /* for malloc(), exit() and statuses*/
@@ -148,3 +150,4 @@ void convert_addresses(struct inpcb *inp, char *local_addr, char *remote_addr) {
 		inet_ntop(AF_INET6, &inp->in6p_faddr, remote_addr, INET6_ADDRSTRLEN);
 	}
 }
+```
